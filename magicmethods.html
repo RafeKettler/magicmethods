@@ -24,6 +24,7 @@
 <dt><a href="#representations">Representing your Classes</a></dt>
 <dt><a href="#access">Controlling Attribute Access</a></dt>
 <dt><a href="#sequence">Making Custom Sequences</a></dt>
+<dt><a href="#reflection">Reflection</a></dt>
 </dl>
 <h2><a name="intro">Introduction</a></h2>
 <p>This guide is the culmination of a few months' worth of blog posts. The subject is <strong>magic methods</strong>.</p>
@@ -316,7 +317,55 @@ def __setattr__(self, name, value):
     <dd>Last but not least, <code>__contains__</code> defines behavior for membership tests using <code>in</code> and <code>not in</code>. Why isn't this part of a sequence protocol, you ask? Because when <code>__contains__</code> isn't defined, Python just iterates over the sequence and returns <code>True</code> if it comes across the item it's looking for.</dd>
 </dl>
 <h4>An example</h4>
-</body>
+<p>For our example, let's look at a list that implements some functional constructs that you might be used to from other languages (Haskell, for example).</p>
+<pre>class FunctionalList:
+    '''A class wrapping a list with some extra functional magic, like head,
+    tail, init, last, drop, and take.'''
+    
+    def __init__(self, values=[]):
+        self.values = values
+    
+    def __len__(self):
+        return len(self.values)
+    
+    def __getitem__(self, key):
+        # if key is of invalid type or value, the list values will raise the error
+        return self.values[key]
+    
+    def __setitem__(self, key, value):
+        self.values[key] = value
+    
+    def __delitem__(self, key):
+        del self.values[key]
+
+    def __iter__(self, key):
+        return iter(self.values)
+    
+    def __reversed__(self):
+        return reversed(self.values)
+    
+    def append(self, value):
+        self.values.append(value)
+    def head(self):
+        # get the first element
+        return self.values[0]
+    def tail(self):
+        # get all elements after the first
+        return self.values[1:]
+    def init(self):
+        # get elements up to the last
+        return self.values[:-1]
+    def last(self):
+        # get last element
+        return self.values[-1]
+    def drop(self, n)
+        # get all elements except first n
+        return self.values[n:]
+    def take(self, n):
+        # get first n elements
+        return self.values[:n]</pre>
+<p>There you have it, a (marginally) useful example of how to implement your own sequence. Of course, there are more useful applications of custom sequences, but quite a few of them are already implemented in the standard library (batteries included, right?), like <code>Counter</code>, <code>OrderedDict</code>, and <code>NamedTuple</code>.</p>
+<h2><a name="reflection">Reflection</a></h2>        
 </html>
 
  
