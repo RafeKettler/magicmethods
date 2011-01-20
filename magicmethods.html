@@ -12,7 +12,7 @@
 <h1>A Guide to Python's Magic Methods</h1>
 <h3>Rafe Kettler</h3>
 <p>Copyright &copy; 2011 Rafe Kettler</p>
-<p>Version 0.12</p>
+<p>Version 0.13</p>
 <p>The magic methods guide has a git repository at <a href="http://www.github.com/RafeKettler/magicmethods">http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported there, along with comments, (or even contributions!).</p>
 <p><b><a name="contents">Table of Contents</a></p></b>
 <dl>
@@ -45,7 +45,8 @@
 <pre>from os.path import join
 
 class FileObject:
-   
+    '''Wrapper for file objects to make sure the file gets closed on deletion.'''
+    
     def __init__(self, filepath='/home/user_name', filename='sample.txt'):
         # open a file filename in filepath in read and write mode
         self.file = open(join(filepath, filename), 'rw')
@@ -83,7 +84,7 @@ That's part of the power of magic methods. The vast majority of them allow us to
 </dl>
 <p>For an example, consider a class to model a word. We might want to compare words lexicographically (by the alphabet), but we also might want to do it based on some other criterion, like length or number of syllables. In this example, we'll compare by length. Here's an implementation:</p>
 <pre>class Word(str):
-    """Class for words, defining comparison based on word length."""
+    '''Class for words, defining comparison based on word length.'''
 	
     def __new__(cls, word):
         # Note that we have to use __new__. This is because str is an immutable
@@ -277,8 +278,8 @@ def __setattr__(self, name, value):
 </dl>
 <p>So, what have we learned about custom attribute access in Python? It's not to be used lightly. In fact, it tends to be excessively powerful and counterintuitive. But the reason why it exists is to scratch a certain itch: Python doesn't seek to make bad things impossible, but just to make them difficult. Freedom is paramount, so you can really do whatever you want. Here's an example of some of the special attribute access methods in action:</p>
 <pre>class AccessCounter:
-    """A class that contains a value and implements an access counter.
-    The counter increments each time the value is changed."""
+    '''A class that contains a value and implements an access counter.
+    The counter increments each time the value is changed.'''
     
     def __init__(self, val):
         self.value = val
