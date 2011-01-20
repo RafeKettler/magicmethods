@@ -1,0 +1,304 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>A Guide to Python's Magic Methods &laquo; rafekettler.com</title>
+<meta name="description" content="A guide to all the Magic Methods in Python">
+<meta name="keywords" content="python, programming, magic methods, object-oriented, oop">
+</head>
+
+<body>
+<h1>A Guide to Python's Magic Methods</h1>
+<h3>Rafe Kettler</h3>
+<p>Copyright &copy; 2011 Rafe Kettler</p>
+<p>Version 0.11</p>
+<p><b><a name="contents">Table of Contents</a></p></b>
+<dl>
+<dt><a href="#intro">Introduction</a></dt>
+<dt><a href="#construction">Construction and Initialization</a></dt>
+<dt><a href="#operators">Making Operators Work on Custom Classes</a></dt>
+	<dd><a href="#comparisons">Comparison magic methods</a></dd>
+	<dd><a href="#numeric">Numeric magic methods</a></dd>
+<dt><a href="#representations">Representing your Classes</a></dt>
+<dt><a href="#access">Controlling Attribute Access</a></dt>
+<dt><a href="#sequence">Making Custom Sequences</a></dt>
+</dl>
+<h2><a name="intro">Introduction</a></h2>
+<p>This guide is the culmination of a few months' worth of blog posts. The subject is <strong>magic methods</strong>.</p>
+<p>What are magic methods? They're everything in object-oriented Python. They're special methods that you can define to add "magic" to your classes. They're always surrounded by double underscores (e.g. <code>__init__</code> or <code>__lt__</code>). They're also not as well documented as they need to be. All of the magic methods for Python appear in the same section in the Python docs, but they're scattered about and only loosely organized. There's hardly an example to be found in that section (and that may very well be by design, since they're all detailed in the <em>language reference</em>, along with boring syntax descriptions, etc.).</p>
+<p>So, to fix what I perceived as a flaw in Python's documentation, I set out to provide some more plain-English, example-driven documentation for Python's magic methods. I started out with weekly blog posts, and now that I've finished with those, I've put together this guide.</p>
+<p>I hope you enjoy it. Use it as a tutorial, a refresher, or a reference; it's just intended to be a user-friendly guide to Python's magic methods.</p>
+<h2><a name="construction">Construction and Initialization</a></h2>
+<p>Everyone knows the most basic magic method, <code>__init__</code>. It's the way that we can define the initialization behavior of an object. However, when I call <code>x = SomeClass()</code>, <code>__init__</code> is not the first thing to get called. Actually, it's a method called <code>__new__</code>, which actually creates the instance, then passes any arguments at creation on to the initializer. At the other end of the object's lifespan, there's <code>__del__</code>. Let's take a closer look at these 3 magic methods: </p>
+<dl> 
+<dt><code>__new__(cls, [...)</code></dt>
+	<dd><code>__new__</code> is the first method to get called in an object's instantiation. It take the class, then any other arguments that it will pass along to <code>__init__</code>. <code>__new__</code> is used fairly rarely, but it does have its purposes, particularly when subclassing an immutable type like a tuple or a string. I don't want to go in to too much detail on <code>__new__</code> because it's not too useful, but it is covered in great detail <a href="http://www.python.org/download/releases/2.2/descrintro/#__new__">here</a>.</dd>
+<dt><code>__init__(self, [...)</code></dt>
+	<dd>The initializer for the class. It gets passed whatever the primary constructor was called with (so, for example, if we called <code>x = SomeClass(10, 'foo')</code>, <code>__init__</code> would get passed 10 and 'foo' as arguments. <code>__init__</code> is almost universally used in Python class definitions.</dd>
+<dt><code>__del__(self)</code></dt>
+	<dd>If <code>__new__</code> and <code>__init__</code> formed the constructor of the object, <code>__del__</code> is the destructor. It doesn't implement behavior for the statement <code>del x</code> (so that code would not translate to <code>x.__del__()</code>). Rather, it defines behavior for when an object is garbage collected. It can be quite useful for objects that might require extra cleanup upon deletion, like sockets or file objects. Be careful, however, as there is no guaranteed that <code>__del__</code> will be executed if the object is still alive when the interpreter exits, so <code>__del__</code> can't serve as a replacement for good coding practices (like always closing a connection when you're done with it.</dd>
+</dl>
+<p>Putting it all together, here's an example of <code>__init__</code> and <code>__del__</code> in action:
+<pre>from os.path import join
+
+class FileObject:
+   
+    def __init__(self, filepath='/home/user_name', filename='sample.txt'):
+        # open a file filename in filepath in read and write mode
+        self.file = open(join(filepath, filename), 'rw')
+   
+    def __del__(self):
+        self.file.close()
+        del self.file
+</pre>
+<h2><a name="operators">Making Operators Work on Custom Classes</a></h2>
+<p>One of the biggest advantages of using Python's magic methods is that they provide a simple way to make objects behave like built-in types. That means you can avoid ugly, counter-intuitive, and nonstandard ways of performing basic operators. In some languages, it's common to do something like this:
+<pre>if instance.equals(other_instance):
+    # do something</pre>
+You could certainly do this in Python, too, but this adds confusion and unnecessary verboseness. Different libraries might use different names for the same operations, making the client do way more work than necessary. With the power of magic methods, however, we can define one method (<code>__eq__</code>, in this case), and say what we mean instead:
+<pre>if instance == other_instance:
+    #do something</pre>
+That's part of the power of magic methods. The vast majority of them allow us to define meaning for operators so that we can use them on our own classes just like they were builtin types.</p>
+<h3><a name="comparisons">Comparison magic methods</a></h4>
+<p>Python has a whole slew of magic methods designed to implement intuitive comparisons between objects using operators, not awkward method calls. They also provide a way to override the default Python behavior for comparisons of objects (by reference). Here's the list of those methods and what they do:</p>
+<dl>
+<dt><code>__cmp__(self, other)</code></dt>
+	<dd><code>__cmp__</code> is the most basic of the comparison magic methods. It actually implements behavior for all of the comparison operators (&lt; ==, !=, etc.), but it might not do it the way you want (for example, if one instance was equal to another was determined by one criterion and and if an instance is greater than another is determined by something else). <code>__cmp__</code> should return a negative integer if <code>self < other</code>, 0 if <code>self == other</code>, and positive if <code>self > other</code>.</dd>
+<dt><strong>Rich comparison methods</strong></dt>
+<dt><code>__eq__(self, other)</code></dt>
+	<dd>Defines behavior for the equality operator, <code>==</code>.</dd>
+<dt><code>__ne__(self, other)</code></dt>
+	<dd>Defines behavior for the inequality operator, <code>!=</code>.</dd>
+<dt><code>__lt__(self, other)</code></dt>
+	<dd>Defines behavior for the less-than operator, <code>&lt;</code>.</dd>
+<dt><code>__gt__(self, other)</code></dt>
+	<dd>Defines behavior for the greater-than operator, <code>&gt;</code>.</dd>
+<dt><code>__le__(self, other)</code></dt>
+	<dd>Defines behavior for the less-than-or-equal-to operator, <code>&lt;=</code>.</dd>
+<dt><code>__ge__(self, other)</code></dt>
+	<dd>Defines behavior for the greater-than-or-equal-to operator, <code>&gt;=</code>.</dd>
+</dl>
+<p>For an example, consider a class to model a word. We might want to compare words lexicographically (by the alphabet), but we also might want to do it based on some other criterion, like length or number of syllables. In this example, we'll compare by length. Here's an implementation:</p>
+<pre>class Word(str):
+    """Class for words, defining comparison based on word length."""
+	
+    def __new__(cls, word):
+        # Note that we have to use __new__. This is because str is an immutable
+        # type, so we have to initialize it early (at creation)
+        if ' ' in word:
+            print "Value contains spaces. Truncating to first space."
+            word = word[:word.index(' ')] # Word is now all chars before first space
+        return str.__new__(cls, word)
+	
+    def __gt__(self, other):
+        return len(self) > len(other)
+    def __lt__(self, other):
+        return len(self) < len(other)
+    def __ge__(self, other):
+        return len(self) >= len(other)
+    def __le__(self, other):
+        return len(self) <= len(other)</pre>
+<p>Now, we can create a Word(by using <code>Word('foo')</code>) and compare them based on length. Note, however, that we didn't define <code>__eq__</code> and <code>__ne__</code>. This is because this would lead to some weird behavior (notably that <code>Word('foo') == Word('bar')</code> would evaluate to true). It wouldn't make sense to test for equality based on length, so we fall back on <code>str</code>'s implementation of equality.</p>
+<h3><a name="numeric">Numeric magic methods</a></h3>
+<p>Just like you can create ways for instances of your class to be compared with comparison operators, you can define behavior for numeric operators. Buckle your seatbelts, folks, there's a lot of these. For organization's sake, I've split the numeric magic methods into 5 categories: unary operators, normal arithmetic operators, reflected arithmetic operators (more on this later), augmented assignment, and type conversions.</p>
+<h4>Unary operators and functions</h4>
+<p>Unary operators and functions only have one operand, e.g. negation, absolute value, etc.</p>
+<dl>
+<dt><code>__pos__(self)</code></dt>
+	<dd>Implements behavior for unary positive (e.g. <code>+some_object</code>)</dd>
+<dt><code>__neg__(self)</code></dt>
+	<dd>Implements behavior for negation (e.g. <code>-some_object</code>)</dd>
+<dt><code>__abs__(self)</code></dt>
+	<dd>Implements behavior for the builtin <code>abs()</code> function.</dd>
+<dt><code>__neg__(self)</code></dt>
+	<dd>Implements behavior for negation (e.g. <code>-some_object</code>)</dd>
+<dt><code>__invert__(self)</code></dt>
+	<dd>Implements behavior for inversion using the <code>~</code> operator. For an explanation on what this does, see <a href="http://en.wikipedia.org/wiki/Bitwise_operation#NOT">this</a>.</dd>
+</dl>
+<h4>Normal arithmetic operators</h4>
+<p>Now, we cover the typical binary operators (and a function or two): +, -, * and the like. These are, for the most part, pretty self-explanatory.</p>
+<dl>
+<dt><code>__add__(self, other)</code></dt>
+	<dd>Implements addition.</dd>
+<dt><code>__sub__(self, other)</code></dt>
+	<dd>Implements subtraction.</dd>
+<dt><code>__mul__(self, other)</code></dt>
+	<dd>Implements multiplication.</dd>
+<dt><code>__floordiv__(self, other)</code></dt>
+	<dd>Implements integer division using the <code>//</code> operator.</dd>
+<dt><code>__div__(self, other)</code></dt>
+	<dd>Implements division using the <code>/</code> operator.</dd>
+<dt><code>__truediv__(self, other)</code></dt>
+	<dd>Implements <em>true</em> division. Note that this only works when <code>from __future__ import division</code> is in effect.</dd>
+<dt><code>__mod_(self, other)</code></dt>
+	<dd>Implements modulo using the <code>%</code> operator.</dd>
+<dt><code>__divmod__(self, other)</code></dt>
+	<dd>Implements behavior for long division using the <code>divmod()</code> builtin function.</dd>
+<dt><code>__pow__</code></dt>
+	<dd>Implements behavior for exponents using the <code>**</code> operator.</dd>
+<dt><code>__lshift__(self, other)</code></dt>
+	<dd>Implements left bitwise shift using the <code><<</code> operator.</dd>
+<dt><code>__rshift__(self, other)</code></dt>
+	<dd>Implements right bitwise shift using the <code>>></code> operator.</dd>
+<dt><code>__and__(self, other)</code></dt>
+	<dd>Implements bitwise and using the <code>&</code> operator.</dd>
+<dt><code>__or__(self, other)</code></dt>
+	<dd>Implements bitwise or using the <code>|</code> operator.</dd>
+<dt><code>__xor__(self, other)</code></dt>
+	<dd>Implements bitwise xor using the <code>^</code> operator.</dd>
+</dl>
+<h4>Reflected arithmetic operators</h4>
+<p>You know how I said I would get to reflected arithmetic in a bit? Some of you might think it's some big, scary, foreign concept. It's actually quite simple. Here's an example:</p>
+<pre>some_object + other</pre>
+<p>That was "normal" addition. The reflected equivalent is the same thing, except with the operands switched around:</p>
+<pre>other + some_object</pre>
+<p>So, all of these magic methods do the same thing as their normal equivalents, except the perform the operation with other as the first operand and self as the second, rather than the other way around. Without further adieu:</p>
+<dl>
+<dt><code>__radd__(self, other)</code></dt>
+	<dd>Implements reflected addition.</dd>
+<dt><code>__rsub__(self, other)</code></dt>
+	<dd>Implements reflected subtraction.</dd>
+<dt><code>__rmul__(self, other)</code></dt>
+	<dd>Implements reflected multiplication.</dd>
+<dt><code>__rfloordiv__(self, other)</code></dt>
+	<dd>Implements reflected integer division using the <code>//</code> operator.</dd>
+<dt><code>__rdiv__(self, other)</code></dt>
+	<dd>Implements reflected division using the <code>/</code> operator.</dd>
+<dt><code>__rtruediv__(self, other)</code></dt>
+	<dd>Implements reflected <em>true</em> division. Note that this only works when <code>from __future__ import division</code> is in effect.</dd>
+<dt><code>__rmod_(self, other)</code></dt>
+	<dd>Implements reflected modulo using the <code>%</code> operator.</dd>
+<dt><code>__rdivmod__(self, other)</code></dt>
+	<dd>Implements behavior for long division using the <code>divmod()</code> builtin function, when <code>divmod(other, self)</code> is called.</dd>
+<dt><code>__rpow__</code></dt>
+	<dd>Implements behavior for reflected exponents using the <code>**</code> operator.</dd>
+<dt><code>__rlshift__(self, other)</code></dt>
+	<dd>Implements reflected left bitwise shift using the <code><<</code> operator.</dd>
+<dt><code>__rrshift__(self, other)</code></dt>
+	<dd>Implements reflected right bitwise shift using the <code>>></code> operator.</dd>
+<dt><code>__rand__(self, other)</code></dt>
+	<dd>Implements reflected bitwise and using the <code>&</code> operator.</dd>
+<dt><code>__ror__(self, other)</code></dt>
+	<dd>Implements reflected bitwise or using the <code>|</code> operator.</dd>
+<dt><code>__rxor__(self, other)</code></dt>
+	<dd>Implements reflected bitwise xor using the <code>^</code> operator.</dd>
+</dl>
+<h4>Augmented assignment</h4>
+<p>Python also has a wide variety of magic methods to allow custom behavior to be defined for augmented assignment. You're probably already familiar with augmented assignment, it combines "normal" operators with assignment. If you still don't know what I'm talking about, here's an example:</p>
+<pre>x = 5
+x += 1</pre>
+<p>Here's the list:</p>
+<dl>
+<dt><code>__iadd__(self, other)</code></dt>
+	<dd>Implements addition with assignment.</dd>
+<dt><code>__isub__(self, other)</code></dt>
+	<dd>Implements subtraction with assignment.</dd>
+<dt><code>__imul__(self, other)</code></dt>
+	<dd>Implements multiplication with assignment.</dd>
+<dt><code>__ifloordiv__(self, other)</code></dt>
+	<dd>Implements integer division with assignment using the <code>//=</code> operator.</dd>
+<dt><code>__idiv__(self, other)</code></dt>
+	<dd>Implements division with assignment using the <code>/=</code> operator.</dd>
+<dt><code>__itruediv__(self, other)</code></dt>
+	<dd>Implements <em>true</em> division with assignment. Note that this only works when <code>from __future__ import division</code> is in effect.</dd>
+<dt><code>__imod_(self, other)</code></dt>
+	<dd>Implements modulo with assignment using the <code>%=</code> operator.</dd>
+<dt><code>__ipow__</code></dt>
+	<dd>Implements behavior for exponents with assignment using the <code>**=</code> operator.</dd>
+<dt><code>__ilshift__(self, other)</code></dt>
+	<dd>Implements left bitwise shift with assignment using the <code><<=</code> operator.</dd>
+<dt><code>__irshift__(self, other)</code></dt>
+	<dd>Implements right bitwise shift with assignment using the <code>>>=</code> operator.</dd>
+<dt><code>__iand__(self, other)</code></dt>
+	<dd>Implements bitwise and with assignment using the <code>&=</code> operator.</dd>
+<dt><code>__ior__(self, other)</code></dt>
+	<dd>Implements bitwise or with assignment using the <code>|=</code> operator.</dd>
+<dt><code>__ixor__(self, other)</code></dt>
+	<dd>Implements bitwise xor with assignment using the <code>^=</code> operator.</dd>
+</dl>
+<h4>Type conversion magic methods</h4>
+<p>Python also has an array of magic methods designed to implement behavior for built in type conversion functions like <code>float()</code>. Here they are:</p>
+<dl>
+<dt><code>__int__(self)</code></dt>
+	<dd>Implements type conversion to int.</dd>
+<dt><code>__long__(self)</code></dt>
+	<dd>Implements type conversion to long.</dd>
+<dt><code>__float__(self)</code></dt>
+	<dd>Implements type conversion to float.</dd>
+<dt><code>__complex__(self)</code></dt>
+	<dd>Implements type conversion to complex.</dd>
+<dt><code>__oct__(self)</code></dt>
+	<dd>Implements type conversion to octal.</dd>
+<dt><code>__hex__(self)</code></dt>
+	<dd>Implements type conversion to hexadecimal.</dd>
+</dl>
+<h2><a name="representations">Representing your Classes</a></h2>
+<p>It's often useful to have a string representation of a class. In Python, there's a few methods that you can implement in your class definition to customize how builtin functions that return representations of your class behave.</p>
+<dl>
+<dt><code>__str__(self)</code></dt>
+    <dd>Defines behavior for when <code>str()</code> is called on an instance of your class.</dd>
+<dt><code>__repr__(self)</code></dt>
+    <dd>Defines behavior for when <code>repr()</code> is called on an instance of your class. The major difference between <code>str()</code> and <code>repr()</code> is intended audience. <code>repr()</code> is intended to produce output that is mostly machine-readable (in many cases, it could be valid Python code even), whereas <code>str()</code> is intended to be human readable.</dd>
+<dt><code>__unicode__(self)</code></dt>
+    <dd>Defines behavior for when <code>unicode()</code> is called on an instance of your class. <code>unicode()</code> is like <code>str()</code>, but it returns a unicode string. Be wary: if a client calls <code>str()</code> on an instance of your class and you've only defined <code>__unicode__()</code>, it won't work. You should always try to define <code>__str__()</code> as well in case someone doesn't have the luxury of using unicode.</dd>
+<dt><code>__hash__(self)</code></dt>
+    <dd>Defines behavior for when <code>hash()</code> is called on an instance of your class. It has to return an integer, and its result is used for quick key comparison in dictionaries.</dd>
+<dt><code>__nonzero__(self)</code></dt>
+    <dd>Defines behavior for when <code>bool()</code> is called on an instance of your class. Should return True or False, depending on whether you would want to consider the instance to be True or False.</dd>
+</dl>
+<p>We're pretty much done with the boring (and example-free) part of the magic methods guide. Now that we've covered some of the more basic magic methods, it's time to move to more advanced material.
+<h2><a name="access">Controlling Attribute Access</a></h2>
+<p>Many people coming to Python from other languages complain that it lacks true encapsulation for classes (e.g. not way to define private attributes and then have public getter and setters). This couldn't be farther than the truth: it just happens that Python accomplishes a great deal of encapsulation through "magic", instead of explicit modifiers for methods or fields. Take a look:</p>
+<dl>
+<dt><code>__getattr__(self, name)</code></dt>
+    <dd>You can define behavior for when a user attempts to access an attribute that doesn't exist (either at all or yet). This can be useful for catching and redirecting common mispellings, giving warnings about using deprecated attributes (you can still choose to compute and return that attribute, if you wish), or deftly handing an <code>AttributeError</code>. It only gets called when a nonexistent attribute is accessed, however, so it isn't a true encapsulation solution.</dd>
+<dt><code>__setattr__(self, name, value)</code></dt>
+    <dd>Unline <code>__getattr__</code>, <code>__setattr__</code> is an encapsulation solution. It allows you to define behavior for assignment to an attribute regardless of whether or not that attribute exists, meaning you can define custom rules for any changes in the values of attributes. However, you have to be careful with how you use <code>__setattr__</code>, as this example shows:
+    <pre># wrong way to use __setattr__
+def __setattr__(self, name, value):
+    self.name = value
+    # since every time an attribute is assigned, __setattr__() is called, this
+    # is recursion.
+    # so this really means self.__setattr__(name, value). Since the method
+    # keeps calling itself, the recursion goes on forever causing a crash
+
+# the right way to do it
+def __setattr__(self, name, value):
+    self.__dict__[name] = value # assigning to the dict of names in the class
+    # define custom behavior here</pre>
+    Again, Python's magic methods are incredibly powerful, and with great power comes great responsibility. It's important to know the proper way to use magic methods so you don't break any code.</dd>
+<dt><code>__delattr__</code></dt>
+    <dd>This is the exact same as <code>__setattr__</code>, but for deleting attributes instead of setting them. The same precautions need to be taken as with <code>__setattr__</code> as well in order to prevent infinite recursion (calling <code>del self.name</code> in the implementation of <code>__delattr__</code> would cause infinite recursion).</dd>
+<dt><code>__getattribute__(self, name)</code></dt>
+    <dd>After all this, <code>__getattribute__</code> fits in pretty well with its companions <code>__setattr__</code> and <code>__delattr__</code>. However, I don't recommend you use it. <code>__getattribute__</code> can only be used with new-style classes (all classes are new-style in the newest versions of Python, and in older versions you can make a class new-style by subclassing <code>object</code>. It allows you to define rules for whenever an attribute's value is accessed. It suffers from some similar infinite recursion problems as its partners-in-crime (this time you call the base class's <code>__getattribute__</code> method to prevent this). It also mainly obviates the need for <code>__getattr__</code>, which only gets called when <code>__getattribute__</code> is implemented if it is called explicitly or an <code>AttributeError</code> is raised. This method can be used (after all, it's your choice), but I don't recommend it because it has a small use case (it's far more rare that we need special behavior to retrieve a value than to assign to it) and because it can be really difficult to implement bug-free.</dd>
+</dl>
+<p>So, what have we learned about custom attribute access in Python? It's not to be used lightly. In fact, it tends to be excessively powerful and counterintuitive. But the reason why it exists is to scratch a certain itch: Python doesn't seek to make bad things impossible, but just to make them difficult. Freedom is paramount, so you can really do whatever you want. Here's an example of some of the special attribute access methods in action:</p>
+<pre>class AccessCounter:
+    """A class that contains a value and implements an access counter.
+    The counter increments each time the value is changed."""
+    
+    def __init__(self, val):
+        self.value = val
+        self.counter = 0
+    
+    def __setattr__(self, name, value):
+        if name == 'value':
+            self.counter += 1
+            self.value = value
+    
+    def __delattr__(self, name, value):
+        if name == 'value':
+            self.counter += 1
+            del self.__dict__['value']</pre>
+<h2><a name="sequence">Making Custom Sequences</a></h2>
+<p>There's a number of ways to get your Python classes to act like builtin sequences (dict, tuple, list, string, etc.). These are by far my favorite magic methods in Python because of the absurd degree of control they give you and the way that they magically make a whole array of global functions work beautifully on instances of your class. But before we get down to the good stuff, a quick word on requirements.</p>
+<h4>Requirements</h4>
+<p>Now that we're talking about creating your own sequences in Python, it's time to talk about <em>protocols</em>. Protocols are somewhat similar to interfaces in other languages in that they give you a set of methods you must define. However, in Python protocols are totally informal and require no explicit declarations to implement. Rather, they're more like guidelines.</p>
+<p>Why are we talking about protocols now? Because implmenting custom container types in Python involves using some of these protocols. First, there's the protocol for defining immutable containers: to make an immutable container, you need only define <code>__len__</code> and <code>__getitem__</code> (more on these later). The mutable container protocol requires everything that immutable containers require plus <code>__setitem__</code> and <code>__delitem__</code>. Lastly, if you want your object to be iterable, you'll have to define <code>__iter__</code>, which returns an iterator. That iterator must conform to an iterator protocol, which requires iterators to have methods called <code>__iter__</code>(returning itself) and <code>next</code>.</p>
+<h4>The magic behind containers</h4>
+<p>Without any more wait, here are the magic methods that containers use:</p> 
+</body>
+</html>
+
+ 
