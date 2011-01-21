@@ -12,7 +12,7 @@
 <h1>A Guide to Python's Magic Methods</h1>
 <h3>Rafe Kettler</h3>
 <p>Copyright &copy; 2011 Rafe Kettler</p>
-<p>Version 0.13</p>
+<p>Version 0.14</p>
 <p>The magic methods guide has a git repository at <a href="http://www.github.com/RafeKettler/magicmethods">http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported there, along with comments, (or even contributions!).</p>
 <p><b><a name="contents">Table of Contents</a></p></b>
 <dl>
@@ -25,6 +25,7 @@
 <dt><a href="#access">Controlling Attribute Access</a></dt>
 <dt><a href="#sequence">Making Custom Sequences</a></dt>
 <dt><a href="#reflection">Reflection</a></dt>
+<dt><a href="#callable">Callable Objects</a></dt>
 </dl>
 <h2><a name="intro">Introduction</a></h2>
 <p>This guide is the culmination of a few months' worth of blog posts. The subject is <strong>magic methods</strong>.</p>
@@ -366,7 +367,23 @@ def __setattr__(self, name, value):
         # get first n elements
         return self.values[:n]</pre>
 <p>There you have it, a (marginally) useful example of how to implement your own sequence. Of course, there are more useful applications of custom sequences, but quite a few of them are already implemented in the standard library (batteries included, right?), like <code>Counter</code>, <code>OrderedDict</code>, and <code>NamedTuple</code>.</p>
-<h2><a name="reflection">Reflection</a></h2>        
+<h2><a name="reflection">Reflection</a></h2>
+<p>You can also control how reflection using the builtin functions <code>isinstance()</code> and <code>issubclass()</code>behaves by defining magic methods. The magic methods are:
+<dl>
+<dt><code>__instancecheck__(self, instance)</code></dt>
+    <dd>Checks if an instance is an instance of the class you defined (e.g. <code>isinstance(instance, class)</code>.</dd>
+<dt><code>__subclasscheck__(self, subclass)</code></dt>
+    <dd>Checks if a class subclasses the class you defined (e.g. <code>issubclass(subclass, class)</code>).</dd>
+</dl>
+<p>The use case for these magic methods might seem small, and that may very well be true. I won't spend too much more time on reflection magic methods because they aren't very important, but they reflect something important about object-oriented programming in Python and Python in general: there is almost always an easy way to do something, even if it's rarely necessary. These magic methods might not seem useful, but if you ever need them you'll be glad that they're there (and that you read this guide!).</p>
+<h2><a name="callable">Callable objects</a></h2>
+<p>As you may already know, in Python functions are first-class objects. This means that they can be passed to functions and methods just as if they were objects of any other kind. This is an incredibly powerful feature.</p>
+<p>A special magic method in Python allows instances of your classes to behave as if they were functions, so that you can "call" them, pass them to functions that take functions as arguments, and so on. This is another powerful convenience feature that makes programming in Python that much sweeter.</p>
+<dl>
+<dt><code>__call__(self, [args...])</code></dt>
+    <dd>Allows an instance of a class to be called as a function. Essentially, this means that <code>x()</code> is the same as <code>x.__call__()</code>. Note that <code>__call__</code> takes a variable number of arguments; this means that you define <code>__call__</code> as you would any other function, taking however many functions you'd like it to.</dd>
+</dl>
+         
 </html>
 
  
