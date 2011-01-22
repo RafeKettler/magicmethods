@@ -397,7 +397,17 @@ def __setattr__(self, name, value):
         self.x, self.y = x, y
     
     # snip...</pre>
-<h2><a name="context">Context Managers</a></h2>    
+<h2><a name="context">Context Managers</a></h2>
+<p>In Python 2.5, a new keyword was introduced in Python along with a new method for code reuse, the <code>with</code> statement. The concept of context managers was hardly new in Python (it was implemented before as a part of the library), but not until <a href="http://www.python.org/dev/peps/pep-0343/">PEP 343</a> was accepted did it achieve status as a first class language construct. You may have seen with statements before:</p>
+<pre>with open('foo.txt') as bar:
+    # perform some action with bar</pre>
+<p>Context managers allow setup and cleanup actions to be taken for instances when their creation is wrapped with a <code>with</code> statement. The behavior of the context manager is determined by two magic methods:</p>
+<dl>
+<dt>__enter__(self)</dt>
+    <dd>Defines what the context manager should do at the beginning of the block created by the <code>with</code> statement. Note that the return value of <code>__enter__</code> is bound to the <em>target</em> of the <code>with</code> statement, or the name after the <code>as</code>.</dd>
+<dt><code>__exit__(self, exception_type, exception_value)</code></dt>
+    <dd>Defines what the context manager should do after its block has been executed (or terminates). It can be used to handle exceptions, perform cleanup, or do something always done immediately after the action in the block. If the block executes successfully, <code>exception_type</code>, <code>exception_value</code>, and <code>traceback</code> will be <code>None</code>. Otherwise, you can choose to handle the exception or let the user handle it; if you want to handle it, make sure <code>__exit__</code> returns <code>True</code> after all is said and done. If you don't want the exception to be handled by the context manager, just let it happen.</dd>
+</dl>
 </html>
 
  
