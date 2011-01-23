@@ -12,7 +12,7 @@
 <h1>A Guide to Python's Magic Methods</h1>
 <h3>Rafe Kettler</h3>
 <p>Copyright &copy; 2011 Rafe Kettler</p>
-<p>Version 0.15</p>
+<p>Version 0.17</p>
 <p>The magic methods guide has a git repository at <a href="http://www.github.com/RafeKettler/magicmethods">http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported there, along with comments, (or even contributions!).</p>
 <p><b><a name="contents">Table of Contents</a></p></b>
 <dl>
@@ -49,9 +49,9 @@
 class FileObject:
     '''Wrapper for file objects to make sure the file gets closed on deletion.'''
     
-    def __init__(self, filepath='/home/user_name', filename='sample.txt'):
+    def __init__(self, filepath='~', filename='sample.txt'):
         # open a file filename in filepath in read and write mode
-        self.file = open(join(filepath, filename), 'rw')
+        self.file = open(join(filepath, filename), 'r+')
    
     def __del__(self):
         self.file.close()
@@ -284,17 +284,17 @@ def __setattr__(self, name, value):
     The counter increments each time the value is changed.'''
     
     def __init__(self, val):
-        self.value = val
-        self.counter = 0
+        self.__dict__['counter'] = 0
+        self.__dict__['value'] = val
     
     def __setattr__(self, name, value):
         if name == 'value':
-            self.counter += 1
-            self.value = value
+            self.__dict__['counter'] += 1
+            self.__dict__['value'] = value
     
-    def __delattr__(self, name, value):
+    def __delattr__(self, name):
         if name == 'value':
-            self.counter += 1
+            self.__dict__['counter'] += 1
             del self.__dict__['value']</pre>
 <h2><a name="sequence">Making Custom Sequences</a></h2>
 <p>There's a number of ways to get your Python classes to act like builtin sequences (dict, tuple, list, string, etc.). These are by far my favorite magic methods in Python because of the absurd degree of control they give you and the way that they magically make a whole array of global functions work beautifully on instances of your class. But before we get down to the good stuff, a quick word on requirements.</p>
@@ -341,7 +341,7 @@ def __setattr__(self, name, value):
     def __delitem__(self, key):
         del self.values[key]
 
-    def __iter__(self, key):
+    def __iter__(self):
         return iter(self.values)
     
     def __reversed__(self):
@@ -361,7 +361,7 @@ def __setattr__(self, name, value):
     def last(self):
         # get last element
         return self.values[-1]
-    def drop(self, n)
+    def drop(self, n):
         # get all elements except first n
         return self.values[n:]
     def take(self, n):

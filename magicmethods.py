@@ -9,9 +9,9 @@ from os.path import join
 class FileObject:
     '''Wrapper for file objects to make sure the file gets closed on deletion.'''
     
-    def __init__(self, filepath='/home/user_name', filename='sample.txt'):
+    def __init__(self, filepath='~', filename='sample.txt'):
         # open a file filename in filepath in read and write mode
-        self.file = open(join(filepath, filename), 'rw')
+        self.file = open(join(filepath, filename), 'r+')
    
     def __del__(self):
         self.file.close()
@@ -44,17 +44,17 @@ class AccessCounter:
     The counter increments each time the value is changed.'''
     
     def __init__(self, val):
-        self.value = val
-        self.counter = 0
+        self.__dict__['counter'] = 0
+        self.__dict__['value'] = val
     
     def __setattr__(self, name, value):
         if name == 'value':
-            self.counter += 1
-            self.value = value
+            self.__dict__['counter'] += 1
+            self.__dict__['value'] = value
     
-    def __delattr__(self, name, value):
+    def __delattr__(self, name):
         if name == 'value':
-            self.counter += 1
+            self.__dict__['counter'] += 1
             del self.__dict__['value']
             
 # FunctionalList class, demonstrating __len__, __getitem__, __setitem__, __delitem__,
@@ -79,7 +79,7 @@ class FunctionalList:
     def __delitem__(self, key):
         del self.values[key]
 
-    def __iter__(self, key):
+    def __iter__(self):
         return iter(self.values)
     
     def __reversed__(self):
@@ -99,7 +99,7 @@ class FunctionalList:
     def last(self):
         # get last element
         return self.values[-1]
-    def drop(self, n)
+    def drop(self, n):
         # get all elements except first n
         return self.values[n:]
     def take(self, n):
