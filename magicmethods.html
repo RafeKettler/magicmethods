@@ -12,7 +12,7 @@
 <h1>A Guide to Python's Magic Methods</h1>
 <h3>Rafe Kettler</h3>
 <p>Copyright &copy; 2011 Rafe Kettler</p>
-<p>Version 0.17</p>
+<p>Version 0.18</p>
 <p>The magic methods guide has a git repository at <a href="http://www.github.com/RafeKettler/magicmethods">http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported there, along with comments, (or even contributions!).</p>
 <p><b><a name="contents">Table of Contents</a></p></b>
 <dl>
@@ -408,6 +408,39 @@ def __setattr__(self, name, value):
 <dt><code>__exit__(self, exception_type, exception_value)</code></dt>
     <dd>Defines what the context manager should do after its block has been executed (or terminates). It can be used to handle exceptions, perform cleanup, or do something always done immediately after the action in the block. If the block executes successfully, <code>exception_type</code>, <code>exception_value</code>, and <code>traceback</code> will be <code>None</code>. Otherwise, you can choose to handle the exception or let the user handle it; if you want to handle it, make sure <code>__exit__</code> returns <code>True</code> after all is said and done. If you don't want the exception to be handled by the context manager, just let it happen.</dd>
 </dl>
+<p><code>__enter__</code> and <code>__exit__</code> can be useful for specific classes that have well-defined and common behavior for setup and cleanup. But you can also use these methods to create generic context managers that wrap other objects. Here's an example:</p>
+<pre>class Closer:
+    '''A context manager to automatically close an object with a close method
+    in a with statement.'''
+    
+    def __init__(self, obj):
+        self.obj = obj
+    
+    def __enter__(self):
+        return self.obj # bound to target
+    
+    def __exit__(self, exception_type, exception_val, trace):
+        try:
+           self.obj.close()
+        except AttributeError: # obj isn't closable
+           print 'Not closable.'
+           return True # exception handled successfully</pre>
+<p>Here's an example of <code>Closer</code> in action, using an FTP connection to demonstrate it (a closeable socket):</p>
+<pre>>>> from magicmethods import Closer
+>>> from ftplib import FTP
+>>> with Closer(FTP('ftp.somesite.com')) as conn:
+...     conn.dir()
+...
+# output omitted for brevity
+>>> conn.dir()
+# long AttributeError message, can't use a connection that's closed
+>>> with Closer(int(5)) as i:
+...     i += 1
+...
+Not closable.
+>>> i
+6</pre>
+<p>See how our wrapper gracefully handled both proper and improper uses? That's the power of context managers and magic methods.</p>        
 </html>
 
  
