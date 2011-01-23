@@ -27,6 +27,8 @@
 <dt><a href="#reflection">Reflection</a></dt>
 <dt><a href="#callable">Callable Objects</a></dt>
 <dt><a href="#context">Context Managers</a></dt>
+<dt><a href="#descriptor">Building Descriptor Objects</a></dt>
+<dt><a href="#conclusion">Conclusion</a></dt>
 </dl>
 <h2><a name="intro">Introduction</a></h2>
 <p>This guide is the culmination of a few months' worth of blog posts. The subject is <strong>magic methods</strong>.</p>
@@ -440,7 +442,42 @@ def __setattr__(self, name, value):
 Not closable.
 >>> i
 6</pre>
-<p>See how our wrapper gracefully handled both proper and improper uses? That's the power of context managers and magic methods.</p>        
+<p>See how our wrapper gracefully handled both proper and improper uses? That's the power of context managers and magic methods.</p>
+<h2><a name="descriptor">Building Descriptor Objects</a></h2>
+<p>Descriptors are classes which, when accessed through either getting, setting, or deleting, can also alter other objects. Descriptors aren't meant to stand alone; rather, they're meant to be held by an owner class. Descriptors can be useful when building object-oriented databases or classes that have attributes whose values are dependent on each other. Descriptors are particularly useful when representing attributes in several different units of measurement or representing computed attributes (like distance from the origin in a class to represent a point on a grid).</p>
+<p>To be a descriptor, a class must have at least one of <code>__get__</code>, <code>__set__</code>, and <code>__delete__</code> implemented. Let's take a look at those magic methods:</p>
+<dl>
+<dt><code>__get__(self, instance, owner)</code></dt>
+    <dd>Define behavior for when the descriptor's value is retrieved. <code>instance</code> is the instance of the owner object. <code>owner</code> is the owner class itself.</dd>
+<dt><code>__set__(self, instance, value)</code>
+    <dd>Define behavior for when the descriptor's value is changed. <code>instance</code> is the instance of the owner class and <code>value</code> is the value to set the descriptor to.</dd>
+<dt><code>__delete__(self, instance)</code>
+    <dd>Define behavior for when the descriptor's value is deleted. <code>instance</code> is the instance of the owner object.</dd>
+<p>Now, an example of a useful application of descriptors: unit conversions.</p>
+<pre>class Meter(object):
+    '''Descriptor for a meter.'''
+    
+    def __init__(self, value=0.0):
+        self.value = float(value)
+    def __get__(self, instance, owner):
+        return self.value
+    def __set__(self, instance, value):
+        self.value = float(value)
+
+class Foot(object):
+    '''Descriptor for a foot.'''
+    
+    def __get__(self, instance, owner):
+        return instance.meter / .3048
+    def __set__(self, instance, value):
+        instance.meter = float(value) * 3.2808
+
+class Distance(object):
+    '''Class to represent distance holding two descriptors for feet and
+    meters.'''
+    meter = Meter()
+    foot = Foot()</pre>
 </html>
+
 
  
