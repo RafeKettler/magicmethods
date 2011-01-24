@@ -12,7 +12,7 @@
 <h1>A Guide to Python's Magic Methods</h1>
 <h3>Rafe Kettler</h3>
 <p>Copyright &copy; 2011 Rafe Kettler</p>
-<p>Version 1.0</p>
+<p>Version 1.01</p>
 <p>The magic methods guide has a git repository at <a href="http://www.github.com/RafeKettler/magicmethods">http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported there, along with comments, (or even contributions!).</p>
 <p><b><a name="contents">Table of Contents</a></p></b>
 <dl>
@@ -39,11 +39,11 @@
 <p>Everyone knows the most basic magic method, <code>__init__</code>. It's the way that we can define the initialization behavior of an object. However, when I call <code>x = SomeClass()</code>, <code>__init__</code> is not the first thing to get called. Actually, it's a method called <code>__new__</code>, which actually creates the instance, then passes any arguments at creation on to the initializer. At the other end of the object's lifespan, there's <code>__del__</code>. Let's take a closer look at these 3 magic methods: </p>
 <dl> 
 <dt><code>__new__(cls, [...)</code></dt>
-	<dd><code>__new__</code> is the first method to get called in an object's instantiation. It take the class, then any other arguments that it will pass along to <code>__init__</code>. <code>__new__</code> is used fairly rarely, but it does have its purposes, particularly when subclassing an immutable type like a tuple or a string. I don't want to go in to too much detail on <code>__new__</code> because it's not too useful, but it is covered in great detail <a href="http://www.python.org/download/releases/2.2/descrintro/#__new__">here</a>.</dd>
+	<dd><code>__new__</code> is the first method to get called in an object's instantiation. It takes the class, then any other arguments that it will pass along to <code>__init__</code>. <code>__new__</code> is used fairly rarely, but it does have its purposes, particularly when subclassing an immutable type like a tuple or a string. I don't want to go in to too much detail on <code>__new__</code> because it's not too useful, but it is covered in great detail <a href="http://www.python.org/download/releases/2.2/descrintro/#__new__">here</a>.</dd>
 <dt><code>__init__(self, [...)</code></dt>
-	<dd>The initializer for the class. It gets passed whatever the primary constructor was called with (so, for example, if we called <code>x = SomeClass(10, 'foo')</code>, <code>__init__</code> would get passed 10 and 'foo' as arguments. <code>__init__</code> is almost universally used in Python class definitions.</dd>
+	<dd>The initializer for the class. It gets passed whatever the primary constructor was called with (so, for example, if we called <code>x = SomeClass(10, 'foo')</code>, <code>__init__</code> would get passed <code>10</code> and <code>'foo'</code> as arguments. <code>__init__</code> is almost universally used in Python class definitions.</dd>
 <dt><code>__del__(self)</code></dt>
-	<dd>If <code>__new__</code> and <code>__init__</code> formed the constructor of the object, <code>__del__</code> is the destructor. It doesn't implement behavior for the statement <code>del x</code> (so that code would not translate to <code>x.__del__()</code>). Rather, it defines behavior for when an object is garbage collected. It can be quite useful for objects that might require extra cleanup upon deletion, like sockets or file objects. Be careful, however, as there is no guaranteed that <code>__del__</code> will be executed if the object is still alive when the interpreter exits, so <code>__del__</code> can't serve as a replacement for good coding practices (like always closing a connection when you're done with it.</dd>
+	<dd>If <code>__new__</code> and <code>__init__</code> formed the constructor of the object, <code>__del__</code> is the destructor. It doesn't implement behavior for the statement <code>del x</code> (so that code would not translate to <code>x.__del__()</code>). Rather, it defines behavior for when an object is garbage collected. It can be quite useful for objects that might require extra cleanup upon deletion, like sockets or file objects. Be careful, however, as there is no guarantee that <code>__del__</code> will be executed if the object is still alive when the interpreter exits, so <code>__del__</code> can't serve as a replacement for good coding practices (like always closing a connection when you're done with it.</dd>
 </dl>
 <p>Putting it all together, here's an example of <code>__init__</code> and <code>__del__</code> in action:
 <pre>from os.path import join
@@ -60,10 +60,10 @@ class FileObject:
         del self.file
 </pre>
 <h2><a name="operators">Making Operators Work on Custom Classes</a></h2>
-<p>One of the biggest advantages of using Python's magic methods is that they provide a simple way to make objects behave like built-in types. That means you can avoid ugly, counter-intuitive, and nonstandard ways of performing basic operators. In some languages, it's common to do something like this:
+<p>One of the biggest advantages of using Python's magic methods is that they provide a simple way to make objects behave like built-in types. That means you can avoid ugly, counter-intuitive, and nonstandard ways of performing basic operators. In some languages, it's common to do something like this:</p>
 <pre>if instance.equals(other_instance):
     # do something</pre>
-You could certainly do this in Python, too, but this adds confusion and unnecessary verboseness. Different libraries might use different names for the same operations, making the client do way more work than necessary. With the power of magic methods, however, we can define one method (<code>__eq__</code>, in this case), and say what we mean instead:
+<p>You could certainly do this in Python, too, but this adds confusion and is unnecessarily verbose. Different libraries might use different names for the same operations, making the client do way more work than necessary. With the power of magic methods, however, we can define one method (<code>__eq__</code>, in this case), and say what we <em>mean</em> instead:</p>
 <pre>if instance == other_instance:
     #do something</pre>
 That's part of the power of magic methods. The vast majority of them allow us to define meaning for operators so that we can use them on our own classes just like they were builtin types.</p>
@@ -71,7 +71,7 @@ That's part of the power of magic methods. The vast majority of them allow us to
 <p>Python has a whole slew of magic methods designed to implement intuitive comparisons between objects using operators, not awkward method calls. They also provide a way to override the default Python behavior for comparisons of objects (by reference). Here's the list of those methods and what they do:</p>
 <dl>
 <dt><code>__cmp__(self, other)</code></dt>
-	<dd><code>__cmp__</code> is the most basic of the comparison magic methods. It actually implements behavior for all of the comparison operators (&lt; ==, !=, etc.), but it might not do it the way you want (for example, if one instance was equal to another was determined by one criterion and and if an instance is greater than another is determined by something else). <code>__cmp__</code> should return a negative integer if <code>self < other</code>, 0 if <code>self == other</code>, and positive if <code>self > other</code>.</dd>
+	<dd><code>__cmp__</code> is the most basic of the comparison magic methods. It actually implements behavior for all of the comparison operators (&lt;, ==, !=, etc.), but it might not do it the way you want (for example, if whether one instance was equal to another were determined by one criterion and and whether an instance is greater than another were determined by something else). <code>__cmp__</code> should return a negative integer if <code>self &lt; other er</code>, 0 if <code>self == other</code>, and positive if <code>self &gt; other</code>.</dd>
 <dt><strong>Rich comparison methods</strong></dt>
 <dt><code>__eq__(self, other)</code></dt>
 	<dd>Defines behavior for the equality operator, <code>==</code>.</dd>
@@ -86,7 +86,7 @@ That's part of the power of magic methods. The vast majority of them allow us to
 <dt><code>__ge__(self, other)</code></dt>
 	<dd>Defines behavior for the greater-than-or-equal-to operator, <code>&gt;=</code>.</dd>
 </dl>
-<p>For an example, consider a class to model a word. We might want to compare words lexicographically (by the alphabet), but we also might want to do it based on some other criterion, like length or number of syllables. In this example, we'll compare by length. Here's an implementation:</p>
+<p>For an example, consider a class to model a word. We might want to compare words lexicographically (by the alphabet), which is the default comparison behavior for strings, but we also might want to do it based on some other criterion, like length or number of syllables. In this example, we'll compare by length. Here's an implementation:</p>
 <pre>class Word(str):
     '''Class for words, defining comparison based on word length.'''
 	
@@ -106,7 +106,7 @@ That's part of the power of magic methods. The vast majority of them allow us to
         return len(self) >= len(other)
     def __le__(self, other):
         return len(self) <= len(other)</pre>
-<p>Now, we can create a Word(by using <code>Word('foo')</code>) and compare them based on length. Note, however, that we didn't define <code>__eq__</code> and <code>__ne__</code>. This is because this would lead to some weird behavior (notably that <code>Word('foo') == Word('bar')</code> would evaluate to true). It wouldn't make sense to test for equality based on length, so we fall back on <code>str</code>'s implementation of equality.</p>
+<p>Now, we can create two <code>Word</code>s (by using <code>Word('foo')</code> and <code>Word('bar')</code>) and compare them based on length. Note, however, that we didn't define <code>__eq__</code> and <code>__ne__</code>. This is because this would lead to some weird behavior (notably that <code>Word('foo') == Word('bar')</code> would evaluate to true). It wouldn't make sense to test for equality based on length, so we fall back on <code>str</code>'s implementation of equality.</p>
 <h3><a name="numeric">Numeric magic methods</a></h3>
 <p>Just like you can create ways for instances of your class to be compared with comparison operators, you can define behavior for numeric operators. Buckle your seatbelts, folks, there's a lot of these. For organization's sake, I've split the numeric magic methods into 5 categories: unary operators, normal arithmetic operators, reflected arithmetic operators (more on this later), augmented assignment, and type conversions.</p>
 <h4>Unary operators and functions</h4>
@@ -160,7 +160,7 @@ That's part of the power of magic methods. The vast majority of them allow us to
 <pre>some_object + other</pre>
 <p>That was "normal" addition. The reflected equivalent is the same thing, except with the operands switched around:</p>
 <pre>other + some_object</pre>
-<p>So, all of these magic methods do the same thing as their normal equivalents, except the perform the operation with other as the first operand and self as the second, rather than the other way around. Without further adieu:</p>
+<p>So, all of these magic methods do the same thing as their normal equivalents, except the perform the operation with other as the first operand and self as the second, rather than the other way around. Without further ado:</p>
 <dl>
 <dt><code>__radd__(self, other)</code></dt>
 	<dd>Implements reflected addition.</dd>
@@ -194,7 +194,7 @@ That's part of the power of magic methods. The vast majority of them allow us to
 <h4>Augmented assignment</h4>
 <p>Python also has a wide variety of magic methods to allow custom behavior to be defined for augmented assignment. You're probably already familiar with augmented assignment, it combines "normal" operators with assignment. If you still don't know what I'm talking about, here's an example:</p>
 <pre>x = 5
-x += 1</pre>
+x += 1 # in other words x = x + 1</pre>
 <p>Here's the list:</p>
 <dl>
 <dt><code>__iadd__(self, other)</code></dt>
@@ -225,7 +225,7 @@ x += 1</pre>
 	<dd>Implements bitwise xor with assignment using the <code>^=</code> operator.</dd>
 </dl>
 <h4>Type conversion magic methods</h4>
-<p>Python also has an array of magic methods designed to implement behavior for built in type conversion functions like <code>float()</code>. Here they are:</p>
+<p>Python also has an array of magic methods designed to implement behavior for builtin type conversion functions like <code>float()</code>. Here they are:</p>
 <dl>
 <dt><code>__int__(self)</code></dt>
 	<dd>Implements type conversion to int.</dd>
@@ -246,7 +246,7 @@ x += 1</pre>
 <dt><code>__str__(self)</code></dt>
     <dd>Defines behavior for when <code>str()</code> is called on an instance of your class.</dd>
 <dt><code>__repr__(self)</code></dt>
-    <dd>Defines behavior for when <code>repr()</code> is called on an instance of your class. The major difference between <code>str()</code> and <code>repr()</code> is intended audience. <code>repr()</code> is intended to produce output that is mostly machine-readable (in many cases, it could be valid Python code even), whereas <code>str()</code> is intended to be human readable.</dd>
+    <dd>Defines behavior for when <code>repr()</code> is called on an instance of your class. The major difference between <code>str()</code> and <code>repr()</code> is intended audience. <code>repr()</code> is intended to produce output that is mostly machine-readable (in many cases, it could be valid Python code even), whereas <code>str()</code> is intended to be human-readable.</dd>
 <dt><code>__unicode__(self)</code></dt>
     <dd>Defines behavior for when <code>unicode()</code> is called on an instance of your class. <code>unicode()</code> is like <code>str()</code>, but it returns a unicode string. Be wary: if a client calls <code>str()</code> on an instance of your class and you've only defined <code>__unicode__()</code>, it won't work. You should always try to define <code>__str__()</code> as well in case someone doesn't have the luxury of using unicode.</dd>
 <dt><code>__hash__(self)</code></dt>
