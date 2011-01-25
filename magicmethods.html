@@ -1,20 +1,20 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>A Guide to Python's Magic Methods &laquo; rafekettler.com</title>
-<meta name="description" content="A guide to all the Magic Methods in Python">
-<meta name="keywords" content="python, programming, magic methods, object-oriented, oop">
+<meta name="description" content="A guide to all the Magic Methods in Python" />
+<meta name="keywords" content="python, programming, magic methods, object-oriented, oop" />
 </head>
 
 <body>
 <h1>A Guide to Python's Magic Methods</h1>
 <h3>Rafe Kettler</h3>
 <p>Copyright &copy; 2011 Rafe Kettler</p>
-<p>Version 1.01</p>
+<p>Version 1.03</p>
 <p>The magic methods guide has a git repository at <a href="http://www.github.com/RafeKettler/magicmethods">http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported there, along with comments, (or even contributions!).</p>
-<p><b><a name="contents">Table of Contents</a></p></b>
+<p><strong><a name="contents">Table of Contents</a></strong></p>
 <dl>
 <dt><a href="#intro">Introduction</a></dt>
 <dt><a href="#construction">Construction and Initialization</a></dt>
@@ -45,7 +45,7 @@
 <dt><code>__del__(self)</code></dt>
 	<dd>If <code>__new__</code> and <code>__init__</code> formed the constructor of the object, <code>__del__</code> is the destructor. It doesn't implement behavior for the statement <code>del x</code> (so that code would not translate to <code>x.__del__()</code>). Rather, it defines behavior for when an object is garbage collected. It can be quite useful for objects that might require extra cleanup upon deletion, like sockets or file objects. Be careful, however, as there is no guarantee that <code>__del__</code> will be executed if the object is still alive when the interpreter exits, so <code>__del__</code> can't serve as a replacement for good coding practices (like always closing a connection when you're done with it.</dd>
 </dl>
-<p>Putting it all together, here's an example of <code>__init__</code> and <code>__del__</code> in action:
+<p>Putting it all together, here's an example of <code>__init__</code> and <code>__del__</code> in action:</p>
 <pre>from os.path import join
 
 class FileObject:
@@ -66,8 +66,8 @@ class FileObject:
 <p>You could certainly do this in Python, too, but this adds confusion and is unnecessarily verbose. Different libraries might use different names for the same operations, making the client do way more work than necessary. With the power of magic methods, however, we can define one method (<code>__eq__</code>, in this case), and say what we <em>mean</em> instead:</p>
 <pre>if instance == other_instance:
     #do something</pre>
-That's part of the power of magic methods. The vast majority of them allow us to define meaning for operators so that we can use them on our own classes just like they were built in types.</p>
-<h3><a name="comparisons">Comparison magic methods</a></h4>
+<p>That's part of the power of magic methods. The vast majority of them allow us to define meaning for operators so that we can use them on our own classes just like they were built in types.</p>
+<h3><a name="comparisons">Comparison magic methods</a></h3>
 <p>Python has a whole slew of magic methods designed to implement intuitive comparisons between objects using operators, not awkward method calls. They also provide a way to override the default Python behavior for comparisons of objects (by reference). Here's the list of those methods and what they do:</p>
 <dl>
 <dt><code>__cmp__(self, other)</code></dt>
@@ -99,13 +99,13 @@ That's part of the power of magic methods. The vast majority of them allow us to
         return str.__new__(cls, word)
 	
     def __gt__(self, other):
-        return len(self) > len(other)
+        return len(self) &gt; len(other)
     def __lt__(self, other):
-        return len(self) < len(other)
+        return len(self) &lt; len(other)
     def __ge__(self, other):
-        return len(self) >= len(other)
+        return len(self) &gt;= len(other)
     def __le__(self, other):
-        return len(self) <= len(other)</pre>
+        return len(self) &lt;= len(other)</pre>
 <p>Now, we can create two <code>Word</code>s (by using <code>Word('foo')</code> and <code>Word('bar')</code>) and compare them based on length. Note, however, that we didn't define <code>__eq__</code> and <code>__ne__</code>. This is because this would lead to some weird behavior (notably that <code>Word('foo') == Word('bar')</code> would evaluate to true). It wouldn't make sense to test for equality based on length, so we fall back on <code>str</code>'s implementation of equality.</p>
 <h3><a name="numeric">Numeric magic methods</a></h3>
 <p>Just like you can create ways for instances of your class to be compared with comparison operators, you can define behavior for numeric operators. Buckle your seat belts, folks, there's a lot of these. For organization's sake, I've split the numeric magic methods into 5 categories: unary operators, normal arithmetic operators, reflected arithmetic operators (more on this later), augmented assignment, and type conversions.</p>
@@ -145,11 +145,11 @@ That's part of the power of magic methods. The vast majority of them allow us to
 <dt><code>__pow__</code></dt>
 	<dd>Implements behavior for exponents using the <code>**</code> operator.</dd>
 <dt><code>__lshift__(self, other)</code></dt>
-	<dd>Implements left bitwise shift using the <code><<</code> operator.</dd>
+	<dd>Implements left bitwise shift using the <code>&lt;&lt;</code> operator.</dd>
 <dt><code>__rshift__(self, other)</code></dt>
-	<dd>Implements right bitwise shift using the <code>>></code> operator.</dd>
+	<dd>Implements right bitwise shift using the <code>&gt;&gt;</code> operator.</dd>
 <dt><code>__and__(self, other)</code></dt>
-	<dd>Implements bitwise and using the <code>&</code> operator.</dd>
+	<dd>Implements bitwise and using the <code>&amp;</code> operator.</dd>
 <dt><code>__or__(self, other)</code></dt>
 	<dd>Implements bitwise or using the <code>|</code> operator.</dd>
 <dt><code>__xor__(self, other)</code></dt>
@@ -181,11 +181,11 @@ That's part of the power of magic methods. The vast majority of them allow us to
 <dt><code>__rpow__</code></dt>
 	<dd>Implements behavior for reflected exponents using the <code>**</code> operator.</dd>
 <dt><code>__rlshift__(self, other)</code></dt>
-	<dd>Implements reflected left bitwise shift using the <code><<</code> operator.</dd>
+	<dd>Implements reflected left bitwise shift using the <code>&lt;&lt;</code> operator.</dd>
 <dt><code>__rrshift__(self, other)</code></dt>
-	<dd>Implements reflected right bitwise shift using the <code>>></code> operator.</dd>
+	<dd>Implements reflected right bitwise shift using the <code>&gt;&gt;</code> operator.</dd>
 <dt><code>__rand__(self, other)</code></dt>
-	<dd>Implements reflected bitwise and using the <code>&</code> operator.</dd>
+	<dd>Implements reflected bitwise and using the <code>&amp;</code> operator.</dd>
 <dt><code>__ror__(self, other)</code></dt>
 	<dd>Implements reflected bitwise or using the <code>|</code> operator.</dd>
 <dt><code>__rxor__(self, other)</code></dt>
@@ -214,11 +214,11 @@ x += 1 # in other words x = x + 1</pre>
 <dt><code>__ipow__</code></dt>
 	<dd>Implements behavior for exponents with assignment using the <code>**=</code> operator.</dd>
 <dt><code>__ilshift__(self, other)</code></dt>
-	<dd>Implements left bitwise shift with assignment using the <code><<=</code> operator.</dd>
+	<dd>Implements left bitwise shift with assignment using the <code>&lt;&lt;=</code> operator.</dd>
 <dt><code>__irshift__(self, other)</code></dt>
-	<dd>Implements right bitwise shift with assignment using the <code>>>=</code> operator.</dd>
+	<dd>Implements right bitwise shift with assignment using the <code>&gt;&gt;=</code> operator.</dd>
 <dt><code>__iand__(self, other)</code></dt>
-	<dd>Implements bitwise and with assignment using the <code>&=</code> operator.</dd>
+	<dd>Implements bitwise and with assignment using the <code>&amp;=</code> operator.</dd>
 <dt><code>__ior__(self, other)</code></dt>
 	<dd>Implements bitwise or with assignment using the <code>|=</code> operator.</dd>
 <dt><code>__ixor__(self, other)</code></dt>
@@ -254,7 +254,7 @@ x += 1 # in other words x = x + 1</pre>
 <dt><code>__nonzero__(self)</code></dt>
     <dd>Defines behavior for when <code>bool()</code> is called on an instance of your class. Should return True or False, depending on whether you would want to consider the instance to be True or False.</dd>
 </dl>
-<p>We're pretty much done with the boring (and example-free) part of the magic methods guide. Now that we've covered some of the more basic magic methods, it's time to move to more advanced material.
+<p>We're pretty much done with the boring (and example-free) part of the magic methods guide. Now that we've covered some of the more basic magic methods, it's time to move to more advanced material.</p>
 <h2><a name="access">Controlling Attribute Access</a></h2>
 <p>Many people coming to Python from other languages complain that it lacks true encapsulation for classes (e.g. no way to define private attributes and then have public getter and setters). This couldn't be farther than the truth: it just happens that Python accomplishes a great deal of encapsulation through "magic", instead of explicit modifiers for methods or fields. Take a look:</p>
 <dl>
@@ -371,7 +371,7 @@ def __setattr__(self, name, value):
         return self.values[:n]</pre>
 <p>There you have it, a (marginally) useful example of how to implement your own sequence. Of course, there are more useful applications of custom sequences, but quite a few of them are already implemented in the standard library (batteries included, right?), like <code>Counter</code>, <code>OrderedDict</code>, and <code>NamedTuple</code>.</p>
 <h2><a name="reflection">Reflection</a></h2>
-<p>You can also control how reflection using the built in functions <code>isinstance()</code> and <code>issubclass()</code>behaves by defining magic methods. The magic methods are:
+<p>You can also control how reflection using the built in functions <code>isinstance()</code> and <code>issubclass()</code>behaves by defining magic methods. The magic methods are:</p>
 <dl>
 <dt><code>__instancecheck__(self, instance)</code></dt>
     <dd>Checks if an instance is an instance of the class you defined (e.g. <code>isinstance(instance, class)</code>.</dd>
@@ -449,10 +449,11 @@ Not closable.
 <dl>
 <dt><code>__get__(self, instance, owner)</code></dt>
     <dd>Define behavior for when the descriptor's value is retrieved. <code>instance</code> is the instance of the owner object. <code>owner</code> is the owner class itself.</dd>
-<dt><code>__set__(self, instance, value)</code>
+<dt><code>__set__(self, instance, value)</code></dt>
     <dd>Define behavior for when the descriptor's value is changed. <code>instance</code> is the instance of the owner class and <code>value</code> is the value to set the descriptor to.</dd>
-<dt><code>__delete__(self, instance)</code>
+<dt><code>__delete__(self, instance)</code></dt>
     <dd>Define behavior for when the descriptor's value is deleted. <code>instance</code> is the instance of the owner object.</dd>
+</dl>
 <p>Now, an example of a useful application of descriptors: unit conversions.</p>
 <pre>class Meter(object):
     '''Descriptor for a meter.'''
@@ -491,4 +492,5 @@ class Distance(object):
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
 </script>
+</body>
 </html>
