@@ -5,3 +5,5 @@ May be reproduced at will (even with modifications) under 2 conditions:
 2.) Credit is given to the author, Rafe Kettler, at some prominent place in the document (in the first 10 lines, preferably in bold or large font).
 
 Can be seen at http://www.rafekettler.com/magicmethods.html in relatively up to date form.
+
+For forkers: edit magicmethods.mkd, run `python magicmarkdown.py`, and then copy-pasta output (output will be in markedup.html) into magicmethods.html (start pasting at line `<h2><a id="intro">Introduction</a></h2>`, should be line 32 or thereabouts). The magicmarkdown script requires markdown, just issue `pip install markdown` and you'll have it.

@@ -12,7 +12,7 @@
 <h1>A Guide to Python's Magic Methods</h1>
 <h3>Rafe Kettler</h3>
 <p>Copyright &copy; 2011 Rafe Kettler</p>
-<p>Version 1.04</p>
+<p>Version 1.05</p>
 <p>The magic methods guide has a git repository at <a href="http://www.github.com/RafeKettler/magicmethods">http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported there, along with comments, (or even contributions!).</p>
 <p><strong><a id="contents">Table of Contents</a></strong></p>
 <dl>
@@ -39,7 +39,7 @@
 <p>Everyone knows the most basic magic method, <code>__init__</code>. It's the way that we can define the initialization behavior of an object. However, when I call <code>x = SomeClass()</code>, <code>__init__</code> is not the first thing to get called. Actually, it's a method called <code>__new__</code>, which actually creates the instance, then passes any arguments at creation on to the initializer. At the other end of the object's lifespan, there's <code>__del__</code>. Let's take a closer look at these 3 magic methods: </p>
 <dl> 
 <dt><code>__new__(cls, [...)</code></dt>
-	<dd><code>__new__</code> is the first method to get called in an object's instantiation. It takes the class, then any other arguments that it will pass along to <code>__init__</code>. <code>__new__</code> is used fairly rarely, but it does have its purposes, particularly when subclassing an immutable type like a tuple or a string. I don't want to go in to too much detail on <code>__new__</code> because it's not too useful, but it is covered in great detail <a href="http://www.python.org/download/releases/2.2/descrintro/#__new__">here</a>.</dd>
+	<dd><code>__new__</code> is the first method to get called in an object's instantiation. It takes the class, then any other arguments that it will pass along to <code>__init__</code>. <code>__new__</code> is used fairly rarely, but it does have its purposes, particularly when subclassing an immutable type like a tuple or a string. I don't want to go in to too much detail on <code>__new__</code> because it's not too useful, but it is covered in great detail <a href="http://www.python.org/download/releases/2.2/descrintro/#__new__">in the Python docs</a>.</dd>
 <dt><code>__init__(self, [...)</code></dt>
 	<dd>The initializer for the class. It gets passed whatever the primary constructor was called with (so, for example, if we called <code>x = SomeClass(10, 'foo')</code>, <code>__init__</code> would get passed <code>10</code> and <code>'foo'</code> as arguments. <code>__init__</code> is almost universally used in Python class definitions.</dd>
 <dt><code>__del__(self)</code></dt>
@@ -72,7 +72,6 @@ class FileObject:
 <dl>
 <dt><code>__cmp__(self, other)</code></dt>
 	<dd><code>__cmp__</code> is the most basic of the comparison magic methods. It actually implements behavior for all of the comparison operators (&lt;, ==, !=, etc.), but it might not do it the way you want (for example, if whether one instance was equal to another were determined by one criterion and and whether an instance is greater than another were determined by something else). <code>__cmp__</code> should return a negative integer if <code>self &lt; other er</code>, 0 if <code>self == other</code>, and positive if <code>self &gt; other</code>.</dd>
-<dt><strong>Rich comparison methods</strong></dt>
 <dt><code>__eq__(self, other)</code></dt>
 	<dd>Defines behavior for the equality operator, <code>==</code>.</dd>
 <dt><code>__ne__(self, other)</code></dt>
@@ -121,7 +120,7 @@ class FileObject:
 <dt><code>__neg__(self)</code></dt>
 	<dd>Implements behavior for negation (e.g. <code>-some_object</code>)</dd>
 <dt><code>__invert__(self)</code></dt>
-	<dd>Implements behavior for inversion using the <code>~</code> operator. For an explanation on what this does, see <a href="http://en.wikipedia.org/wiki/Bitwise_operation#NOT">this</a>.</dd>
+	<dd>Implements behavior for inversion using the <code>~</code> operator. For an explanation on what this does, see <a href="http://en.wikipedia.org/wiki/Bitwise_operation#NOT">the Wikipedia article on bitwise operations</a>.</dd>
 </dl>
 <h4>Normal arithmetic operators</h4>
 <p>Now, we cover the typical binary operators (and a function or two): +, -, * and the like. These are, for the most part, pretty self-explanatory.</p>
@@ -261,7 +260,7 @@ x += 1 # in other words x = x + 1</pre>
 <dt><code>__getattr__(self, name)</code></dt>
     <dd>You can define behavior for when a user attempts to access an attribute that doesn't exist (either at all or yet). This can be useful for catching and redirecting common misspellings, giving warnings about using deprecated attributes (you can still choose to compute and return that attribute, if you wish), or deftly handing an <code>AttributeError</code>. It only gets called when a nonexistent attribute is accessed, however, so it isn't a true encapsulation solution.</dd>
 <dt><code>__setattr__(self, name, value)</code></dt>
-    <dd>Unlike <code>__getattr__</code>, <code>__setattr__</code> is an encapsulation solution. It allows you to define behavior for assignment to an attribute regardless of whether or not that attribute exists, meaning you can define custom rules for any changes in the values of attributes. However, you have to be careful with how you use <code>__setattr__</code>, as this example shows:
+    <dd>Unlike <code>__getattr__</code>, <code>__setattr__</code> is an encapsulation solution. It allows you to define behavior for assignment to an attribute regardless of whether or not that attribute exists, meaning you can define custom rules for any changes in the values of attributes. However, you have to be careful with how you use <code>__setattr__</code>, as this example shows:</dd>
     <pre># wrong way to use __setattr__
 def __setattr__(self, name, value):
     self.name = value
@@ -274,7 +273,7 @@ def __setattr__(self, name, value):
 def __setattr__(self, name, value):
     self.__dict__[name] = value # assigning to the dict of names in the class
     # define custom behavior here</pre>
-    Again, Python's magic methods are incredibly powerful, and with great power comes great responsibility. It's important to know the proper way to use magic methods so you don't break any code.</dd>
+    <dd>Again, Python's magic methods are incredibly powerful, and with great power comes great responsibility. It's important to know the proper way to use magic methods so you don't break any code.</dd>
 <dt><code>__delattr__</code></dt>
     <dd>This is the exact same as <code>__setattr__</code>, but for deleting attributes instead of setting them. The same precautions need to be taken as with <code>__setattr__</code> as well in order to prevent infinite recursion (calling <code>del self.name</code> in the implementation of <code>__delattr__</code> would cause infinite recursion).</dd>
 <dt><code>__getattribute__(self, name)</code></dt>
