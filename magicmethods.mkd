@@ -37,6 +37,7 @@ there's `__del__`. Let's take a closer look at these 3 magic methods:
 
 Putting it all together, here's an example of `__init__` and `__del__` in action:
 
+    :::python
     from os.path import join
 
     class FileObject:
@@ -56,6 +57,7 @@ One of the biggest advantages of using Python's magic methods is that they provi
 objects behave like built-in types. That means you can avoid ugly, counter-intuitive, and nonstandard 
 ways of performing basic operators. In some languages, it's common to do something like this:
 
+    :::python
     if instance.equals(other_instance):
         # do something
         
@@ -64,6 +66,7 @@ Different libraries might use different names for the same operations, making th
 than necessary. With the power of magic methods, however, we can define one method (`__eq__`, in this 
 case), and say what we _mean_ instead:
 
+    :::python
     if instance == other_instance:
         #do something
 
@@ -78,7 +81,7 @@ behavior for comparisons of objects (by reference). Here's the list of those met
 
 
 `__cmp__(self, other)`
-:    `__cmp__` is the most basic of the comparison magic methods. It actually implements behavior for all of the comparison operators (&lt;, ==, !=, etc.), but it might not do it the way you want (for example, if whether one instance was equal to another were determined by one criterion and and whether an instance is greater than another were determined by something else). `__cmp__` should return a negative integer if `self &lt; other er`, 0 if `self == other`, and positive if `self &gt; other`.
+:    `__cmp__` is the most basic of the comparison magic methods. It actually implements behavior for all of the comparison operators (<, ==, !=, etc.), but it might not do it the way you want (for example, if whether one instance was equal to another were determined by one criterion and and whether an instance is greater than another were determined by something else). `__cmp__` should return a negative integer if `self < other er`, 0 if `self == other`, and positive if `self > other`.
 
 `__eq__(self, other)`
 :    Defines behavior for the equality operator, `==`.
@@ -87,16 +90,16 @@ behavior for comparisons of objects (by reference). Here's the list of those met
 :    Defines behavior for the inequality operator, `!=`.
 
 `__lt__(self, other)`
-:    Defines behavior for the less-than operator, `&lt;`.
+:    Defines behavior for the less-than operator, `<`.
 
 `__gt__(self, other)`
-:    Defines behavior for the greater-than operator, `&gt;`.
+:    Defines behavior for the greater-than operator, `>`.
 
 `__le__(self, other)`
-:    Defines behavior for the less-than-or-equal-to operator, `&lt;=`.
+:    Defines behavior for the less-than-or-equal-to operator, `<=`.
 
 `__ge__(self, other)`
-:    Defines behavior for the greater-than-or-equal-to operator, `&gt;=`.
+:    Defines behavior for the greater-than-or-equal-to operator, `>=`.
 
 
 For an example, consider a class to model a word. We might want to compare words lexicographically (by 
@@ -104,6 +107,7 @@ the alphabet), which is the default comparison behavior for strings, but we also
 based on some other criterion, like length or number of syllables. In this example, we'll compare by 
 length. Here's an implementation:
 
+    :::python
     class Word(str):
         '''Class for words, defining comparison based on word length.'''
         
@@ -116,13 +120,13 @@ length. Here's an implementation:
             return str.__new__(cls, word)
         
         def __gt__(self, other):
-            return len(self) &gt; len(other)
+            return len(self) > len(other)
         def __lt__(self, other):
-            return len(self) &lt; len(other)
+            return len(self) < len(other)
         def __ge__(self, other):
-            return len(self) &gt;= len(other)
+            return len(self) >= len(other)
         def __le__(self, other):
-            return len(self) &lt;= len(other)
+            return len(self) <= len(other)
             
 Now, we can create two `Word`s (by using `Word('foo')` and `Word('bar')`) and compare them based on 
 length. Note, however, that we didn't define `__eq__` and `__ne__`. This is because this would lead to 
@@ -192,13 +196,13 @@ the most part, pretty self-explanatory.
 :    Implements behavior for exponents using the `**` operator.
 
 `__lshift__(self, other)`
-:    Implements left bitwise shift using the `&lt;&lt;` operator.
+:    Implements left bitwise shift using the `<<` operator.
 
 `__rshift__(self, other)`
-:    Implements right bitwise shift using the `&gt;&gt;` operator.
+:    Implements right bitwise shift using the `>>` operator.
 
 `__and__(self, other)`
-:    Implements bitwise and using the `&amp;` operator.
+:    Implements bitwise and using the `&` operator.
 
 `__or__(self, other)`
 :    Implements bitwise or using the `|` operator.
@@ -213,11 +217,13 @@ the most part, pretty self-explanatory.
 You know how I said I would get to reflected arithmetic in a bit? Some of you might think it's some big, 
 scary, foreign concept. It's actually quite simple. Here's an example:
 
+    :::python
     some_object + other
 
 That was "normal" addition. The reflected equivalent is the same thing, except with the operands switched 
 around:
 
+    :::python
     other + some_object
 
 So, all of these magic methods do the same thing as their normal equivalents, except the perform the 
@@ -253,13 +259,13 @@ Without further ado:
 :    Implements behavior for reflected exponents using the `**` operator.
 
 `__rlshift__(self, other)`
-:    Implements reflected left bitwise shift using the `&lt;&lt;` operator.
+:    Implements reflected left bitwise shift using the `<<` operator.
 
 `__rrshift__(self, other)`
-:    Implements reflected right bitwise shift using the `&gt;&gt;` operator.
+:    Implements reflected right bitwise shift using the `>>` operator.
 
 `__rand__(self, other)`
-:    Implements reflected bitwise and using the `&amp;` operator.
+:    Implements reflected bitwise and using the `&` operator.
 
 `__ror__(self, other)`
 :    Implements reflected bitwise or using the `|` operator.
@@ -275,6 +281,7 @@ Python also has a wide variety of magic methods to allow custom behavior to be d
 assignment. You're probably already familiar with augmented assignment, it combines "normal" operators 
 with assignment. If you still don't know what I'm talking about, here's an example:
 
+    :::python
     x = 5
     x += 1 # in other words x = x + 1
 
@@ -306,13 +313,13 @@ Here's the list:
 :    Implements behavior for exponents with assignment using the `**=` operator.
 
 `__ilshift__(self, other)`
-:    Implements left bitwise shift with assignment using the `&lt;&lt;=` operator.
+:    Implements left bitwise shift with assignment using the `<<=` operator.
 
 `__irshift__(self, other)`
-:    Implements right bitwise shift with assignment using the `&gt;&gt;=` operator.
+:    Implements right bitwise shift with assignment using the `>>=` operator.
 
 `__iand__(self, other)`
-:    Implements bitwise and with assignment using the `&amp;=` operator.
+:    Implements bitwise and with assignment using the `&=` operator.
 
 `__ior__(self, other)`
 :    Implements bitwise or with assignment using the `|=` operator.
@@ -385,24 +392,7 @@ farther than the truth: it just happens that Python accomplishes a great deal of
 :    You can define behavior for when a user attempts to access an attribute that doesn't exist (either at all or yet). This can be useful for catching and redirecting common misspellings, giving warnings about using deprecated attributes (you can still choose to compute and return that attribute, if you wish), or deftly handing an `AttributeError`. It only gets called when a nonexistent attribute is accessed, however, so it isn't a true encapsulation solution.
 
 `__setattr__(self, name, value)`
-:    Unlike `__getattr__`, `__setattr__` is an encapsulation solution. It allows you to define behavior for assignment to an attribute regardless of whether or not that attribute exists, meaning you can define custom rules for any changes in the values of attributes. However, you have to be careful with how you use `__setattr__`, as this example shows:
-
-    
-<pre># wrong way to use __setattr__
-def __setattr__(self, name, value):
-    self.name = value
-    # since every time an attribute is assigned, __setattr__() is called, this
-    # is recursion.
-    # so this really means self.__setattr__(name, value). Since the method
-    # keeps calling itself, the recursion goes on forever causing a crash
-
-# the right way to do it
-def __setattr__(self, name, value):
-    self.__dict__[name] = value # assigning to the dict of names in the class
-    # define custom behavior here</pre>
-    
-Again, Python's magic methods are incredibly powerful, and with great power comes great 
-responsibility. It's important to know the proper way to use magic methods so you don't break any code.
+:    Unlike `__getattr__`, `__setattr__` is an encapsulation solution. It allows you to define behavior for assignment to an attribute regardless of whether or not that attribute exists, meaning you can define custom rules for any changes in the values of attributes. However, you have to be careful with how you use `__setattr__`, as the example at the end of the list will show.
 
 `__delattr__`
 :    This is the exact same as `__setattr__`, but for deleting attributes instead of setting them. The same precautions need to be taken as with `__setattr__` as well in order to prevent infinite recursion (calling `del self.name` in the implementation of `__delattr__` would cause infinite recursion).
@@ -410,7 +400,22 @@ responsibility. It's important to know the proper way to use magic methods so yo
 `__getattribute__(self, name)`
 :    After all this, `__getattribute__` fits in pretty well with its companions `__setattr__` and `__delattr__`. However, I don't recommend you use it. `__getattribute__` can only be used with new-style classes (all classes are new-style in the newest versions of Python, and in older versions you can make a class new-style by subclassing `object`. It allows you to define rules for whenever an attribute's value is accessed. It suffers from some similar infinite recursion problems as its partners-in-crime (this time you call the base class's `__getattribute__` method to prevent this). It also mainly obviates the need for `__getattr__`, which only gets called when `__getattribute__` is implemented if it is called explicitly or an `AttributeError` is raised. This method can be used (after all, it's your choice), but I don't recommend it because it has a small use case (it's far more rare that we need special behavior to retrieve a value than to assign to it) and because it can be really difficult to implement bug-free.
 
+You can easily cause a problem in your definitions of any of the methods controlling attribute access. Consider this example:
 
+    :::python
+    def __setattr__(self, name, value):
+        self.name = value
+        # since every time an attribute is assigned, __setattr__() is called, this
+        # is recursion.
+        # so this really means self.__setattr__(name, value). Since the method
+        # keeps calling itself, the recursion goes on forever causing a crash
+    
+    def __setattr__(self, name, value):
+        self.__dict__[name] = value # assigning to the dict of names in the class
+        # define custom behavior here 
+
+Again, Python's magic methods are incredibly powerful, and with great power comes great 
+responsibility. It's important to know the proper way to use magic methods so you don't break any code.        
 
 So, what have we learned about custom attribute access in Python? It's not to be used lightly. In fact, 
 it tends to be excessively powerful and counter-intuitive. But the reason why it exists is to scratch a 
@@ -418,6 +423,7 @@ certain itch: Python doesn't seek to make bad things impossible, but just to mak
 is paramount, so you can really do whatever you want. Here's an example of some of the special attribute 
 access methods in action:
 
+    :::python
     class AccessCounter:
         '''A class that contains a value and implements an access counter.
         The counter increments each time the value is changed.'''
@@ -491,6 +497,7 @@ Without any more wait, here are the magic methods that containers use:
 For our example, let's look at a list that implements some functional constructs that you might be used 
 to from other languages (Haskell, for example).
 
+    :::python
     class FunctionalList:
         '''A class wrapping a list with some extra functional magic, like head,
         tail, init, last, drop, and take.'''
@@ -582,6 +589,7 @@ another powerful convenience feature that makes programming in Python that much 
 "Calling" the instance can be an intuitive and elegant way to change the object's state. An example might 
 be a class representing an entity's position on a plane:
 
+    :::python
     class Entity:
         '''Class to represent an entity. Callable to update the entity's position.'''
 
@@ -602,6 +610,7 @@ statement. The concept of context managers was hardly new in Python (it was impl
 of the library), but not until [PEP 343](http://www.python.org/dev/peps/pep-0343/) was accepted did it 
 achieve status as a first class language construct. You may have seen with statements before:
 
+    :::python
     with open('foo.txt') as bar:
         # perform some action with bar
         
@@ -621,6 +630,7 @@ with a `with` statement. The behavior of the context manager is determined by tw
 for setup and cleanup. You can also use these methods to create generic context managers that wrap other 
 objects. Here's an example:
 
+    :::python
     class Closer:
         '''A context manager to automatically close an object with a close method
         in a with statement.'''
@@ -640,6 +650,7 @@ objects. Here's an example:
 
 Here's an example of `Closer` in action, using an FTP connection to demonstrate it (a closable socket):
 
+    :::pythonconsole
     >>> from magicmethods import Closer
     >>> from ftplib import FTP
     >>> with Closer(FTP('ftp.somesite.com')) as conn:
@@ -684,6 +695,7 @@ Let's take a look at those magic methods:
 
 Now, an example of a useful application of descriptors: unit conversions.
 
+    :::python
     class Meter(object):
         '''Descriptor for a meter.'''
         
