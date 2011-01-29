@@ -15,7 +15,7 @@
 <p>Copyright &copy; 2011 Rafe Kettler</p>
 <p>Version 1.05</p>
 <p>The magic methods guide has a git repository at <a href="http://www.github.com/RafeKettler/magicmethods">http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported there, along with comments, (or even contributions!).</p>
-<p><strong><a id="contents">Table of Contents</a></strong></p>
+<p><strong><a id="table" href="#table">Table of Contents</a></strong></p>
 <dl>
 <dt><a href="#intro">Introduction</a></dt>
 <dt><a href="#construction">Construction and Initialization</a></dt>
@@ -31,12 +31,12 @@
 <dt><a href="#descriptor">Building Descriptor Objects</a></dt>
 <dt><a href="#conclusion">Conclusion</a></dt>
 </dl>
-<h2><a id="intro">Introduction</a></h2>
+<h2><a id="intro" href="#intro">Introduction</a></h2>
 <p>This guide is the culmination of a few months' worth of blog posts. The subject is <strong>magic methods</strong>.</p>
 <p>What are magic methods? They're everything in object-oriented Python. They're special methods that you can define to add "magic" to your classes. They're always surrounded by double underscores (e.g. <code>__init__</code> or <code>__lt__</code>). They're also not as well documented as they need to be. All of the magic methods for Python appear in the same section in the Python docs, but they're scattered about and only loosely organized. There's hardly an example to be found in that section (and that may very well be by design, since they're all detailed in the <em>language reference</em>, along with boring syntax descriptions, etc.).</p>
 <p>So, to fix what I perceived as a flaw in Python's documentation, I set out to provide some more plain-English, example-driven documentation for Python's magic methods. I started out with weekly blog posts, and now that I've finished with those, I've put together this guide.</p>
 <p>I hope you enjoy it. Use it as a tutorial, a refresher, or a reference; it's just intended to be a user-friendly guide to Python's magic methods.</p>
-<h2><a id="construction">Construction and Initialization</a></h2>
+<h2><a id="construction" href="#construction">Construction and Initialization</a></h2>
 <p>Everyone knows the most basic magic method, <code>__init__</code>. It's the way that we can define the initialization behavior of an object. However, when I call <code>x = SomeClass()</code>, <code>__init__</code> is not the first thing to get called. Actually, it's a method called <code>__new__</code>, which actually creates the instance, then passes any arguments at creation on to the initializer. At the other end of the object's lifespan, there's <code>__del__</code>. Let's take a closer look at these 3 magic methods: </p>
 <dl> 
 <dt><code>__new__(cls, [...)</code></dt>
@@ -60,7 +60,7 @@ class FileObject:
         self.file.close()
         del self.file
 </pre>
-<h2><a id="operators">Making Operators Work on Custom Classes</a></h2>
+<h2><a id="operators" href="#operators">Making Operators Work on Custom Classes</a></h2>
 <p>One of the biggest advantages of using Python's magic methods is that they provide a simple way to make objects behave like built-in types. That means you can avoid ugly, counter-intuitive, and nonstandard ways of performing basic operators. In some languages, it's common to do something like this:</p>
 <pre>if instance.equals(other_instance):
     # do something</pre>
@@ -68,7 +68,7 @@ class FileObject:
 <pre>if instance == other_instance:
     #do something</pre>
 <p>That's part of the power of magic methods. The vast majority of them allow us to define meaning for operators so that we can use them on our own classes just like they were built in types.</p>
-<h3><a id="comparisons">Comparison magic methods</a></h3>
+<h3><a id="comparisons" href="#comparisons">Comparison magic methods</a></h3>
 <p>Python has a whole slew of magic methods designed to implement intuitive comparisons between objects using operators, not awkward method calls. They also provide a way to override the default Python behavior for comparisons of objects (by reference). Here's the list of those methods and what they do:</p>
 <dl>
 <dt><code>__cmp__(self, other)</code></dt>
@@ -107,7 +107,7 @@ class FileObject:
     def __le__(self, other):
         return len(self) &lt;= len(other)</pre>
 <p>Now, we can create two <code>Word</code>s (by using <code>Word('foo')</code> and <code>Word('bar')</code>) and compare them based on length. Note, however, that we didn't define <code>__eq__</code> and <code>__ne__</code>. This is because this would lead to some weird behavior (notably that <code>Word('foo') == Word('bar')</code> would evaluate to true). It wouldn't make sense to test for equality based on length, so we fall back on <code>str</code>'s implementation of equality.</p>
-<h3><a id="numeric">Numeric magic methods</a></h3>
+<h3><a id="numeric" href="#numeric">Numeric magic methods</a></h3>
 <p>Just like you can create ways for instances of your class to be compared with comparison operators, you can define behavior for numeric operators. Buckle your seat belts, folks, there's a lot of these. For organization's sake, I've split the numeric magic methods into 5 categories: unary operators, normal arithmetic operators, reflected arithmetic operators (more on this later), augmented assignment, and type conversions.</p>
 <h4>Unary operators and functions</h4>
 <p>Unary operators and functions only have one operand, e.g. negation, absolute value, etc.</p>
@@ -240,7 +240,7 @@ x += 1 # in other words x = x + 1</pre>
 <dt><code>__hex__(self)</code></dt>
 	<dd>Implements type conversion to hexadecimal.</dd>
 </dl>
-<h2><a id="representations">Representing your Classes</a></h2>
+<h2><a id="representations" href="#representations">Representing your Classes</a></h2>
 <p>It's often useful to have a string representation of a class. In Python, there's a few methods that you can implement in your class definition to customize how built in functions that return representations of your class behave.</p>
 <dl>
 <dt><code>__str__(self)</code></dt>
@@ -255,7 +255,7 @@ x += 1 # in other words x = x + 1</pre>
     <dd>Defines behavior for when <code>bool()</code> is called on an instance of your class. Should return True or False, depending on whether you would want to consider the instance to be True or False.</dd>
 </dl>
 <p>We're pretty much done with the boring (and example-free) part of the magic methods guide. Now that we've covered some of the more basic magic methods, it's time to move to more advanced material.</p>
-<h2><a id="access">Controlling Attribute Access</a></h2>
+<h2><a id="access" href="#access">Controlling Attribute Access</a></h2>
 <p>Many people coming to Python from other languages complain that it lacks true encapsulation for classes (e.g. no way to define private attributes and then have public getter and setters). This couldn't be farther than the truth: it just happens that Python accomplishes a great deal of encapsulation through "magic", instead of explicit modifiers for methods or fields. Take a look:</p>
 <dl>
 <dt><code>__getattr__(self, name)</code></dt>
@@ -298,7 +298,7 @@ def __setattr__(self, name, value):
         if name == 'value':
             self.__dict__['counter'] += 1
             del self.__dict__['value']</pre>
-<h2><a id="sequence">Making Custom Sequences</a></h2>
+<h2><a id="sequence" href="#sequence">Making Custom Sequences</a></h2>
 <p>There's a number of ways to get your Python classes to act like built in sequences (dict, tuple, list, string, etc.). These are by far my favorite magic methods in Python because of the absurd degree of control they give you and the way that they magically make a whole array of global functions work beautifully on instances of your class. But before we get down to the good stuff, a quick word on requirements.</p>
 <h4>Requirements</h4>
 <p>Now that we're talking about creating your own sequences in Python, it's time to talk about <em>protocols</em>. Protocols are somewhat similar to interfaces in other languages in that they give you a set of methods you must define. However, in Python protocols are totally informal and require no explicit declarations to implement. Rather, they're more like guidelines.</p>
@@ -370,7 +370,7 @@ def __setattr__(self, name, value):
         # get first n elements
         return self.values[:n]</pre>
 <p>There you have it, a (marginally) useful example of how to implement your own sequence. Of course, there are more useful applications of custom sequences, but quite a few of them are already implemented in the standard library (batteries included, right?), like <code>Counter</code>, <code>OrderedDict</code>, and <code>NamedTuple</code>.</p>
-<h2><a id="reflection">Reflection</a></h2>
+<h2><a id="reflection" href="#reflection">Reflection</a></h2>
 <p>You can also control how reflection using the built in functions <code>isinstance()</code> and <code>issubclass()</code>behaves by defining magic methods. The magic methods are:</p>
 <dl>
 <dt><code>__instancecheck__(self, instance)</code></dt>
@@ -379,7 +379,7 @@ def __setattr__(self, name, value):
     <dd>Checks if a class subclasses the class you defined (e.g. <code>issubclass(subclass, class)</code>).</dd>
 </dl>
 <p>The use case for these magic methods might seem small, and that may very well be true. I won't spend too much more time on reflection magic methods because they aren't very important, but they reflect something important about object-oriented programming in Python and Python in general: there is almost always an easy way to do something, even if it's rarely necessary. These magic methods might not seem useful, but if you ever need them you'll be glad that they're there (and that you read this guide!).</p>
-<h2><a id="callable">Callable Objects</a></h2>
+<h2><a id="callable" href="#callable">Callable Objects</a></h2>
 <p>As you may already know, in Python, functions are first-class objects. This means that they can be passed to functions and methods just as if they were objects of any other kind. This is an incredibly powerful feature.</p>
 <p>A special magic method in Python allows instances of your classes to behave as if they were functions, so that you can "call" them, pass them to functions that take functions as arguments, and so on. This is another powerful convenience feature that makes programming in Python that much sweeter.</p>
 <dl>
@@ -399,7 +399,7 @@ def __setattr__(self, name, value):
         self.x, self.y = x, y
     
     # snip...</pre>
-<h2><a id="context">Context Managers</a></h2>
+<h2><a id="context" href="#context">Context Managers</a></h2>
 <p>In Python 2.5, a new keyword was introduced in Python along with a new method for code reuse, the <code>with</code> statement. The concept of context managers was hardly new in Python (it was implemented before as a part of the library), but not until <a href="http://www.python.org/dev/peps/pep-0343/">PEP 343</a> was accepted did it achieve status as a first class language construct. You may have seen with statements before:</p>
 <pre>with open('foo.txt') as bar:
     # perform some action with bar</pre>
@@ -443,7 +443,7 @@ Not closable.
 >>> i
 6</pre>
 <p>See how our wrapper gracefully handled both proper and improper uses? That's the power of context managers and magic methods.</p>
-<h2><a id="descriptor">Building Descriptor Objects</a></h2>
+<h2><a id="descriptor" href="#descriptor">Building Descriptor Objects</a></h2>
 <p>Descriptors are classes which, when accessed through either getting, setting, or deleting, can also alter other objects. Descriptors aren't meant to stand alone; rather, they're meant to be held by an owner class. Descriptors can be useful when building object-oriented databases or classes that have attributes whose values are dependent on each other. Descriptors are particularly useful when representing attributes in several different units of measurement or representing computed attributes (like distance from the origin in a class to represent a point on a grid).</p>
 <p>To be a descriptor, a class must have at least one of <code>__get__</code>, <code>__set__</code>, and <code>__delete__</code> implemented. Let's take a look at those magic methods:</p>
 <dl>
@@ -478,7 +478,7 @@ class Distance(object):
     meters.'''
     meter = Meter()
     foot = Foot()</pre>
-<h2><a id="conclusion">Conclusion</a></h2>
+<h2><a id="conclusion" href="#conclusion">Conclusion</a></h2>
 <p>The goal of this guide is to bring something to anyone that reads it, regardless of their experience with Python or object-oriented programming. If you're just getting started with Python, you've gained valuable knowledge of the basics of writing feature-rich, elegant, and easy-to-use classes. If you're an intermediate Python programmer, you've probably picked up some slick new concepts and strategies and some good ways to reduce the amount of code written by you and clients. If you're an expert Pythonista, you've been refreshed on some of the stuff you might have forgotten about and maybe picked up a few new tricks along the way. Whatever your experience level, I hope that this trip through Python's special methods has been truly magical (I couldn't resist the final pun).</p>
 <script type="text/javascript">
 

@@ -1,4 +1,4 @@
-##<a id="intro">Introduction</a>##
+##<a id="intro" href="#intro">Introduction</a>##
 
 This guide is the culmination of a few months' worth of blog posts. The subject is **magic methods**.
 
@@ -16,7 +16,7 @@ posts, and now that I've finished with those, I've put together this guide.
 I hope you enjoy it. Use it as a tutorial, a refresher, or a reference; it's just intended to be a 
 user-friendly guide to Python's magic methods.
 
-##<a id="construction">Construction and Initialization</a>##
+##<a id="construction" href="#construction">Construction and Initialization</a>##
 
 Everyone knows the most basic magic method, `__init__`. It's the way that we can define the 
 initialization behavior of an object. However, when I call `x = SomeClass()`, `__init__` is not the first 
@@ -50,7 +50,7 @@ Putting it all together, here's an example of `__init__` and `__del__` in action
             self.file.close()
             del self.file
 
-##<a id="operators">Making Operators Work on Custom Classes</a>##
+##<a id="operators" href="#operators">Making Operators Work on Custom Classes</a>##
 
 One of the biggest advantages of using Python's magic methods is that they provide a simple way to make 
 objects behave like built-in types. That means you can avoid ugly, counter-intuitive, and nonstandard 
@@ -70,7 +70,7 @@ case), and say what we _mean_ instead:
 That's part of the power of magic methods. The vast majority of them allow us to define meaning for 
 operators so that we can use them on our own classes just like they were built in types.
 
-###<a id="comparisons">Comparison magic methods</a>###
+###<a id="comparisons" href="#comparisons">Comparison magic methods</a>###
 
 Python has a whole slew of magic methods designed to implement intuitive comparisons between objects 
 using operators, not awkward method calls. They also provide a way to override the default Python 
@@ -129,7 +129,7 @@ length. Note, however, that we didn't define `__eq__` and `__ne__`. This is beca
 some weird behavior (notably that `Word('foo') == Word('bar')` would evaluate to true). It wouldn't make 
 sense to test for equality based on length, so we fall back on `str`'s implementation of equality.
 
-###<a id="numeric">Numeric magic methods</a>###
+###<a id="numeric" href="#numeric">Numeric magic methods</a>###
 
 Just like you can create ways for instances of your class to be compared with comparison operators, you 
 can define behavior for numeric operators. Buckle your seat belts, folks, there's a lot of these. For 
@@ -347,7 +347,7 @@ functions like `float()`. Here they are:
 :    Implements type conversion to hexadecimal.
 
 
-##<a id="representations">Representing your Classes</a>##
+##<a id="representations" href="#representations">Representing your Classes</a>##
 
 It's often useful to have a string representation of a class. In Python, there's a few methods that you 
 can implement in your class definition to customize how built in functions that return representations of 
@@ -373,7 +373,7 @@ your class behave.
 We're pretty much done with the boring (and example-free) part of the magic methods guide. Now that we've 
 covered some of the more basic magic methods, it's time to move to more advanced material.
 
-##<a id="access">Controlling Attribute Access</a>##
+##<a id="access" href="#access">Controlling Attribute Access</a>##
 
 Many people coming to Python from other languages complain that it lacks true encapsulation for classes 
 (e.g. no way to define private attributes and then have public getter and setters). This couldn't be 
@@ -436,7 +436,7 @@ access methods in action:
                 self.__dict__['counter'] += 1
                 del self.__dict__['value']
 
-##<a id="sequence">Making Custom Sequences</a>##
+##<a id="sequence" href="#sequence">Making Custom Sequences</a>##
 
 There's a number of ways to get your Python classes to act like built in sequences (dict, tuple, list, 
 string, etc.). These are by far my favorite magic methods in Python because of the absurd degree of 
@@ -542,7 +542,7 @@ There you have it, a (marginally) useful example of how to implement your own se
 are more useful applications of custom sequences, but quite a few of them are already implemented in the 
 standard library (batteries included, right?), like `Counter`, `OrderedDict`, and `NamedTuple`.
 
-##<a id="reflection">Reflection</a>##
+##<a id="reflection" href="#reflection">Reflection</a>##
 
 You can also control how reflection using the built in functions `isinstance()` and `issubclass()`behaves 
 by defining magic methods. The magic methods are:
@@ -562,7 +562,7 @@ important about object-oriented programming in Python and Python in general: the
 easy way to do something, even if it's rarely necessary. These magic methods might not seem useful, but 
 if you ever need them you'll be glad that they're there (and that you read this guide!).
 
-##<a id="callable">Callable Objects</a>##
+##<a id="callable" href="#callable">Callable Objects</a>##
 
 As you may already know, in Python, functions are first-class objects. This means that they can be passed 
 to functions and methods just as if they were objects of any other kind. This is an incredibly powerful 
@@ -595,7 +595,7 @@ be a class representing an entity's position on a plane:
         
         # snip...
 
-##<a id="context">Context Managers</a>##
+##<a id="context" href="#context">Context Managers</a>##
 
 In Python 2.5, a new keyword was introduced in Python along with a new method for code reuse, the `with` 
 statement. The concept of context managers was hardly new in Python (it was implemented before as a part 
@@ -658,7 +658,7 @@ Here's an example of `Closer` in action, using an FTP connection to demonstrate 
 See how our wrapper gracefully handled both proper and improper uses? That's the power of context 
 managers and magic methods.
 
-##<a id="descriptor">Building Descriptor Objects</a>##
+##<a id="descriptor" href="#descriptor">Building Descriptor Objects</a>##
 
 Descriptors are classes which, when accessed through either getting, setting, or deleting, can also alter 
 other objects. Descriptors aren't meant to stand alone; rather, they're meant to be held by an owner 
@@ -708,7 +708,7 @@ Now, an example of a useful application of descriptors: unit conversions.
         meter = Meter()
         foot = Foot()
         
-##<a id="conclusion">Conclusion</a>##
+##<a id="conclusion" href="#conclusion">Conclusion</a>##
 
 The goal of this guide is to bring something to anyone that reads it, regardless of their experience with 
 Python or object-oriented programming. If you're just getting started with Python, you've gained valuable 
