@@ -51,9 +51,9 @@ thing to get called. Actually, it's a method called <code>__new__</code>, which 
 passes any arguments at creation on to the initializer. At the other end of the object's lifespan, 
 there's <code>__del__</code>. Let's take a closer look at these 3 magic methods:</p>
 <dl>
-<dt><code>__new__(cls, [...)</code></dt>
+<dt><code>__new__(cls[, ...])</code></dt>
 <dd><code>__new__</code> is the first method to get called in an object's instantiation. It takes the class, then any other arguments that it will pass along to <code>__init__</code>. <code>__new__</code> is used fairly rarely, but it does have its purposes, particularly when subclassing an immutable type like a tuple or a string. I don't want to go in to too much detail on <code>__new__</code> because it's not too useful, but it is covered in great detail <a href="http://www.python.org/download/releases/2.2/descrintro/#__new__">in the Python docs</a>.</dd>
-<dt><code>__init__(self, [...)</code></dt>
+<dt><code>__init__(self[, ...])</code></dt>
 <dd>The initializer for the class. It gets passed whatever the primary constructor was called with (so, for example, if we called <code>x = SomeClass(10, 'foo')</code>, <code>__init__</code> would get passed <code>10</code> and <code>'foo'</code> as arguments. <code>__init__</code> is almost universally used in Python class definitions.</dd>
 <dt><code>__del__(self)</code></dt>
 <dd>If <code>__new__</code> and <code>__init__</code> formed the constructor of the object, <code>__del__</code> is the destructor. It doesn't implement behavior for the statement <code>del x</code> (so that code would not translate to <code>x.__del__()</code>). Rather, it defines behavior for when an object is garbage collected. It can be quite useful for objects that might require extra cleanup upon deletion, like sockets or file objects. Be careful, however, as there is no guarantee that <code>__del__</code> will be executed if the object is still alive when the interpreter exits, so <code>__del__</code> can't serve as a replacement for good coding practices (like always closing a connection when you're done with it.</dd>
@@ -486,7 +486,7 @@ feature.</p>
 that you can "call" them, pass them to functions that take functions as arguments, and so on. This is 
 another powerful convenience feature that makes programming in Python that much sweeter.</p>
 <dl>
-<dt><code>__call__(self, [args...])</code></dt>
+<dt><code>__call__(self[, ...])</code></dt>
 <dd>Allows an instance of a class to be called as a function. Essentially, this means that <code>x()</code> is the same as <code>x.__call__()</code>. Note that <code>__call__</code> takes a variable number of arguments; this means that you define <code>__call__</code> as you would any other function, taking however many functions you'd like it to.</dd>
 </dl>
 <p><code>__call__</code> can be particularly useful in classes whose instances that need to often change state. 
