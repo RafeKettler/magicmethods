@@ -81,7 +81,7 @@ behavior for comparisons of objects (by reference). Here's the list of those met
 
 
 `__cmp__(self, other)`
-:    `__cmp__` is the most basic of the comparison magic methods. It actually implements behavior for all of the comparison operators (<, ==, !=, etc.), but it might not do it the way you want (for example, if whether one instance was equal to another were determined by one criterion and and whether an instance is greater than another were determined by something else). `__cmp__` should return a negative integer if `self < other er`, 0 if `self == other`, and positive if `self > other`.
+:    `__cmp__` is the most basic of the comparison magic methods. It actually implements behavior for all of the comparison operators (<, ==, !=, etc.), but it might not do it the way you want (for example, if whether one instance was equal to another were determined by one criterion and and whether an instance is greater than another were determined by something else). `__cmp__` should return a negative integer if `self < other`, 0 if `self == other`, and positive if `self > other`.
 
 `__eq__(self, other)`
 :    Defines behavior for the equality operator, `==`.
@@ -132,6 +132,12 @@ Now, we can create two `Word`s (by using `Word('foo')` and `Word('bar')`) and co
 length. Note, however, that we didn't define `__eq__` and `__ne__`. This is because this would lead to 
 some weird behavior (notably that `Word('foo') == Word('bar')` would evaluate to true). It wouldn't make 
 sense to test for equality based on length, so we fall back on `str`'s implementation of equality.
+
+Now would be a good time to note that you don't have to define every comparison magic method to get rich 
+comparisons. The standard library has kindly provided us with a class decorator in the module `functools` 
+that will define all rich comparison methods if you only define `__eq__` and one other (e.g. `__gt__`, 
+`__lt__`, etc.) This feature is only available in Python 2.7, but when you get a chance it saves a great 
+deal of time and effort. You can use it by placing `@total_ordering` above your class definition.
 
 ###<a id="numeric" href="#numeric">Numeric magic methods</a>###
 
@@ -227,8 +233,9 @@ around:
     other + some_object
 
 So, all of these magic methods do the same thing as their normal equivalents, except the perform the 
-operation with other as the first operand and self as the second, rather than the other way around. 
-Without further ado:
+operation with other as the first operand and self as the second, rather than the other way around. In 
+most cases, the result of a reflected operation is the same as its normal equivalent, so you may just end 
+up defining `__radd__` as calling `__add__` and so on. Without further ado:
 
 
 `__radd__(self, other)`
@@ -285,7 +292,8 @@ with assignment. If you still don't know what I'm talking about, here's an examp
     x = 5
     x += 1 # in other words x = x + 1
 
-Here's the list:
+Each of these methods does not return a value, because assignment in Python does not return any value. 
+Instead, they just alter the state of the class. Here's the list:
 
 
 `__iadd__(self, other)`

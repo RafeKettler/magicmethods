@@ -101,7 +101,7 @@ using operators, not awkward method calls. They also provide a way to override t
 behavior for comparisons of objects (by reference). Here's the list of those methods and what they do:</p>
 <dl>
 <dt><code>__cmp__(self, other)</code></dt>
-<dd><code>__cmp__</code> is the most basic of the comparison magic methods. It actually implements behavior for all of the comparison operators (&lt;, ==, !=, etc.), but it might not do it the way you want (for example, if whether one instance was equal to another were determined by one criterion and and whether an instance is greater than another were determined by something else). <code>__cmp__</code> should return a negative integer if <code>self &lt; other er</code>, 0 if <code>self == other</code>, and positive if <code>self &gt; other</code>.</dd>
+<dd><code>__cmp__</code> is the most basic of the comparison magic methods. It actually implements behavior for all of the comparison operators (&lt;, ==, !=, etc.), but it might not do it the way you want (for example, if whether one instance was equal to another were determined by one criterion and and whether an instance is greater than another were determined by something else). <code>__cmp__</code> should return a negative integer if <code>self &lt; other</code>, 0 if <code>self == other</code>, and positive if <code>self &gt; other</code>.</dd>
 <dt><code>__eq__(self, other)</code></dt>
 <dd>Defines behavior for the equality operator, <code>==</code>.</dd>
 <dt><code>__ne__(self, other)</code></dt>
@@ -145,6 +145,11 @@ length. Here's an implementation:</p>
 length. Note, however, that we didn't define <code>__eq__</code> and <code>__ne__</code>. This is because this would lead to 
 some weird behavior (notably that <code>Word('foo') == Word('bar')</code> would evaluate to true). It wouldn't make 
 sense to test for equality based on length, so we fall back on <code>str</code>'s implementation of equality.</p>
+<p>Now would be a good time to note that you don't have to define every comparison magic method to get rich 
+comparisons. The standard library has kindly provided us with a class decorator in the module <code>functools</code> 
+that will define all rich comparison methods if you only define <code>__eq__</code> and one other (e.g. <code>__gt__</code>, 
+<code>__lt__</code>, etc.) This feature is only available in Python 2.7, but when you get a chance it saves a great 
+deal of time and effort. You can use it by placing <code>@total_ordering</code> above your class definition.</p>
 <h3><a id="numeric" href="#numeric">Numeric magic methods</a></h3>
 <p>Just like you can create ways for instances of your class to be compared with comparison operators, you 
 can define behavior for numeric operators. Buckle your seat belts, folks, there's a lot of these. For 
@@ -212,8 +217,9 @@ around:</p>
 
 
 <p>So, all of these magic methods do the same thing as their normal equivalents, except the perform the 
-operation with other as the first operand and self as the second, rather than the other way around. 
-Without further ado:</p>
+operation with other as the first operand and self as the second, rather than the other way around. In 
+most cases, the result of a reflected operation is the same as its normal equivalent, so you may just end 
+up defining <code>__radd__</code> as calling <code>__add__</code> and so on. Without further ado:</p>
 <dl>
 <dt><code>__radd__(self, other)</code></dt>
 <dd>Implements reflected addition.</dd>
@@ -253,7 +259,8 @@ with assignment. If you still don't know what I'm talking about, here's an examp
 </pre></div>
 
 
-<p>Here's the list:</p>
+<p>Each of these methods does not return a value, because assignment in Python does not return any value. 
+Instead, they just alter the state of the class. Here's the list:</p>
 <dl>
 <dt><code>__iadd__(self, other)</code></dt>
 <dd>Implements addition with assignment.</dd>
