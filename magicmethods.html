@@ -29,6 +29,7 @@
 <dt><a href="#callable">Callable Objects</a></dt>
 <dt><a href="#context">Context Managers</a></dt>
 <dt><a href="#descriptor">Building Descriptor Objects</a></dt>
+<dt><a href="#pickling">Pickling your Objects</a></dt>
 <dt><a href="#conclusion">Conclusion</a></dt>
 </dl>
 <h2><a id="intro" href="#intro">Introduction</a></h2>
@@ -51,9 +52,9 @@ thing to get called. Actually, it's a method called <code>__new__</code>, which 
 passes any arguments at creation on to the initializer. At the other end of the object's lifespan, 
 there's <code>__del__</code>. Let's take a closer look at these 3 magic methods:</p>
 <dl>
-<dt><code>__new__(cls[, ...])</code></dt>
+<dt><code>__new__(cls, [...)</code></dt>
 <dd><code>__new__</code> is the first method to get called in an object's instantiation. It takes the class, then any other arguments that it will pass along to <code>__init__</code>. <code>__new__</code> is used fairly rarely, but it does have its purposes, particularly when subclassing an immutable type like a tuple or a string. I don't want to go in to too much detail on <code>__new__</code> because it's not too useful, but it is covered in great detail <a href="http://www.python.org/download/releases/2.2/descrintro/#__new__">in the Python docs</a>.</dd>
-<dt><code>__init__(self[, ...])</code></dt>
+<dt><code>__init__(self, [...)</code></dt>
 <dd>The initializer for the class. It gets passed whatever the primary constructor was called with (so, for example, if we called <code>x = SomeClass(10, 'foo')</code>, <code>__init__</code> would get passed <code>10</code> and <code>'foo'</code> as arguments. <code>__init__</code> is almost universally used in Python class definitions.</dd>
 <dt><code>__del__(self)</code></dt>
 <dd>If <code>__new__</code> and <code>__init__</code> formed the constructor of the object, <code>__del__</code> is the destructor. It doesn't implement behavior for the statement <code>del x</code> (so that code would not translate to <code>x.__del__()</code>). Rather, it defines behavior for when an object is garbage collected. It can be quite useful for objects that might require extra cleanup upon deletion, like sockets or file objects. Be careful, however, as there is no guarantee that <code>__del__</code> will be executed if the object is still alive when the interpreter exits, so <code>__del__</code> can't serve as a replacement for good coding practices (like always closing a connection when you're done with it.</dd>
@@ -297,6 +298,8 @@ functions like <code>float()</code>. Here they are:</p>
 <dd>Implements type conversion to octal.</dd>
 <dt><code>__hex__(self)</code></dt>
 <dd>Implements type conversion to hexadecimal.</dd>
+<dt><code>__index__(self)</code></dt>
+<dd>Implements type conversion to an int when the object is used in a slice expression. If you define a custom numeric type that might be used in slicing, you should define <code>__index__</code>.</dd>
 </dl>
 <h2><a id="representations" href="#representations">Representing your Classes</a></h2>
 <p>It's often useful to have a string representation of a class. In Python, there's a few methods that you 
@@ -486,7 +489,7 @@ feature.</p>
 that you can "call" them, pass them to functions that take functions as arguments, and so on. This is 
 another powerful convenience feature that makes programming in Python that much sweeter.</p>
 <dl>
-<dt><code>__call__(self[, ...])</code></dt>
+<dt><code>__call__(self, [args...])</code></dt>
 <dd>Allows an instance of a class to be called as a function. Essentially, this means that <code>x()</code> is the same as <code>x.__call__()</code>. Note that <code>__call__</code> takes a variable number of arguments; this means that you define <code>__call__</code> as you would any other function, taking however many functions you'd like it to.</dd>
 </dl>
 <p><code>__call__</code> can be particularly useful in classes whose instances that need to often change state. 
@@ -611,6 +614,56 @@ Let's take a look at those magic methods:</p>
 </pre></div>
 
 
+<h2><a id="pickling" href="#pickling">Pickling Your Objects</a></h2>
+<p>If you spend time with other Pythonistas, chances are you've at least heard of pickling. Pickling is a 
+serialization process for Python data structures, and can be incredibly useful when you need to store an 
+object and retrieve it later. It's also a major source of worries and confusion.</p>
+<p>Pickling is so important that it doesn't just have its own module (<code>pickle</code>), but its own <em>protocol</em> and 
+the magic methods to go with it. But first, a brief word on how to pickle existing types(feel free to 
+skip it if you already know).</p>
+<h3>Pickling: A Quick Soak in the Brine</h3>
+<p>Let's dive into pickling. Say you have a dictionary that you want to store and retrieve later. You could
+write it's contents to a file, carefully making sure that you write correct syntax, then retrieve it 
+using either <code>exec()</code> or processing the file input. But this is precarious at best: if you store 
+important data in plain text, it could be corrupted or changed in any number of ways to make your program 
+crash or worse run malicious code on your computer. Instead, we're going to pickle it:</p>
+<div class="codehilite"><pre><span class="kn">import</span> <span class="nn">pickle</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;foo&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+        <span class="s">&#39;bar&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;Hello&#39;</span><span class="p">,</span> <span class="s">&#39;world!&#39;</span><span class="p">),</span>
+        <span class="s">&#39;baz&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+<span class="n">jar</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;data.pkl&#39;</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span>
+<span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">jar</span><span class="p">)</span> <span class="c"># write the pickled data to the file jar</span>
+<span class="n">jar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+
+
+<p>Now, a few hours later, we want it back. All we have to do is unpickle it:</p>
+<div class="codehilite"><pre><span class="kn">import</span> <span class="nn">pickle</span>
+
+<span class="n">pkl_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;data.pkl&#39;</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span> <span class="c"># connect to the pickled data</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">pkl_file</span><span class="p">)</span> <span class="c"># load it into a variable</span>
+<span class="k">print</span> <span class="n">data</span>
+<span class="n">pkl_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+
+
+<p>What happens? Exactly what you expect. It's just like we had <code>data</code> all along.</p>
+<h3>Pickling your own Objects</h3>
+<p>Pickling isn't just for builtin types. It's for any class that follows the pickle protocol. The pickle 
+protocol has four optional methods for Python objects to customize how they act (it's a bit different for 
+C extensions, but that's not in our scope):</p>
+<dl>
+<dt><code>__getinitargs__()</code></dt>
+<dd>If you'd like for <code>__init__</code> to be called when your class is unpickled, you can define <code>__getinitargs__</code>, which should return a tuple of the arguments that you'd like to be passed to  <code>__init__</code>. Note that this method will only work for old-style classes.</dd>
+<dt><code>__getnewargs__()</code></dt>
+<dd>For new-style classes, you can influence what arguments get passed to <code>__new__</code> upon unpickling. This method should also return a tuple of arguments that will then be passed to <code>__new__</code>.</dd>
+<dt><code>__getstate__()</code></dt>
+<dd>Instead of the object's <code>__dict__</code> attribute being stored, you can return a custom state to be stored when the object is pickled. That state will be used by <code>__setstate__</code> when the object is unpickled.</dd>
+<dt><code>__setstate__(state)</code></dt>
+<dd>When the object is unpickled, if <code>__setstate__</code> is defined the object's state will be passed to it instead of directly applied to the object's <code>__dict__</code>. This goes hand in hand with <code>__getstate__</code>: when both are defined, you can represent the object's pickled state however you want with whatever you want.</dd>
+</dl>
+<h3>An Example</h3>
 <h2><a id="conclusion" href="#conclusion">Conclusion</a></h2>
 <p>The goal of this guide is to bring something to anyone that reads it, regardless of their experience with 
 Python or object-oriented programming. If you're just getting started with Python, you've gained valuable 

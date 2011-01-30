@@ -353,6 +353,9 @@ functions like `float()`. Here they are:
 `__hex__(self)`
 :    Implements type conversion to hexadecimal.
 
+`__index__(self)`
+:    Implements type conversion to an int when the object is used in a slice expression. If you define a custom numeric type that might be used in slicing, you should define `__index__`.
+
 
 ##<a id="representations" href="#representations">Representing your Classes</a>##
 
@@ -719,6 +722,66 @@ Now, an example of a useful application of descriptors: unit conversions.
         meters.'''
         meter = Meter()
         foot = Foot()
+
+##<a id="pickling" href="#pickling">Pickling Your Objects</a>##
+
+If you spend time with other Pythonistas, chances are you've at least heard of pickling. Pickling is a 
+serialization process for Python data structures, and can be incredibly useful when you need to store an 
+object and retrieve it later. It's also a major source of worries and confusion.
+
+Pickling is so important that it doesn't just have its own module (`pickle`), but its own _protocol_ and 
+the magic methods to go with it. But first, a brief word on how to pickle existing types(feel free to 
+skip it if you already know).
+
+###Pickling: A Quick Soak in the Brine###
+
+Let's dive into pickling. Say you have a dictionary that you want to store and retrieve later. You could
+write it's contents to a file, carefully making sure that you write correct syntax, then retrieve it 
+using either `exec()` or processing the file input. But this is precarious at best: if you store 
+important data in plain text, it could be corrupted or changed in any number of ways to make your program 
+crash or worse run malicious code on your computer. Instead, we're going to pickle it:
+
+    :::python
+    import pickle
+    
+    data = {'foo': [1, 2, 3],
+            'bar': ('Hello', 'world!'),
+            'baz': True}
+    jar = open('data.pkl', 'wb')
+    pickle.dump(data, jar) # write the pickled data to the file jar
+    jar.close()
+    
+Now, a few hours later, we want it back. All we have to do is unpickle it:
+
+    :::python
+    import pickle
+    
+    pkl_file = open('data.pkl', 'rb') # connect to the pickled data
+    data = pickle.load(pkl_file) # load it into a variable
+    print data
+    pkl_file.close()
+    
+What happens? Exactly what you expect. It's just like we had `data` all along.
+
+###Pickling your own Objects###
+
+Pickling isn't just for builtin types. It's for any class that follows the pickle protocol. The pickle 
+protocol has four optional methods for Python objects to customize how they act (it's a bit different for 
+C extensions, but that's not in our scope):
+
+`__getinitargs__()`
+:    If you'd like for `__init__` to be called when your class is unpickled, you can define `__getinitargs__`, which should return a tuple of the arguments that you'd like to be passed to  `__init__`. Note that this method will only work for old-style classes.
+
+`__getnewargs__()`
+:    For new-style classes, you can influence what arguments get passed to `__new__` upon unpickling. This method should also return a tuple of arguments that will then be passed to `__new__`.
+
+`__getstate__()`
+:    Instead of the object's `__dict__` attribute being stored, you can return a custom state to be stored when the object is pickled. That state will be used by `__setstate__` when the object is unpickled.
+
+`__setstate__(state)`
+:    When the object is unpickled, if `__setstate__` is defined the object's state will be passed to it instead of directly applied to the object's `__dict__`. This goes hand in hand with `__getstate__`: when both are defined, you can represent the object's pickled state however you want with whatever you want.
+
+###An Example###
         
 ##<a id="conclusion" href="#conclusion">Conclusion</a>##
 
