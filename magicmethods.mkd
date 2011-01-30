@@ -769,20 +769,56 @@ Pickling isn't just for builtin types. It's for any class that follows the pickl
 protocol has four optional methods for Python objects to customize how they act (it's a bit different for 
 C extensions, but that's not in our scope):
 
-`__getinitargs__()`
+`__getinitargs__(self)`
 :    If you'd like for `__init__` to be called when your class is unpickled, you can define `__getinitargs__`, which should return a tuple of the arguments that you'd like to be passed to  `__init__`. Note that this method will only work for old-style classes.
 
-`__getnewargs__()`
+`__getnewargs__(self)`
 :    For new-style classes, you can influence what arguments get passed to `__new__` upon unpickling. This method should also return a tuple of arguments that will then be passed to `__new__`.
 
-`__getstate__()`
+`__getstate__(self)`
 :    Instead of the object's `__dict__` attribute being stored, you can return a custom state to be stored when the object is pickled. That state will be used by `__setstate__` when the object is unpickled.
 
-`__setstate__(state)`
+`__setstate__(self, state)`
 :    When the object is unpickled, if `__setstate__` is defined the object's state will be passed to it instead of directly applied to the object's `__dict__`. This goes hand in hand with `__getstate__`: when both are defined, you can represent the object's pickled state however you want with whatever you want.
 
 ###An Example###
+
+Our example is a `Slate`, which remembers what its values have been and when those values were written to 
+it. However, this particular slate goes blank each time it is pickled: the current value will not be saved.
+
+    :::python
+    import time
+
+    class Slate:
+        '''Class to store a string and a changelog, and forget its value when
+        pickled.'''
         
+        def __init__(self, value):
+            self.value = value
+            self.last_change = time.asctime()
+            self.history = {}
+        
+        def change(self, new_value):
+            # Change the value. Commit last value to history
+            self.history[self.last_change] = self.value
+            self.value = new_value
+            self.last_change = time.asctime()
+            
+        def print_changes(self):
+            print 'Changelog for Slate object:'
+            for k, v in self.history.items():
+                print '%s\t %s' % (k, v)
+        
+        def __getstate__(self):
+            # Deliberately do not return self.value or self.last_change.
+            # We want to have a "blank slate" when we unpickle.
+            return self.history
+            
+        def __setstate__(self, state):
+            # Make self.history = state and last_change and value undefined
+            self.history = state
+            self.value, self.last_change = None, None
+            
 ##<a id="conclusion" href="#conclusion">Conclusion</a>##
 
 The goal of this guide is to bring something to anyone that reads it, regardless of their experience with 

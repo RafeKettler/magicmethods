@@ -13,7 +13,7 @@
 <h1>A Guide to Python's Magic Methods</h1>
 <h3>Rafe Kettler</h3>
 <p>Copyright &copy; 2011 Rafe Kettler</p>
-<p>Version 1.05</p>
+<p>Version 1.06</p>
 <p>The magic methods guide has a git repository at <a href="http://www.github.com/RafeKettler/magicmethods">http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported there, along with comments, (or even contributions!).</p>
 <p><strong><a id="table" href="#table">Table of Contents</a></strong></p>
 <dl>
@@ -654,16 +654,52 @@ crash or worse run malicious code on your computer. Instead, we're going to pick
 protocol has four optional methods for Python objects to customize how they act (it's a bit different for 
 C extensions, but that's not in our scope):</p>
 <dl>
-<dt><code>__getinitargs__()</code></dt>
+<dt><code>__getinitargs__(self)</code></dt>
 <dd>If you'd like for <code>__init__</code> to be called when your class is unpickled, you can define <code>__getinitargs__</code>, which should return a tuple of the arguments that you'd like to be passed to  <code>__init__</code>. Note that this method will only work for old-style classes.</dd>
-<dt><code>__getnewargs__()</code></dt>
+<dt><code>__getnewargs__(self)</code></dt>
 <dd>For new-style classes, you can influence what arguments get passed to <code>__new__</code> upon unpickling. This method should also return a tuple of arguments that will then be passed to <code>__new__</code>.</dd>
-<dt><code>__getstate__()</code></dt>
+<dt><code>__getstate__(self)</code></dt>
 <dd>Instead of the object's <code>__dict__</code> attribute being stored, you can return a custom state to be stored when the object is pickled. That state will be used by <code>__setstate__</code> when the object is unpickled.</dd>
-<dt><code>__setstate__(state)</code></dt>
+<dt><code>__setstate__(self, state)</code></dt>
 <dd>When the object is unpickled, if <code>__setstate__</code> is defined the object's state will be passed to it instead of directly applied to the object's <code>__dict__</code>. This goes hand in hand with <code>__getstate__</code>: when both are defined, you can represent the object's pickled state however you want with whatever you want.</dd>
 </dl>
 <h3>An Example</h3>
+<p>Our example is a <code>Slate</code>, which remembers what its values have been and when those values were written to 
+it. However, this particular slate goes blank each time it is pickled: the current value will not be saved.</p>
+<div class="codehilite"><pre><span class="kn">import</span> <span class="nn">time</span>
+
+<span class="k">class</span> <span class="nc">Slate</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;Class to store a string and a changelog, and forget its value when</span>
+<span class="sd">    pickled.&#39;&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_change</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">def</span> <span class="nf">change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_value</span><span class="p">):</span>
+        <span class="c"># Change the value. Commit last value to history</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">last_change</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">new_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_change</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">print_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span> <span class="s">&#39;Changelog for Slate object:&#39;</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">print</span> <span class="s">&#39;</span><span class="si">%s</span><span class="se">\t</span><span class="s"> </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># Deliberately do not return self.value or self.last_change.</span>
+        <span class="c"># We want to have a &quot;blank slate&quot; when we unpickle.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span>
+
+    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="c"># Make self.history = state and last_change and value undefined</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_change</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
+</pre></div>
+
+
 <h2><a id="conclusion" href="#conclusion">Conclusion</a></h2>
 <p>The goal of this guide is to bring something to anyone that reads it, regardless of their experience with 
 Python or object-oriented programming. If you're just getting started with Python, you've gained valuable 
