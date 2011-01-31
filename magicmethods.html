@@ -14,7 +14,7 @@
 <h3>Rafe Kettler</h3>
 <p>Copyright &copy; 2011 Rafe Kettler</p>
 
-<p>Version 1.1</p>
+<p>Version 1.10</p>
 <p>The magic methods guide has a git repository at <a href="http://www.github.com/RafeKettler/magicmethods">http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported there, along with comments, (or even contributions!).</p>
 <p><strong><a id="table" href="#table">Table of Contents</a></strong></p>
 <dl>
@@ -104,7 +104,7 @@ using operators, not awkward method calls. They also provide a way to override t
 behavior for comparisons of objects (by reference). Here's the list of those methods and what they do:</p>
 <dl>
 <dt><code>__cmp__(self, other)</code></dt>
-<dd><code>__cmp__</code> is the most basic of the comparison magic methods. It actually implements behavior for all of the comparison operators (&lt;, ==, !=, etc.), but it might not do it the way you want (for example, if whether one instance was equal to another were determined by one criterion and and whether an instance is greater than another were determined by something else). <code>__cmp__</code> should return a negative integer if <code>self &lt; other</code>, 0 if <code>self == other</code>, and positive if <code>self &gt; other</code>.</dd>
+<dd><code>__cmp__</code> is the most basic of the comparison magic methods. It actually implements behavior for all of the comparison operators (&lt;, ==, !=, etc.), but it might not do it the way you want (for example, if whether one instance was equal to another were determined by one criterion and and whether an instance is greater than another were determined by something else). <code>__cmp__</code> should return a negative integer if <code>self &lt; other</code>, 0 if <code>self == other</code>, and positive if <code>self &gt; other</code>. It's usually best to define each comparison you need rather than define them all at once, but <code>__cmp__</code> can be a good way to save repetition and improve clarity when you need all comparisons implemented with similar criteria.</dd>
 <dt><code>__eq__(self, other)</code></dt>
 <dd>Defines behavior for the equality operator, <code>==</code>.</dd>
 <dt><code>__ne__(self, other)</code></dt>
