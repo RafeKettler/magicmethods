@@ -773,7 +773,7 @@ What happens? Exactly what you expect. It's just like we had `data` all along.
 
 ###Pickling your own Objects###
 
-Pickling isn't just for builtin types. It's for any class that follows the pickle protocol. The pickle 
+Pickling isn't just for built-in types. It's for any class that follows the pickle protocol. The pickle 
 protocol has four optional methods for Python objects to customize how they act (it's a bit different for 
 C extensions, but that's not in our scope):
 

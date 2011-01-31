@@ -13,7 +13,8 @@
 <h1>A Guide to Python's Magic Methods</h1>
 <h3>Rafe Kettler</h3>
 <p>Copyright &copy; 2011 Rafe Kettler</p>
-<p>Version 1.06</p>
+
+<p>Version 1.1</p>
 <p>The magic methods guide has a git repository at <a href="http://www.github.com/RafeKettler/magicmethods">http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported there, along with comments, (or even contributions!).</p>
 <p><strong><a id="table" href="#table">Table of Contents</a></strong></p>
 <dl>
@@ -21,6 +22,7 @@
 <dt><a href="#construction">Construction and Initialization</a></dt>
 <dt><a href="#operators">Making Operators Work on Custom Classes</a></dt>
 	<dd><a href="#comparisons">Comparison magic methods</a></dd>
+
 	<dd><a href="#numeric">Numeric magic methods</a></dd>
 <dt><a href="#representations">Representing your Classes</a></dt>
 <dt><a href="#access">Controlling Attribute Access</a></dt>
@@ -31,6 +33,7 @@
 <dt><a href="#descriptor">Building Descriptor Objects</a></dt>
 <dt><a href="#pickling">Pickling your Objects</a></dt>
 <dt><a href="#conclusion">Conclusion</a></dt>
+<dt><a href="#appendix">Appendix: How to Call Magic Methods</a></dt>
 </dl>
 <h2><a id="intro" href="#intro">Introduction</a></h2>
 <p>This guide is the culmination of a few months' worth of blog posts. The subject is <strong>magic methods</strong>.</p>
@@ -657,7 +660,7 @@ crash or worse run malicious code on your computer. Instead, we're going to pick
 
 <p>What happens? Exactly what you expect. It's just like we had <code>data</code> all along.</p>
 <h3>Pickling your own Objects</h3>
-<p>Pickling isn't just for builtin types. It's for any class that follows the pickle protocol. The pickle 
+<p>Pickling isn't just for built-in types. It's for any class that follows the pickle protocol. The pickle 
 protocol has four optional methods for Python objects to customize how they act (it's a bit different for 
 C extensions, but that's not in our scope):</p>
 <dl>
@@ -715,7 +718,131 @@ intermediate Python programmer, you've probably picked up some slick new concept
 good ways to reduce the amount of code written by you and clients. If you're an expert Pythonista, you've 
 been refreshed on some of the stuff you might have forgotten about and maybe picked up a few new tricks 
 along the way. Whatever your experience level, I hope that this trip through Python's special methods has 
-been truly magical (I couldn't resist the final pun).</p>
+been truly magical (I couldn't resist the final pun).</p><h2><a id="appendix" href="#appendix">Appendix: How to Call Magic Methods</a></h2>
+<p>Some of the magic methods in Python directly map to built-in functions; in this case, how to invoke them is fairly obvious. However, in other 
+cases, the invocation is far less obvious. This appendix is devoted to exposing non-obvious syntax that leads to magic methods getting called.</p>
+<table>
+<thead>
+<tr>
+<th>Magic Method</th>
+<th>When it gets invoked (example)</th>
+<th>Explanation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>__new__(cls [,...])</code></td>
+<td><code>instance = MyClass(arg1, arg2)</code></td>
+<td><code>__new__</code> is called on instance creation</td>
+</tr>
+<tr>
+<td><code>__init__(self [,...])</code></td>
+<td><code>instance = MyClass(arg1, arg2)</code></td>
+<td><code>__init__</code> is called on instance creation</td>
+</tr>
+<tr>
+<td><code>__cmp__(self, other)</code></td>
+<td><code>self == other</code>, <code>self &gt; other</code>, etc.</td>
+<td>Called for any comparison</td>
+</tr>
+<tr>
+<td><code>__pos__(self)</code></td>
+<td><code>+self</code></td>
+<td>Unary plus sign</td>
+</tr>
+<tr>
+<td><code>__neg__(self)</code></td>
+<td><code>-self</code></td>
+<td>Unary minus sign</td>
+</tr>
+<tr>
+<td><code>__invert__(self)</code></td>
+<td><code>~self</code></td>
+<td>Bitwise inversion</td>
+</tr>
+<tr>
+<td><code>__index__(self)</code></td>
+<td><code>x[self]</code></td>
+<td>Conversion when object is used as index</td>
+</tr>
+<tr>
+<td><code>__nonzero__(self)</code></td>
+<td><code>bool(self)</code></td>
+<td>Boolean value of the object</td>
+</tr>
+<tr>
+<td><code>__getattr__(self, name)</code></td>
+<td><code>self.name # name doesn't exist</code></td>
+<td>Accessing nonexistent attribute</td>
+</tr>
+<tr>
+<td><code>__setattr__(self, name, val)</code></td>
+<td><code>self.name = val</code></td>
+<td>Assigning to an attribute</td>
+</tr>
+<tr>
+<td><code>__delattr__(self, name)</code></td>
+<td><code>del self.name</code></td>
+<td>Deleting an attribute</td>
+</tr>
+<tr>
+<td><code>__getattribute(self, name)</code></td>
+<td><code>self.name</code></td>
+<td>Accessing any attribute</td>
+</tr>
+<tr>
+<td><code>__getitem__(self, key)</code></td>
+<td><code>self[key]</code></td>
+<td>Accessing an item using an index</td>
+</tr>
+<tr>
+<td><code>__setitem__(self, key, val)</code></td>
+<td><code>self[key] = val</code></td>
+<td>Assigning to an item using an index</td>
+</tr>
+<tr>
+<td><code>__delitem__(self, key)</code></td>
+<td><code>del self[key]</code></td>
+<td>Deleting an item using an index</td>
+</tr>
+<tr>
+<td><code>__iter__(self)</code></td>
+<td><code>for x in self</code></td>
+<td>Iteration</td>
+</tr>
+<tr>
+<td><code>__contains__(self, value)</code></td>
+<td><code>value in self</code>, <code>value not in self</code></td>
+<td>Membership tests using <code>in</code></td>
+</tr>
+<tr>
+<td><code>__call__(self [,...])</code></td>
+<td><code>self(args)</code></td>
+<td>"Calling" an instance</td>
+</tr>
+<tr>
+<td><code>__enter__(self)</code></td>
+<td><code>with self as x:</code></td>
+<td><code>with</code> statement context managers</td>
+</tr>
+<tr>
+<td><code>__exit__(self, exc, val, trace)</code></td>
+<td><code>with self as x:</code></td>
+<td><code>with</code> statement context managers</td>
+</tr>
+<tr>
+<td><code>__getstate__(self)</code></td>
+<td><code>pickle.dump(pkl_file, self)</code></td>
+<td>Pickling</td>
+</tr>
+<tr>
+<td><code>__setstate__(self)</code></td>
+<td><code>data = pickle.load(pkl_file)</code></td>
+<td>Pickling</td>
+</tr>
+</tbody>
+</table>
+<p>Hopefully, this table should have cleared up any questions you might have had about what syntax invokes which magic method.</p>
 <script type="text/javascript">
 
   var _gaq = _gaq || [];
