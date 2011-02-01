@@ -721,9 +721,9 @@ Now, an example of a useful application of descriptors: unit conversions.
         '''Descriptor for a foot.'''
         
         def __get__(self, instance, owner):
-            return instance.meter / .3048
+            return instance.meter * 3.2808
         def __set__(self, instance, value):
-            instance.meter = float(value) * 3.2808
+            instance.meter = float(value) / 3.2808
 
     class Distance(object):
         '''Class to represent distance holding two descriptors for feet and

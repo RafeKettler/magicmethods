@@ -612,9 +612,9 @@ Let's take a look at those magic methods:</p>
     <span class="sd">&#39;&#39;&#39;Descriptor for a foot.&#39;&#39;&#39;</span>
 
     <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">instance</span><span class="o">.</span><span class="n">meter</span> <span class="o">/</span> <span class="o">.</span><span class="mi">3048</span>
+        <span class="k">return</span> <span class="n">instance</span><span class="o">.</span><span class="n">meter</span> <span class="o">*</span> <span class="mf">3.2808</span>
     <span class="k">def</span> <span class="nf">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="n">instance</span><span class="o">.</span><span class="n">meter</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">*</span> <span class="mf">3.2808</span>
+        <span class="n">instance</span><span class="o">.</span><span class="n">meter</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.2808</span>
 
 <span class="k">class</span> <span class="nc">Distance</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Class to represent distance holding two descriptors for feet and</span>
