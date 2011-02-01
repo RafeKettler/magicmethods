@@ -34,8 +34,7 @@
 <dt><a href="#pickling">Pickling your Objects</a></dt>
 <dt><a href="#conclusion">Conclusion</a></dt>
 <dt><a href="#appendix">Appendix: How to Call Magic Methods</a></dt>
-</dl>
-<h2><a id="intro" href="#intro">Introduction</a></h2>
+</dl><h2><a id="intro" href="#intro">Introduction</a></h2>
 <p>This guide is the culmination of a few months' worth of blog posts. The subject is <strong>magic methods</strong>.</p>
 <p>What are magic methods? They're everything in object-oriented Python. They're special methods that you 
 can define to add "magic" to your classes. They're always surrounded by double underscores (e.g. 
@@ -429,7 +428,9 @@ to from other languages (Haskell, for example).</p>
     <span class="sd">&#39;&#39;&#39;A class wrapping a list with some extra functional magic, like head,</span>
 <span class="sd">    tail, init, last, drop, and take.&#39;&#39;&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">values</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">values</span>
 
     <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -843,6 +844,7 @@ cases, the invocation is far less obvious. This appendix is devoted to exposing 
 </tbody>
 </table>
 <p>Hopefully, this table should have cleared up any questions you might have had about what syntax invokes which magic method.</p>
+
 <script type="text/javascript">
 
   var _gaq = _gaq || [];

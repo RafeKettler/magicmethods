@@ -513,7 +513,9 @@ to from other languages (Haskell, for example).
         '''A class wrapping a list with some extra functional magic, like head,
         tail, init, last, drop, and take.'''
         
-        def __init__(self, values=[]):
+        def __init__(self, values=None):
+            if values is None:
+                self.values = []
             self.values = values
         
         def __len__(self):

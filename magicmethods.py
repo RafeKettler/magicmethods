@@ -63,7 +63,9 @@ class FunctionalList:
     '''A class wrapping a list with some extra functional magic, like head,
     tail, init, last, drop, and take.'''
     
-    def __init__(self, values=[]):
+    def __init__(self, values=None):
+        if values is None:
+                self.values = []
         self.values = values
     
     def __len__(self):
@@ -153,9 +155,9 @@ class Foot(object):
     '''Descriptor for a foot.'''
     
     def __get__(self, instance, owner):
-        return instance.meter / .3048
+        return instance.meter * 3.2808
     def __set__(self, instance, value):
-        instance.meter = float(value) * 3.2808
+        instance.meter = float(value) / 3.2808
 
 class Distance(object):
     '''Class to represent distance holding two descriptors for feet and
