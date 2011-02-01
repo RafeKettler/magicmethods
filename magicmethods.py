@@ -66,7 +66,8 @@ class FunctionalList:
     def __init__(self, values=None):
         if values is None:
                 self.values = []
-        self.values = values
+        else:
+            self.values = values
     
     def __len__(self):
         return len(self.values)
