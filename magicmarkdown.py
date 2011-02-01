@@ -3,16 +3,17 @@
 
 import markdown
 
-mkd = open('magicmethods.mkd', 'r')
-text = mkd.read()
-mkd.close()
-mkd2 = open('appendix.mkd', 'r')
-text2 = mkd2.read()
-mkd2.close()
-html = markdown.markdown(text, 
+table = open('table.mkd').read()
+body = open('magicmethods.mkd').read()
+appendix = open('appendix.mkd').read()
+
+table_text = markdown.markdown(table)
+body_text = markdown.markdown(body, 
                          ['def_list', 'codehilite'])
-appendix = markdown.markdown(text2, ['tables'])
+appendix_text = markdown.markdown(appendix, ['tables'])
+
 out = open('markedup.html', 'w')
-out.write(html)
-out.write(appendix)
+out.write(table_text)
+out.write(body_text)
+out.write(appendix_text)
 out.close()

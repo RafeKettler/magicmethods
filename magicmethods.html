@@ -13,29 +13,30 @@
 <h1>A Guide to Python's Magic Methods</h1>
 <h3>Rafe Kettler</h3>
 <p>Copyright &copy; 2011 Rafe Kettler</p>
-
 <p>Version 1.11</p>
-<p>The magic methods guide has a git repository at <a href="http://www.github.com/RafeKettler/magicmethods">http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported there, along with comments, (or even contributions!).</p>
+<p>The magic methods guide has <a href="http://www.github.com/RafeKettler/magicmethods">a git repository at 
+http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported 
+there, along with comments, (or even contributions!).</p>
 <p><strong><a id="table" href="#table">Table of Contents</a></strong></p>
-<dl>
-<dt><a href="#intro">Introduction</a></dt>
-<dt><a href="#construction">Construction and Initialization</a></dt>
-<dt><a href="#operators">Making Operators Work on Custom Classes</a></dt>
-	<dd><a href="#comparisons">Comparison magic methods</a></dd>
-
-	<dd><a href="#numeric">Numeric magic methods</a></dd>
-<dt><a href="#representations">Representing your Classes</a></dt>
-<dt><a href="#access">Controlling Attribute Access</a></dt>
-<dt><a href="#sequence">Making Custom Sequences</a></dt>
-<dt><a href="#reflection">Reflection</a></dt>
-<dt><a href="#callable">Callable Objects</a></dt>
-<dt><a href="#context">Context Managers</a></dt>
-<dt><a href="#descriptor">Building Descriptor Objects</a></dt>
-<dt><a href="#pickling">Pickling your Objects</a></dt>
-<dt><a href="#conclusion">Conclusion</a></dt>
-<dt><a href="#appendix">Appendix: How to Call Magic Methods</a></dt>
-</dl>
-<h2><a id="intro" href="#intro">Introduction</a></h2>
+<ol>
+<li><a href="#intro">Introduction</a></li>
+<li><a href="#construction">Construction and Initialization</a></li>
+<li><a href="#operators">Making Operators Work on Custom Classes</a><ul>
+<li><a href="#comparisons">Comparison magic methods</a></li>
+<li><a href="#numeric">Numeric magic methods</a></li>
+</ul>
+</li>
+<li><a href="#representations">Representing your Classes</a></li>
+<li><a href="#access">Controlling Attribute Access</a></li>
+<li><a href="#sequence">Making Custom Sequences</a></li>
+<li><a href="#reflection">Reflection</a></li>
+<li><a href="#callable">Callable Objects</a></li>
+<li><a href="#context">Context Managers</a></li>
+<li><a href="#descriptor">Building Descriptor Objects</a></li>
+<li><a href="#pickling">Pickling your Objects</a></li>
+<li><a href="#conclusion">Conclusion</a></li>
+<li><a href="#appendix">Appendix: How to Call Magic Methods</a></li>
+</ol><h2><a id="intro" href="#intro">Introduction</a></h2>
 <p>This guide is the culmination of a few months' worth of blog posts. The subject is <strong>magic methods</strong>.</p>
 <p>What are magic methods? They're everything in object-oriented Python. They're special methods that you 
 can define to add "magic" to your classes. They're always surrounded by double underscores (e.g. 
