@@ -13,7 +13,7 @@
 <h1>A Guide to Python's Magic Methods</h1>
 <h3>Rafe Kettler</h3>
 <p>Copyright &copy; 2011 Rafe Kettler</p>
-<p>Version 1.11</p>
+<p>Version 1.12</p>
 <p>The magic methods guide has <a href="http://www.github.com/RafeKettler/magicmethods">a git repository at 
 http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported 
 there, along with comments, (or even contributions!).</p>
@@ -294,8 +294,8 @@ Instead, they just alter the state of the class. Here's the list:</p>
 <dd>Implements bitwise xor with assignment using the <code>^=</code> operator.</dd>
 </dl>
 <h4>Type conversion magic methods</h4>
-<p>Python also has an array of magic methods designed to implement behavior for built in type conversion 
-functions like <code>float()</code>. Here they are:</p>
+<p>Python also has an array of magic methods designed to implement behavior for built in type 
+conversion functions like <code>float()</code>. Here they are:</p>
 <dl>
 <dt><code>__int__(self)</code></dt>
 <dd>Implements type conversion to int.</dd>
@@ -311,6 +311,10 @@ functions like <code>float()</code>. Here they are:</p>
 <dd>Implements type conversion to hexadecimal.</dd>
 <dt><code>__index__(self)</code></dt>
 <dd>Implements type conversion to an int when the object is used in a slice expression. If you define a custom numeric type that might be used in slicing, you should define <code>__index__</code>.</dd>
+<dt><code>__trunc__(self)</code></dt>
+<dd>Called when <code>math.trunc(self)</code> is called. <code>__trunc__</code> should return the value of `self truncated to an integral type (usually a long).</dd>
+<dt><code>__coerce__(self, other)</code></dt>
+<dd>Method to implement mixed mode arithmetic. <code>__coerce__</code> should return <code>None</code> if type conversion is impossible. Otherwise, it should return a pair (2-tuple) of <code>self</code> and <code>other</code>, manipulated to have the same type.</dd>
 </dl>
 <h2><a id="representations" href="#representations">Representing your Classes</a></h2>
 <p>It's often useful to have a string representation of a class. In Python, there's a few methods that you 

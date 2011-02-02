@@ -339,8 +339,8 @@ Instead, they just alter the state of the class. Here's the list:
 
 ####Type conversion magic methods####
 
-Python also has an array of magic methods designed to implement behavior for built in type conversion 
-functions like `float()`. Here they are:
+Python also has an array of magic methods designed to implement behavior for built in type 
+conversion functions like `float()`. Here they are:
 
 
 `__int__(self)`
@@ -363,6 +363,12 @@ functions like `float()`. Here they are:
 
 `__index__(self)`
 :    Implements type conversion to an int when the object is used in a slice expression. If you define a custom numeric type that might be used in slicing, you should define `__index__`.
+
+`__trunc__(self)`
+:    Called when `math.trunc(self)` is called. `__trunc__` should return the value of `self truncated to an integral type (usually a long).
+
+`__coerce__(self, other)`
+:    Method to implement mixed mode arithmetic. `__coerce__` should return `None` if type conversion is impossible. Otherwise, it should return a pair (2-tuple) of `self` and `other`, manipulated to have the same type.
 
 
 ##<a id="representations" href="#representations">Representing your Classes</a>##
