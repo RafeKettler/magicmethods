@@ -425,7 +425,10 @@ methods called <code>__iter__</code>(returning itself) and <code>next</code>.</p
 <dt><code>__reversed__(self)</code></dt>
 <dd>Called to implement behavior for the <code>reversed()</code> built in function. Should return a reversed version of the list.</dd>
 <dt><code>__contains__(self, item)</code></dt>
-<dd>Last but not least, <code>__contains__</code> defines behavior for membership tests using <code>in</code> and <code>not in</code>. Why isn't this part of a sequence protocol, you ask? Because when <code>__contains__</code> isn't defined, Python just iterates over the sequence and returns <code>True</code> if it comes across the item it's looking for.</dd>
+<dd><code>__contains__</code> defines behavior for membership tests using <code>in</code> and <code>not in</code>. Why isn't this part of a sequence protocol, you ask? Because when <code>__contains__</code> isn't defined, Python just iterates over the sequence and returns <code>True</code> if it comes across the item it's looking for.</dd>
+<dt><code>__concat__(self, other)</code></dt>
+<dd>Lastly, you can define behavior for concatenating your sequence with another by defining <code>__concat__</code>. It should return a new sequence constructed from <code>self</code> and <code>other</code>. <code>__concat__</code> is invoked with the <code>+</code> operator when it is called on two sequences.  <br />
+</dd>
 </dl>
 <h4>An example</h4>
 <p>For our example, let's look at a list that implements some functional constructs that you might be used 
@@ -806,51 +809,6 @@ cases, the invocation is far less obvious. This appendix is devoted to exposing 
 <tr>
 <td><code>__setitem__(self, key, val)</code></td>
 <td><code>self[key] = val</code></td>
-<td>Assigning to an item using an index</td>
-</tr>
-<tr>
-<td><code>__delitem__(self, key)</code></td>
-<td><code>del self[key]</code></td>
-<td>Deleting an item using an index</td>
-</tr>
-<tr>
-<td><code>__iter__(self)</code></td>
-<td><code>for x in self</code></td>
-<td>Iteration</td>
-</tr>
-<tr>
-<td><code>__contains__(self, value)</code></td>
-<td><code>value in self</code>, <code>value not in self</code></td>
-<td>Membership tests using <code>in</code></td>
-</tr>
-<tr>
-<td><code>__call__(self [,...])</code></td>
-<td><code>self(args)</code></td>
-<td>"Calling" an instance</td>
-</tr>
-<tr>
-<td><code>__enter__(self)</code></td>
-<td><code>with self as x:</code></td>
-<td><code>with</code> statement context managers</td>
-</tr>
-<tr>
-<td><code>__exit__(self, exc, val, trace)</code></td>
-<td><code>with self as x:</code></td>
-<td><code>with</code> statement context managers</td>
-</tr>
-<tr>
-<td><code>__getstate__(self)</code></td>
-<td><code>pickle.dump(pkl_file, self)</code></td>
-<td>Pickling</td>
-</tr>
-<tr>
-<td><code>__setstate__(self)</code></td>
-<td><code>data = pickle.load(pkl_file)</code></td>
-<td>Pickling</td>
-</tr>
-</tbody>
-</table>
-<p>Hopefully, this table should have cleared up any questions you might have had about what syntax invokes which magic method.</p>
 
 <script type="text/javascript">
 
