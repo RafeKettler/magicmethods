@@ -12,8 +12,7 @@ body_text = markdown.markdown(body,
                          ['def_list', 'codehilite'])
 appendix_text = markdown.markdown(appendix, ['tables'])
 
-out = open('markedup.html', 'w')
-out.write(table_text)
-out.write(body_text)
-out.write(appendix_text)
-out.close()
+with open('markedup.html', 'w') as out:
+    out.write(table_text)
+    out.write(body_text)
+    out.write(appendix_text)
