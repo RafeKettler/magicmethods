@@ -641,7 +641,7 @@ with a `with` statement. The behavior of the context manager is determined by tw
 `__enter__(self)`
 :    Defines what the context manager should do at the beginning of the block created by the `with` statement. Note that the return value of `__enter__` is bound to the _target_ of the `with` statement, or the name after the `as`.
 
-`__exit__(self, exception_type, exception_value)`
+`__exit__(self, exception_type, exception_value, traceback)`
 :    Defines what the context manager should do after its block has been executed (or terminates). It can be used to handle exceptions, perform cleanup, or do something always done immediately after the action in the block. If the block executes successfully, `exception_type`, `exception_value`, and `traceback` will be `None`. Otherwise, you can choose to handle the exception or let the user handle it; if you want to handle it, make sure `__exit__` returns `True` after all is said and done. If you don't want the exception to be handled by the context manager, just let it happen.
 
 
