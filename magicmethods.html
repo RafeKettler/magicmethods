@@ -105,7 +105,7 @@ using operators, not awkward method calls. They also provide a way to override t
 behavior for comparisons of objects (by reference). Here's the list of those methods and what they do:</p>
 <dl>
 <dt><code>__cmp__(self, other)</code></dt>
-<dd><code>__cmp__</code> is the most basic of the comparison magic methods. It actually implements behavior for all of the comparison operators (&lt;, ==, !=, etc.), but it might not do it the way you want (for example, if whether one instance was equal to another were determined by one criterion and and whether an instance is greater than another were determined by something else). <code>__cmp__</code> should return a negative integer if <code>self &lt; other</code>, 0 if <code>self == other</code>, and positive if <code>self &gt; other</code>. It's usually best to define each comparison you need rather than define them all at once, but <code>__cmp__</code> can be a good way to save repetition and improve clarity when you need all comparisons implemented with similar criteria.</dd>
+<dd><code>__cmp__</code> is the most basic of the comparison magic methods. It actually implements behavior for all of the comparison operators (&lt;, ==, !=, etc.), but it might not do it the way you want (for example, if whether one instance was equal to another were determined by one criterion and and whether an instance is greater than another were determined by something else). <code>__cmp__</code> should return a negative integer if <code>self &lt; other</code>, zero if <code>self == other</code>, and positive if <code>self &gt; other</code>. It's usually best to define each comparison you need rather than define them all at once, but <code>__cmp__</code> can be a good way to save repetition and improve clarity when you need all comparisons implemented with similar criteria.</dd>
 <dt><code>__eq__(self, other)</code></dt>
 <dd>Defines behavior for the equality operator, <code>==</code>.</dd>
 <dt><code>__ne__(self, other)</code></dt>
@@ -546,7 +546,7 @@ with a <code>with</code> statement. The behavior of the context manager is deter
 <dl>
 <dt><code>__enter__(self)</code></dt>
 <dd>Defines what the context manager should do at the beginning of the block created by the <code>with</code> statement. Note that the return value of <code>__enter__</code> is bound to the <em>target</em> of the <code>with</code> statement, or the name after the <code>as</code>.</dd>
-<dt><code>__exit__(self, exception_type, exception_value)</code></dt>
+<dt><code>__exit__(self, exception_type, exception_value, traceback)</code></dt>
 <dd>Defines what the context manager should do after its block has been executed (or terminates). It can be used to handle exceptions, perform cleanup, or do something always done immediately after the action in the block. If the block executes successfully, <code>exception_type</code>, <code>exception_value</code>, and <code>traceback</code> will be <code>None</code>. Otherwise, you can choose to handle the exception or let the user handle it; if you want to handle it, make sure <code>__exit__</code> returns <code>True</code> after all is said and done. If you don't want the exception to be handled by the context manager, just let it happen.</dd>
 </dl>
 <p><code>__enter__</code> and <code>__exit__</code> can be useful for specific classes that have well-defined and common behavior 
@@ -809,6 +809,56 @@ cases, the invocation is far less obvious. This appendix is devoted to exposing 
 <tr>
 <td><code>__setitem__(self, key, val)</code></td>
 <td><code>self[key] = val</code></td>
+<td>Assigning to an item using an index</td>
+</tr>
+<tr>
+<td><code>__delitem__(self, key)</code></td>
+<td><code>del self[key]</code></td>
+<td>Deleting an item using an index</td>
+</tr>
+<tr>
+<td><code>__iter__(self)</code></td>
+<td><code>for x in self</code></td>
+<td>Iteration</td>
+</tr>
+<tr>
+<td><code>__contains__(self, value)</code></td>
+<td><code>value in self</code>, <code>value not in self</code></td>
+<td>Membership tests using <code>in</code></td>
+</tr>
+<tr>
+<td><code>__concat__(self, value)</code></td>
+<td><code>self + other</code></td>
+<td>Concatenation of two sequences</td>
+</tr>
+<tr>
+<td><code>__call__(self [,...])</code></td>
+<td><code>self(args)</code></td>
+<td>"Calling" an instance</td>
+</tr>
+<tr>
+<td><code>__enter__(self)</code></td>
+<td><code>with self as x:</code></td>
+<td><code>with</code> statement context managers</td>
+</tr>
+<tr>
+<td><code>__exit__(self, exc, val, trace)</code></td>
+<td><code>with self as x:</code></td>
+<td><code>with</code> statement context managers</td>
+</tr>
+<tr>
+<td><code>__getstate__(self)</code></td>
+<td><code>pickle.dump(pkl_file, self)</code></td>
+<td>Pickling</td>
+</tr>
+<tr>
+<td><code>__setstate__(self)</code></td>
+<td><code>data = pickle.load(pkl_file)</code></td>
+<td>Pickling</td>
+</tr>
+</tbody>
+</table>
+<p>Hopefully, this table should have cleared up any questions you might have had about what syntax invokes which magic method.</p>
 
 <script type="text/javascript">
 
