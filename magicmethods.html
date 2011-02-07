@@ -354,7 +354,7 @@ farther than the truth: it just happens that Python accomplishes a great deal of
     <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">value</span>
     <span class="c"># since every time an attribute is assigned, __setattr__() is called, this</span>
     <span class="c"># is recursion.</span>
-    <span class="c"># so this really means self.__setattr__(name, value). Since the method</span>
+    <span class="c"># so this really means self.__setattr__(&#39;name&#39;, value). Since the method</span>
     <span class="c"># keeps calling itself, the recursion goes on forever causing a crash</span>
 
 <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
@@ -370,24 +370,26 @@ responsibility. It's important to know the proper way to use magic methods so yo
 it tends to be excessively powerful and counter-intuitive. But the reason why it exists is to scratch a 
 certain itch: Python doesn't seek to make bad things impossible, but just to make them difficult. Freedom 
 is paramount, so you can really do whatever you want. Here's an example of some of the special attribute 
-access methods in action:</p>
+access methods in action (note that we use <code>super</code> because not all classes have an attribute <code>__dict__</code>):</p>
 <div class="codehilite"><pre><span class="k">class</span> <span class="nc">AccessCounter</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39;A class that contains a value and implements an access counter.</span>
 <span class="sd">    The counter increments each time the value is changed.&#39;&#39;&#39;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s">&#39;counter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AccessCounter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="s">&#39;counter&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AccessCounter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="s">&#39;value&#39;</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;value&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s">&#39;counter&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s">&#39;value&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">AccessCounter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="s">&#39;counter&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c"># Make this unconditional.</span>
+        <span class="c"># If you want to prevent other attributes to be set, raise AttributeError(name)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AccessCounter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__delattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;value&#39;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s">&#39;counter&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="s">&#39;value&#39;</span><span class="p">]</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">AccessCounter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="s">&#39;counter&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">AccessCounter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__delattr__</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span>
 </pre></div>
 
 
@@ -511,7 +513,7 @@ that you can "call" them, pass them to functions that take functions as argument
 another powerful convenience feature that makes programming in Python that much sweeter.</p>
 <dl>
 <dt><code>__call__(self, [args...])</code></dt>
-<dd>Allows an instance of a class to be called as a function. Essentially, this means that <code>x()</code> is the same as <code>x.__call__()</code>. Note that <code>__call__</code> takes a variable number of arguments; this means that you define <code>__call__</code> as you would any other function, taking however many functions you'd like it to.</dd>
+<dd>Allows an instance of a class to be called as a function. Essentially, this means that <code>x()</code> is the same as <code>x.__call__()</code>. Note that <code>__call__</code> takes a variable number of arguments; this means that you define <code>__call__</code> as you would any other function, taking however many arguments you'd like it to.</dd>
 </dl>
 <p><code>__call__</code> can be particularly useful in classes whose instances that need to often change state. 
 "Calling" the instance can be an intuitive and elegant way to change the object's state. An example might 
