@@ -56,7 +56,7 @@ class AccessCounter:
         if name == 'value':
             self.__dict__['counter'] += 1
             del self.__dict__['value']
-        class AccessCounter:
+class AccessCounter:
     '''A class that contains a value and implements an access counter.
     The counter increments each time the value is changed.'''
 
@@ -84,7 +84,7 @@ class FunctionalList:
     
     def __init__(self, values=None):
         if values is None:
-                self.values = []
+            self.values = []
         else:
             self.values = values
     
@@ -155,10 +155,10 @@ class Closer:
     
     def __exit__(self, exception_type, exception_val, trace):
         try:
-           self.obj.close()
+            self.obj.close()
         except AttributeError: # obj isn't closable
-           print 'Not closable.'
-           return True # exception handled successfully
+            print 'Not closable.'
+            return True # exception handled successfully
            
 # Classes to represent descriptors and their use
 class Meter(object):
