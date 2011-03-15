@@ -161,9 +161,6 @@ Unary operators and functions only have one operand, e.g. negation, absolute val
 `__abs__(self)`
 :    Implements behavior for the built in `abs()` function.
 
-`__neg__(self)`
-:    Implements behavior for negation (e.g. `-some_object`)
-
 `__invert__(self)`
 :    Implements behavior for inversion using the `~` operator. For an explanation on what this does, see [the Wikipedia article on bitwise operations](http://en.wikipedia.org/wiki/Bitwise_operation#NOT).
 

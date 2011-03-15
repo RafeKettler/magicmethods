@@ -1,0 +1,125 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{underscore}
+\usepackage{listings}
+\lstloadlanguages{Python}
+\lstset{
+language         = Python,
+basicstyle       = \ttfamily\footnotesize,
+keepspaces       = true,
+showstringspaces = false
+}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\begin{document}
+
+\title{A Guide to Python's Magic Methods}
+\author{Rafe Kettler}
+\date{2011}
+\maketitle
+
+\section{Introduction}
+
+This guide is the culmination of a few months' worth of blog posts. The subject is \textbf{magic methods}.
+
+What are magic methods? They're everything in object-oriented Python. They're special methods that you can define to add "magic" to your classes. They're always surrounded by double underscores (e.g. \code{__init__} or \code{__lt__}). They're also not as well documented as they need to be. All of the magic methods for Python appear in the same section in the Python docs, but they're scattered about and only loosely organized. There's hardly an example to be found in that section (and that may very well be by design, since they're all detailed in the \emph{language reference}, along with boring syntax descriptions, etc.).
+
+So, to fix what I perceived as a flaw in Python's documentation, I set out to provide some more plain-English, example-driven documentation for Python's magic methods. I started out with weekly blog posts, and now that I've finished with those, I've put together this guide.
+
+I hope you enjoy it. Use it as a tutorial, a refresher, or a reference; it's just intended to be a user-friendly guide to Python's magic methods.
+
+\section{Construction and Initialization}
+
+Everyone knows the most basic magic method, \code{__init__}. It's the way that we can define the initialization behavior of an object. However, when I call \code{x = SomeClass()}, \code{__init__} is not the first thing to get called. Actually, it's a method called \code{__new__}, which actually creates the instance, then passes any arguments at creation on to the initializer. At the other end of the object's lifespan, there's \code{__del__}. Let's take a closer look at these 3 magic methods:
+
+\begin{description}
+
+\item[\code{__new__(cls, [...)}]
+\code{__new__} is the first method to get called in an object's instantiation. It takes the class, then any other arguments that it will pass along to \code{__init__}. \code{__new__} is used fairly rarely, but it does have its purposes, particularly when subclassing an immutable type like a tuple or a string. I don't want to go in to too much detail on \code{__new__} because it's not too useful, but it is covered in great detail in the Python docs.
+
+\item[\code{__init__(self, [...)}]
+The initializer for the class. It gets passed whatever the primary constructor was called with (so, for example, if we called \code{x = SomeClass(10, 'foo')}, \code{__init__} would get passed \code{10} and \code{'foo'} as arguments. \code{__init__} is almost universally used in Python class definitions.
+
+\item[\code{__del__(self)}]
+If \code{__new__} and \code{__init__} formed the constructor of the object, \code{__del__} is the destructor. It doesn't implement behavior for the statement \code{del x} (so that code would not translate to \code{x.__del__()}). Rather, it defines behavior for when an object is garbage collected. It can be quite useful for objects that might require extra cleanup upon deletion, like sockets or file objects. Be careful, however, as there is no guarantee that \code{__del__} will be executed if the object is still alive when the interpreter exits, so \code{__del__} can't serve as a replacement for good coding practices (like always closing a connection when you're done with it.
+
+\end{description}
+
+Putting it all together, here's an example of \code{__init__} and \code{__del__} in action:
+
+\lstinputlisting[language=Python]{listings/fileobject.py}
+
+\section{Making Operators Work on Custom Classes}
+
+One of the biggest advantages of using Python's magic methods is that they provide a simple way to make objects behave like built-in types. That means you can avoid ugly, counter-intuitive, and nonstandard ways of performing basic operators. In some languages, it's common to do something like this:
+
+\begin{lstlisting}
+if instance.equals(other_instance):
+    # do something
+\end{lstlisting}
+
+You could certainly do this in Python, too, but this adds confusion and is unnecessarily verbose. Different libraries might use different names for the same operations, making the client do way more work than necessary. With the power of magic methods, however, we can define one method (\code{__eq__}, in this case), and say what we \emph{mean} instead:
+
+\begin{lstlisting}
+if instance == other_instance:
+    #do something
+\end{lstlisting}
+
+That's part of the power of magic methods. The vast majority of them allow us to define meaning for operators so that we can use them on our own classes just like they were built in types.
+
+\subsection{Comparison magic methods}
+
+Python has a whole slew of magic methods designed to implement intuitive comparisons between objects using operators, not awkward method calls. They also provide a way to override the default Python behavior for comparisons of objects (by reference). Here's the list of those methods and what they do:
+
+\begin{description}
+
+\item[\code{__cmp__(self, other)}]
+:    \code{__cmp__} is the most basic of the comparison magic methods. It actually implements behavior for all of the comparison operators (<, ==, !=, etc.), but it might not do it the way you want (for example, if whether one instance was equal to another were determined by one criterion and and whether an instance is greater than another were determined by something else). \code{__cmp__} should return a negative integer if \code{self < other}, zero if \code{self == other}, and positive if \code{self > other}. It's usually best to define each comparison you need rather than define them all at once, but \code{__cmp__} can be a good way to save repetition and improve clarity when you need all comparisons implemented with similar criteria.
+
+\item[\code{__eq__(self, other)}]
+Defines behavior for the equality operator, \code{==}.
+\item[\code{__ne__(self, other)}]
+Defines behavior for the inequality operator, \code{!=}.
+\item[\code{__lt__(self, other)}]
+Defines behavior for the less-than operator, \code{<}.
+\item[\code{__gt__(self, other)}]
+Defines behavior for the greater-than operator, \code{>}.
+\item[\code{__le__(self, other)}]
+Defines behavior for the less-than-or-equal-to operator, \code{<=}.
+\item[\code{__ge__(self, other)}]
+Defines behavior for the greater-than-or-equal-to operator, \code{>=}.
+
+\end{description}
+
+For an example, consider a class to model a word. We might want to compare words lexicographically (by the alphabet), which is the default comparison behavior for strings, but we also might want to do it based on some other criterion, like length or number of syllables. In this example, we'll compare by length. Here's an implementation:
+
+\lstinputlisting{listings/word.py}
+
+Now, we can create two \code{Word}s (by using \code{Word('foo')} and \code{Word('bar')}) and compare them based on length. Note, however, that we didn't define \code{__eq__} and \code{__ne__}. This is because this would lead to some weird behavior (notably that \code{Word('foo') == Word('bar')} would evaluate to true). It wouldn't make sense to test for equality based on length, so we fall back on \code{str}'s implementation of equality.
+
+Now would be a good time to note that you don't have to define every comparison magic method to get rich comparisons. The standard library has kindly provided us with a class decorator in the module \code{functools} that will define all rich comparison methods if you only define \code{__eq__} and one other (e.g. \code{__gt__}, \code{__lt__}, etc.) This feature is only available in Python 2.7, but when you get a chance it saves a great deal of time and effort. You can use it by placing \code{@total_ordering} above your class definition.
+
+\subsection{Numeric Magic Methods}
+
+Just like you can create ways for instances of your class to be compared with comparison operators, you can define behavior for numeric operators. Buckle your seat belts, folks, there's a lot of these. For organization's sake, I've split the numeric magic methods into 5 categories: unary operators, normal arithmetic operators, reflected arithmetic operators (more on this later), augmented assignment, and type conversions.
+
+\subsubsection{Unary operators and functions}
+
+Unary operators and functions only have one operand, e.g. negation, absolute value, etc.
+
+\begin{description}
+
+\item[`__pos__(self)`]
+Implements behavior for unary positive (e.g. `+some_object`)
+\item[`__neg__(self)`]
+Implements behavior for negation (e.g. `-some_object`)
+\item[`__abs__(self)`]
+Implements behavior for the built in `abs()` function.
+\item[`__neg__(self)`]
+Implements behavior for negation (e.g. `-some_object`)
+\item[`__invert__(self)`]
+Implements behavior for inversion using the `~` operator.
+
+
+\end{document}
