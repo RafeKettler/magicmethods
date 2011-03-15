@@ -116,10 +116,163 @@ Implements behavior for unary positive (e.g. `+some_object`)
 Implements behavior for negation (e.g. `-some_object`)
 \item[`__abs__(self)`]
 Implements behavior for the built in `abs()` function.
-\item[`__neg__(self)`]
-Implements behavior for negation (e.g. `-some_object`)
 \item[`__invert__(self)`]
-Implements behavior for inversion using the `~` operator.
+Implements behavior for inversion using the `\char126` operator.
 
+\end{description}
+
+\subsection{Normal arithmetic operators}
+
+Now, we cover the typical binary operators (and a function or two): +, -, * and the like. These are, for the most part, pretty self-explanatory.
+
+\begin{description}
+
+\item[\code{__add__(self, other)}]
+Implements addition.
+\item[\code{__sub__(self, other)}]
+Implements subtraction.
+\item[\code{__mul__(self, other)}]
+Implements multiplication.
+\item[\code{__floordiv__(self, other)}]
+Implements integer division using the \code{//} operator.
+\item[\code{__div__(self, other)}]
+Implements division using the \code{/} operator.
+\item[\code{__truediv__(self, other)}]
+Implements _true_ division. Note that this only works when \code{from __future__ import division} is in effect.
+\item[\code{__mod_(self, other)}]
+Implements modulo using the \code{\%} operator.
+\item[\code{__divmod__(self, other)}]
+Implements behavior for long division using the \code{divmod()} built in function.
+\item[\code{__pow__}]
+Implements behavior for exponents using the \code{**} operator.
+\item[\code{__lshift__(self, other)}]
+Implements left bitwise shift using the \code{<<} operator.
+\item[\code{__rshift__(self, other)}]
+Implements right bitwise shift using the \code{>>} operator.
+\item[\code{__and__(self, other)}]
+Implements bitwise and using the \code{\&} operator.
+\item[\code{__or__(self, other)}]
+Implements bitwise or using the \code{|} operator.
+\item[\code{__xor__(self, other)}]
+Implements bitwise xor using the \code{\char94} operator.
+
+\end{description}
+
+\subsubsection{Reflected arithmetic operators}
+
+You know how I said I would get to reflected arithmetic in a bit? Some of you might think it's some big, scary, foreign concept. It's actually quite simple. Here's an example:
+
+    :::python
+    some_object + other
+
+That was "normal" addition. The reflected equivalent is the same thing, except with the operands switched around:
+
+\begin{lstlisting}
+other + some_object
+\end{lstlisting}
+
+So, all of these magic methods do the same thing as their normal equivalents, except the perform the operation with other as the first operand and self as the second, rather than the other way around. In most cases, the result of a reflected operation is the same as its normal equivalent, so you may just end up defining \code{__radd__} as calling \code{__add__} and so on. Without further ado:
+
+\begin{description}
+
+\item[\code{__radd__(self, other)}]
+Implements reflected addition.
+\item[\code{__rsub__(self, other)}]
+Implements reflected subtraction.
+\item[\code{__rmul__(self, other)}]
+Implements reflected multiplication.
+\item[\code{__rfloordiv__(self, other)}]
+Implements reflected integer division using the \code{//} operator.
+\item[\code{__rdiv__(self, other)}]
+Implements reflected division using the \code{/} operator.
+\item[\code{__rtruediv__(self, other)}]
+Implements reflected _true_ division. Note that this only works when \code{from __future__ import division} is in effect.
+\item[\code{__rmod_(self, other)}]
+Implements reflected modulo using the \code{\%} operator.
+\item[\code{__rdivmod__(self, other)}]
+Implements behavior for long division using the \code{divmod()} built in function, when \code{divmod(other, self)} is called.
+\item[\code{__rpow__}]
+Implements behavior for reflected exponents using the \code{**} operator.
+\item[\code{__rlshift__(self, other)}]
+Implements reflected left bitwise shift using the \code{<<} operator.
+\item[\code{__rrshift__(self, other)}]
+Implements reflected right bitwise shift using the \code{>>} operator.
+\item[\code{__rand__(self, other)}]
+Implements reflected bitwise and using the \code{\&} operator.
+\item[\code{__ror__(self, other)}]
+Implements reflected bitwise or using the \code{|} operator.
+\item[\code{__rxor__(self, other)}]
+Implements reflected bitwise xor using the \code{\char94} operator.
+
+\end{description}
+
+\subsubsection{Augmented assignment}
+
+Python also has a wide variety of magic methods to allow custom behavior to be defined for augmented assignment. You're probably already familiar with augmented assignment, it combines ``normal'' operators with assignment. If you still don't know what I'm talking about, here's an example:
+
+\begin{lstlisting}
+x = 5
+x += 1 # in other words x = x + 1
+\end{lstlisting}
+
+Each of these methods does not return a value, because assignment in Python does not return any value. Instead, they just alter the state of the class. Here's the list:
+
+\begin{description}
+
+\item[\code{__iadd__(self, other)}]
+Implements addition with assignment.
+\item[\code{__isub__(self, other)}]
+Implements subtraction with assignment.
+\item[\code{__imul__(self, other)}]
+Implements multiplication with assignment.
+\item[\code{__ifloordiv__(self, other)}]
+Implements integer division with assignment using the \code{//=} operator.
+\item[\code{__idiv__(self, other)}]
+Implements division with assignment using the \code{/=} operator.
+\item[\code{__itruediv__(self, other)}]
+Implements _true_ division with assignment. Note that this only works when \code{from __future__ import division} is in effect.
+\item[\code{__imod_(self, other)}]
+Implements modulo with assignment using the \code{\%=} operator.
+\item[\code{__ipow__}]
+Implements behavior for exponents with assignment using the \code{**=} operator.
+\item[\code{__ilshift__(self, other)}]
+Implements left bitwise shift with assignment using the \code{<<=} operator.
+\item[\code{__irshift__(self, other)}]
+Implements right bitwise shift with assignment using the \code{>>=} operator.
+\item[\code{__iand__(self, other)}]
+Implements bitwise and with assignment using the \code{\&=} operator.
+\item[\code{__ior__(self, other)}]
+Implements bitwise or with assignment using the \code{|=} operator.
+\item[\code{__ixor__(self, other)}]
+Implements bitwise xor with assignment using the \code{\char94=} operator.
+
+\end{description}
+
+\subsubsection{Type conversion magic methods}
+
+Python also has an array of magic methods designed to implement behavior for built in type conversion functions like \code{float()}. Here they are:
+
+\begin{description}
+
+\item[\code{__int__(self)}]
+Implements type conversion to int.
+\item[\code{__long__(self)}]
+Implements type conversion to long.
+\item[\code{__float__(self)}]
+Implements type conversion to float.
+\item[\code{__complex__(self)}]
+Implements type conversion to complex.
+\item[\code{__oct__(self)}]
+Implements type conversion to octal.
+\item[\code{__hex__(self)}]
+Implements type conversion to hexadecimal.
+\item[\code{__index__(self)}]
+Implements type conversion to an int when the object is used in a slice expression. If you define a custom numeric type that might be used in slicing, you should define \code{__index__}.
+\item[\code{__trunc__(self)}]
+Called when \code{math.trunc(self)} is called. \code{__trunc__} should return the value of \code{self} truncated to an integral type (usually a long).
+\item[\code{__coerce__(self, other)}]
+Method to implement mixed mode arithmetic. \code{__coerce__} should return \code{None} if type conversion is impossible. Otherwise, it should return a pair (2-tuple) of \code{self} and \code{other}, manipulated to have the same type.
+
+\end{description}
 
 \end{document}
