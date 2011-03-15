@@ -37,18 +37,17 @@ Everyone knows the most basic magic method, \code{__init__}. It's the way that w
 
 \item[\code{__new__(cls, [...)}]
 \code{__new__} is the first method to get called in an object's instantiation. It takes the class, then any other arguments that it will pass along to \code{__init__}. \code{__new__} is used fairly rarely, but it does have its purposes, particularly when subclassing an immutable type like a tuple or a string. I don't want to go in to too much detail on \code{__new__} because it's not too useful, but it is covered in great detail in the Python docs.
-
 \item[\code{__init__(self, [...)}]
 The initializer for the class. It gets passed whatever the primary constructor was called with (so, for example, if we called \code{x = SomeClass(10, 'foo')}, \code{__init__} would get passed \code{10} and \code{'foo'} as arguments. \code{__init__} is almost universally used in Python class definitions.
-
 \item[\code{__del__(self)}]
 If \code{__new__} and \code{__init__} formed the constructor of the object, \code{__del__} is the destructor. It doesn't implement behavior for the statement \code{del x} (so that code would not translate to \code{x.__del__()}). Rather, it defines behavior for when an object is garbage collected. It can be quite useful for objects that might require extra cleanup upon deletion, like sockets or file objects. Be careful, however, as there is no guarantee that \code{__del__} will be executed if the object is still alive when the interpreter exits, so \code{__del__} can't serve as a replacement for good coding practices (like always closing a connection when you're done with it.
 
 \end{description}
 
+\noindent
 Putting it all together, here's an example of \code{__init__} and \code{__del__} in action:
 
-\lstinputlisting[language=Python]{listings/fileobject.py}
+\lstinputlisting{listings/fileobject.py}
 
 \section{Making Operators Work on Custom Classes}
 
@@ -59,6 +58,7 @@ if instance.equals(other_instance):
     # do something
 \end{lstlisting}
 
+\noindent
 You could certainly do this in Python, too, but this adds confusion and is unnecessarily verbose. Different libraries might use different names for the same operations, making the client do way more work than necessary. With the power of magic methods, however, we can define one method (\code{__eq__}, in this case), and say what we \emph{mean} instead:
 
 \begin{lstlisting}
@@ -66,6 +66,7 @@ if instance == other_instance:
     #do something
 \end{lstlisting}
 
+\noindent
 That's part of the power of magic methods. The vast majority of them allow us to define meaning for operators so that we can use them on our own classes just like they were built in types.
 
 \subsection{Comparison magic methods}
@@ -162,15 +163,18 @@ Implements bitwise xor using the \code{\char94} operator.
 
 You know how I said I would get to reflected arithmetic in a bit? Some of you might think it's some big, scary, foreign concept. It's actually quite simple. Here's an example:
 
-    :::python
-    some_object + other
+\begin{lstlisting}
+some_object + other
+\end{lstlisting}
 
+\noindent
 That was "normal" addition. The reflected equivalent is the same thing, except with the operands switched around:
 
 \begin{lstlisting}
 other + some_object
 \end{lstlisting}
 
+\noindent
 So, all of these magic methods do the same thing as their normal equivalents, except the perform the operation with other as the first operand and self as the second, rather than the other way around. In most cases, the result of a reflected operation is the same as its normal equivalent, so you may just end up defining \code{__radd__} as calling \code{__add__} and so on. Without further ado:
 
 \begin{description}
@@ -274,5 +278,279 @@ Called when \code{math.trunc(self)} is called. \code{__trunc__} should return th
 Method to implement mixed mode arithmetic. \code{__coerce__} should return \code{None} if type conversion is impossible. Otherwise, it should return a pair (2-tuple) of \code{self} and \code{other}, manipulated to have the same type.
 
 \end{description}
+
+\section{Representing your Classes}
+
+It's often useful to have a string representation of a class. In Python, there's a few methods that you can implement in your class definition to customize how built in functions that return representations of your class behave.
+
+\begin{description}
+
+\item[\code{__str__(self)}]
+Defines behavior for when \code{str()} is called on an instance of your class.
+\item[\code{__repr__(self)}]
+Defines behavior for when \code{repr()} is called on an instance of your class. The major difference between \code{str()} and \code{repr()} is intended audience. \code{repr()} is intended to produce output that is mostly machine-readable (in many cases, it could be valid Python code even), whereas \code{str()} is intended to be human-readable.
+\item[\code{__unicode__(self)}]
+Defines behavior for when \code{unicode()} is called on an instance of your class. \code{unicode()} is like \code{str()}, but it returns a unicode string. Be wary: if a client calls \code{str()} on an instance of your class and you've only defined \code{__unicode__()}, it won't work. You should always try to define \code{__str__()} as well in case someone doesn't have the luxury of using unicode.
+\item[\code{__hash__(self)}]
+Defines behavior for when \code{hash()} is called on an instance of your class. It has to return an integer, and its result is used for quick key comparison in dictionaries.
+\item[\code{__nonzero__(self)}]
+Defines behavior for when \code{bool()} is called on an instance of your class. Should return True or False, depending on whether you would want to consider the instance to be True or False.
+
+\end{description}
+
+\noindent
+We're pretty much done with the boring (and example-free) part of the magic methods guide. Now that we've covered some of the more basic magic methods, it's time to move to more advanced material.
+
+\section{Controlling Attribute Access}
+
+Many people coming to Python from other languages complain that it lacks true encapsulation for classes (e.g. no way to define private attributes and then have public getter and setters). This couldn't be farther than the truth: it just happens that Python accomplishes a great deal of encapsulation through ``magic'', instead of explicit modifiers for methods or fields. Take a look:
+
+\begin{description}
+
+\item[\code{__getattr__(self, name)}]
+You can define behavior for when a user attempts to access an attribute that doesn't exist (either at all or yet). This can be useful for catching and redirecting common misspellings, giving warnings about using deprecated attributes (you can still choose to compute and return that attribute, if you wish), or deftly handing an \code{AttributeError}. It only gets called when a nonexistent attribute is accessed, however, so it isn't a true encapsulation solution.
+
+\item[\code{__setattr__(self, name, value)}]
+Unlike \code{__getattr__}, \code{__setattr__} is an encapsulation solution. It allows you to define behavior for assignment to an attribute regardless of whether or not that attribute exists, meaning you can define custom rules for any changes in the values of attributes. However, you have to be careful with how you use \code{__setattr__}, as the example at the end of the list will show.
+
+\item[\code{__delattr__}]
+This is the exact same as \code{__setattr__}, but for deleting attributes instead of setting them. The same precautions need to be taken as with \code{__setattr__} as well in order to prevent infinite recursion (calling \code{del self.name} in the implementation of \code{__delattr__} would cause infinite recursion).
+
+\item[\code{__getattribute__(self, name)}]
+After all this, \code{__getattribute__} fits in pretty well with its companions \code{__setattr__} and \code{__delattr__}. However, I don't recommend you use it. \code{__getattribute__} can only be used with new-style classes (all classes are new-style in the newest versions of Python, and in older versions you can make a class new-style by subclassing \code{object}. It allows you to define rules for whenever an attribute's value is accessed. It suffers from some similar infinite recursion problems as its partners-in-crime (this time you call the base class's \code{__getattribute__} method to prevent this). It also mainly obviates the need for \code{__getattr__}, which only gets called when \code{__getattribute__} is implemented if it is called explicitly or an \code{AttributeError} is raised. This method can be used (after all, it's your choice), but I don't recommend it because it has a small use case (it's far more rare that we need special behavior to retrieve a value than to assign to it) and because it can be really difficult to implement bug-free.
+
+\end{description}
+
+You can easily cause a problem in your definitions of any of the methods controlling attribute access. Consider this example:
+
+\begin{lstlisting}
+def __setattr__(self, name, value):
+    self.name = value
+    # since every time an attribute is assigned, __setattr__() 
+    # is called, this is recursion. So this really means
+    # self.__setattr__('name', value). Since the method keeps
+    # calling itself, the recursion goes on forever causing a crash
+  
+def __setattr__(self, name, value):
+    self.__dict__[name] = value # assigning to the dict of names in the class
+    # define custom behavior here
+\end{lstlisting}
+
+Again, Python's magic methods are incredibly powerful, and with great power comes great responsibility. It's important to know the proper way to use magic methods so you don't break any code.        
+
+So, what have we learned about custom attribute access in Python? It's not to be used lightly. In fact, it tends to be excessively powerful and counter-intuitive. But the reason why it exists is to scratch a certain itch: Python doesn't seek to make bad things impossible, but just to make them difficult. Freedom is paramount, so you can really do whatever you want. Here's an example of some of the special attribute access methods in action (note that we use \code{super} because not all classes have an attribute \code{__dict__}):
+
+\lstinputlisting{listings/access.py}
+
+\section{Making Custom Sequences}
+
+There's a number of ways to get your Python classes to act like built in sequences (dict, tuple, list, string, etc.). These are by far my favorite magic methods in Python because of the absurd degree of control they give you and the way that they magically make a whole array of global functions work beautifully on instances of your class. But before we get down to the good stuff, a quick word on requirements.
+
+\subsection{Requirements}
+
+Now that we're talking about creating your own sequences in Python, it's time to talk about _protocols_. Protocols are somewhat similar to interfaces in other languages in that they give you a set of methods you must define. However, in Python protocols are totally informal and require no explicit declarations to implement. Rather, they're more like guidelines.
+
+Why are we talking about protocols now? Because implementing custom container types in Python involves using some of these protocols. First, there's the protocol for defining immutable containers: to make an immutable container, you need only define \code{__len__} and \code{__getitem__} (more on these later). The mutable container protocol requires everything that immutable containers require plus \code{__setitem__} and \code{__delitem__}. Lastly, if you want your object to be iterable, you'll have to define \code{__iter__}, which returns an iterator. That iterator must conform to an iterator protocol, which requires iterators to have methods called \code{__iter__}(returning itself) and \code{next}.
+
+
+\subsection{The magic behind containers}
+\begin{description}
+
+\item[\code{__len__(self)}]
+Returns the length of the container. Part of the protocol for both immutable and mutable containers.
+\item[\code{__getitem__(self, key)}]
+Defines behavior for when an item is accessed, using the notation \code{self[key]}. This is also part of both the mutable and immutable container protocols. It should also raise appropriate exceptions: \code{TypeError} if the type of the key is wrong and \code{KeyError} if there is no corresponding value for the key.
+\item[\code{__setitem__(self, key, value)}]
+Defines behavior for when an item is assigned to, using the notation \code{self[key] = value}. This is part of the mutable container protocol. Again, you should raise \code{KeyError} and \code{TypeError} where appropriate.
+\item[\code{__delitem__(self, key)}]
+Defines behavior for when an item is deleted (e.g. \code{del self[key]}). This is only part of the mutable container protocol. You must raise the appropriate exceptions when an invalid key is used.
+\item[\code{__iter__(self)}]
+Should return an iterator for the container. Iterators are returned in a number of contexts, most notably by the \code{iter()} built in function and when a container is looped over using the form \code{for x in container:}. Iterators are their own objects, and they also must define an \code{__iter__} method that returns \code{self}.
+\item[\code{__reversed__(self)}]
+Called to implement behavior for the \code{reversed()} built in function. Should return a reversed version of the list.
+\item[\code{__contains__(self, item)}]
+\code{__contains__} defines behavior for membership tests using \code{in} and \code{not in}. Why isn't this part of a sequence protocol, you ask? Because when \code{__contains__} isn't defined, Python just iterates over the sequence and returns \code{True} if it comes across the item it's looking for.
+\item[\code{__concat__(self, other)}]
+Lastly, you can define behavior for concatenating your sequence with another by defining \code{__concat__}. It should return a new sequence constructed from \code{self} and \code{other}. \code{__concat__} is invoked with the \code{+} operator when it is called on two sequences.  
+
+\end{description}
+
+\subsection{An example}
+
+
+For our example, let's look at a list that implements some functional constructs that you might be used to from other languages (Haskell, for example):
+
+\lstinputlisting{listings/list.py}
+
+\noindent
+There you have it, a (marginally) useful example of how to implement your own sequence. Of course, there are more useful applications of custom sequences, but quite a few of them are already implemented in the standard library (batteries included, right?), like \code{Counter}, \code{OrderedDict}, and \code{NamedTuple}.
+
+\section{Reflection}
+
+You can also control how reflection works using the built in functions \code{isinstance} and \code{issubclass()} behaves by defining magic methods. The magic methods are:
+
+\begin{description}
+
+\item[\code{__instancecheck__(self, instance)}]
+Checks if an instance is an instance of the class you defined (e.g. \code{isinstance(instance, class)}.
+\item[\code{__subclasscheck__(self, subclass)}]
+Checks if a class subclasses the class you defined (e.g. \code{issubclass(subclass, class)}).
+
+\end{description}
+
+The use case for these magic methods might seem small, and that may very well be true. I won't spend too much more time on reflection magic methods because they aren't very important, but they reflect something important about object-oriented programming in Python and Python in general: there is almost always an easy way to do something, even if it's rarely necessary. These magic methods might not seem useful, but if you ever need them you'll be glad that they're there (and that you read this guide!).
+
+\section{Callable Objects}
+
+As you may already know, in Python, functions are first-class objects. This means that they can be passed to functions and methods just as if they were objects of any other kind. This is an incredibly powerful feature.
+
+A special magic method in Python allows instances of your classes to behave as if they were functions, so that you can ``call'' them, pass them to functions that take functions as arguments, and so on. This is another powerful convenience feature that makes programming in Python that much sweeter.
+
+\begin{description}
+
+\item[\code{__call__(self, [args...])}]
+Allows an instance of a class to be called as a function. Essentially, this means that \code{x()} is the same as \code{x.__call__()}. Note that \code{__call__} takes a variable number of arguments; this means that you define \code{__call__} as you would any other function, taking however many arguments you'd like it to.
+
+\end{description}
+
+\code{__call__} can be particularly useful in classes whose instances that need to often change state. ``Calling'' the instance can be an intuitive and elegant way to change the object's state. An example might be a class representing an entity's position on a plane:
+
+\lstinputlisting{listings/call.py}
+
+\section{Context Managers}
+
+In Python 2.5, a new keyword was introduced in Python along with a new method for code reuse, the \code{with} statement. The concept of context managers was hardly new in Python (it was implemented before as a part of the library), but not until PEP 343 was accepted did it achieve status as a first class language construct. You may have seen with statements before:
+
+\begin{lstlisting}   
+with open('foo.txt') as bar:
+    # perform some action with bar
+\end{lstlisting}
+        
+Context managers allow setup and cleanup actions to be taken for objects when their creation is wrapped with a \code{with} statement. The behavior of the context manager is determined by two magic methods:
+
+\begin{description}
+
+\item[\code{__enter__(self)}]
+Defines what the context manager should do at the beginning of the block created by the \code{with} statement. Note that the return value of \code{__enter__} is bound to the \emph{target} of the \code{with} statement, or the name after the \code{as}.
+\item[\code{__exit__(self, exception_type, exception_value, traceback)}]
+Defines what the context manager should do after its block has been executed (or terminates). It can be used to handle exceptions, perform cleanup, or do something always done immediately after the action in the block. If the block executes successfully, \code{exception_type}, \code{exception_value}, and \code{traceback} will be \code{None}. Otherwise, you can choose to handle the exception or let the user handle it; if you want to handle it, make sure \code{__exit__} returns \code{True} after all is said and done. If you don't want the exception to be handled by the context manager, just let it happen.
+
+\end{description}
+
+\code{__enter__} and \code{__exit__} can be useful for specific classes that have well-defined and common behavior for setup and cleanup. You can also use these methods to create generic context managers that wrap other objects. Here's an example:
+
+\lstinputlisting{listings/closer.py}
+
+\noindent
+Here's an example of \code{Closer} in action, using an FTP connection to demonstrate it (a closable socket):
+
+\begin{lstlisting}
+>>> from magicmethods import Closer
+>>> from ftplib import FTP
+>>> with Closer(FTP('ftp.somesite.com')) as conn:
+...     conn.dir()
+...
+# output omitted for brevity
+>>> conn.dir()
+# long AttributeError message, can't use a connection that's closed
+>>> with Closer(int(5)) as i:
+...     i += 1
+...
+Not closable.
+>>> i
+6
+\end{lstlisting}
+
+\noindent
+See how our wrapper gracefully handled both proper and improper uses? That's the power of context managers and magic methods.
+
+\section{Building Descriptor Objects}
+
+Descriptors are classes which, when accessed through either getting, setting, or deleting, can also alter other objects. Descriptors aren't meant to stand alone; rather, they're meant to be held by an owner class. Descriptors can be useful when building object-oriented databases or classes that have attributes whose values are dependent on each other. Descriptors are particularly useful when representing attributes in several different units of measurement or representing computed attributes (like distance from the origin in a class to represent a point on a grid).
+
+To be a descriptor, a class must have at least one of \code{__get__}, \code{__set__}, and \code{__delete__} implemented. 
+
+Let's take a look at those magic methods:
+
+\begin{description}
+
+\item[\code{__get__(self, instance, owner)}]
+Define behavior for when the descriptor's value is retrieved. \code{instance} is the instance of the owner object. \code{owner} is the owner class itself.
+
+\item[\code{__set__(self, instance, value)}]
+Define behavior for when the descriptor's value is changed. \code{instance} is the instance of the owner class and \code{value} is the value to set the descriptor to.
+
+\item[\code{__delete__(self, instance)}]
+Define behavior for when the descriptor's value is deleted. \code{instance} is the instance of the owner object.
+
+\end{description}
+
+\noindent
+Now, an example of a useful application of descriptors: unit conversions.
+
+\lstinputlisting{listings/descriptor.py}
+
+\section{Pickling}
+
+If you spend time with other Pythonistas, chances are you've at least heard of pickling. Pickling is a serialization process for Python data structures, and can be incredibly useful when you need to store an object and retrieve it later. It's also a major source of worries and confusion.
+
+Pickling is so important that it doesn't just have its own module (\code{pickle}), but its own \emph{protocol} and the magic methods to go with it. But first, a brief word on how to pickle existing types(feel free to skip it if you already know).
+
+\subsection{Pickling: A Quick Soak in the Brine}
+
+Let's dive into pickling. Say you have a dictionary that you want to store and retrieve later. You could write it's contents to a file, carefully making sure that you write correct syntax, then retrieve it using either `exec()` or processing the file input. But this is precarious at best: if you store important data in plain text, it could be corrupted or changed in any number of ways to make your program crash or worse run malicious code on your computer. Instead, we're going to pickle it:
+
+\begin{lstlisting}
+import pickle
+
+data = {'foo': [1, 2, 3],
+        'bar': ('Hello', 'world!'),
+        'baz': True}
+jar = open('data.pkl', 'wb')
+pickle.dump(data, jar) # write the pickled data to the file jar
+jar.close()
+\end{lstlisting}
+
+\noindent
+Now, a few hours later, we want it back. All we have to do is unpickle it:
+
+\begin{lstlisting}
+import pickle
+
+pkl_file = open('data.pkl', 'rb') # connect to the pickled data
+data = pickle.load(pkl_file) # load it into a variable
+print data
+pkl_file.close()
+\end{lstlisting}
+
+\noindent
+What happens? Exactly what you expect. It's just like we had \code{data} all along.
+
+\subsection{Pickling your own Objects}
+
+Pickling isn't just for built-in types. It's for any class that follows the pickle protocol. The pickle protocol has four optional methods for Python objects to customize how they act (it's a bit different for C extensions, but that's not in our scope):
+
+\begin{description}
+
+\item[\code{__getinitargs__(self)}]
+If you'd like for \code{__init__} to be called when your class is unpickled, you can define \code{__getinitargs__}, which should return a tuple of the arguments that you'd like to be passed to  \code{__init__}. Note that this method will only work for old-style classes.
+\item[\code{__getnewargs__(self)}]
+For new-style classes, you can influence what arguments get passed to \code{__new__} upon unpickling. This method should also return a tuple of arguments that will then be passed to \code{__new__}.
+\item[\code{__getstate__(self)}]
+Instead of the object's \code{__dict__} attribute being stored, you can return a custom state to be stored when the object is pickled. That state will be used by \code{__setstate__} when the object is unpickled.
+\item[\code{__setstate__(self, state)}]
+When the object is unpickled, if \code{__setstate__} is defined the object's state will be passed to it instead of directly applied to the object's \code{__dict__}. This goes hand in hand with \code{__getstate__}: when both are defined, you can represent the object's pickled state however you want with whatever you want.
+
+\end{description}
+
+\subsection{An Example}
+
+Our example is a \code{Slate}, which remembers what its values have been and when those values were written to it. However, this particular slate goes blank each time it is pickled: the current value will not be saved.
+
+\lstinputlisting{listings/slate.py}
+
+\section{Conclusion}
+
+The goal of this guide is to bring something to anyone that reads it, regardless of their experience with Python or object-oriented programming. If you're just getting started with Python, you've gained valuable knowledge of the basics of writing feature-rich, elegant, and easy-to-use classes. If you're an intermediate Python programmer, you've probably picked up some slick new concepts and strategies and some good ways to reduce the amount of code written by you and clients. If you're an expert Pythonista, you've been refreshed on some of the stuff you might have forgotten about and maybe picked up a few new tricks along the way. Whatever your experience level, I hope that this trip through Python's special methods has been truly magical (I couldn't resist the final pun).
 
 \end{document}
