@@ -7,3 +7,4 @@
  - Simon Sapin for pointing out a number of bugs
  - sarenji (David Peter) for pointing out some bugs in the examples
  - michaelcontento (Michael Contento) for fixing a missing argument in `__exit__`
+ - nosklo for giving some constructive criticism on #python

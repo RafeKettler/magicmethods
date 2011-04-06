@@ -1,5 +1,3 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -9,12 +7,11 @@
 <link href="style.css" rel="stylesheet" type="text/css" />
 </head>
 
-<body>
-<h1>A Guide to Python's Magic Methods</h1>
+<body><h1>A Guide to Python's Magic Methods</h1>
 <h3>Rafe Kettler</h3>
 <p>Copyright &copy; 2011 Rafe Kettler</p>
 <p>Version 1.12</p>
-<p>A PDF version of this guide can be obtained from <a href="http://www.rafekettler.com/magicmethods.pdf">my site</a> or <a href="https://github.com/RafeKettler/magicmethods/raw/master/magicmethods.pdf">Github</a>. The magic methods guide has a git repository at <a href="http://www.github.com/RafeKettler/magicmethods">http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported 
+<p>A PDF version of this guide can be obtained from <a href="http://www.rafekettler.com/magicmethods.pdf">my site</a> or <a href="https://github.com/RafeKettler/magicmethods/raw/master/magicmethods.pdf">Github</a>. The magic methods guide has <a href="http://www.github.com/RafeKettler/magicmethods">a git repository at http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported 
 there, along with comments, (or even contributions!).</p>
 <p><strong><a id="table" href="#table">Table of Contents</a></strong></p>
 <ol>
@@ -37,30 +34,18 @@ there, along with comments, (or even contributions!).</p>
 <li><a href="#appendix">Appendix: How to Call Magic Methods</a></li>
 </ol><h2><a id="intro" href="#intro">Introduction</a></h2>
 <p>This guide is the culmination of a few months' worth of blog posts. The subject is <strong>magic methods</strong>.</p>
-<p>What are magic methods? They're everything in object-oriented Python. They're special methods that you 
-can define to add "magic" to your classes. They're always surrounded by double underscores (e.g. 
-<code>__init__</code> or <code>__lt__</code>). They're also not as well documented as they need to be. All of the magic methods 
-for Python appear in the same section in the Python docs, but they're scattered about and only loosely 
-organized. There's hardly an example to be found in that section (and that may very well be by design, 
-since they're all detailed in the <em>language reference</em>, along with boring syntax descriptions, etc.).</p>
-<p>So, to fix what I perceived as a flaw in Python's documentation, I set out to provide some more 
-plain-English, example-driven documentation for Python's magic methods. I started out with weekly blog 
-posts, and now that I've finished with those, I've put together this guide.</p>
-<p>I hope you enjoy it. Use it as a tutorial, a refresher, or a reference; it's just intended to be a 
-user-friendly guide to Python's magic methods.</p>
+<p>What are magic methods? They're everything in object-oriented Python. They're special methods that you can define to add "magic" to your classes. They're always surrounded by double underscores (e.g. <code>__init__</code> or <code>__lt__</code>). They're also not as well documented as they need to be. All of the magic methods for Python appear in the same section in the Python docs, but they're scattered about and only loosely organized. There's hardly an example to be found in that section (and that may very well be by design, since they're all detailed in the <em>language reference</em>, along with boring syntax descriptions, etc.).</p>
+<p>So, to fix what I perceived as a flaw in Python's documentation, I set out to provide some more plain-English, example-driven documentation for Python's magic methods. I started out with weekly blog posts, and now that I've finished with those, I've put together this guide.</p>
+<p>I hope you enjoy it. Use it as a tutorial, a refresher, or a reference; it's just intended to be a user-friendly guide to Python's magic methods.</p>
 <h2><a id="construction" href="#construction">Construction and Initialization</a></h2>
-<p>Everyone knows the most basic magic method, <code>__init__</code>. It's the way that we can define the 
-initialization behavior of an object. However, when I call <code>x = SomeClass()</code>, <code>__init__</code> is not the first 
-thing to get called. Actually, it's a method called <code>__new__</code>, which actually creates the instance, then 
-passes any arguments at creation on to the initializer. At the other end of the object's lifespan, 
-there's <code>__del__</code>. Let's take a closer look at these 3 magic methods:</p>
+<p>Everyone knows the most basic magic method, <code>__init__</code>. It's the way that we can define the initialization behavior of an object. However, when I call <code>x = SomeClass()</code>, <code>__init__</code> is not the first thing to get called. Actually, it's a method called <code>__new__</code>, which actually creates the instance, then passes any arguments at creation on to the initializer. At the other end of the object's lifespan, there's <code>__del__</code>. Let's take a closer look at these 3 magic methods:</p>
 <dl>
 <dt><code>__new__(cls, [...)</code></dt>
 <dd><code>__new__</code> is the first method to get called in an object's instantiation. It takes the class, then any other arguments that it will pass along to <code>__init__</code>. <code>__new__</code> is used fairly rarely, but it does have its purposes, particularly when subclassing an immutable type like a tuple or a string. I don't want to go in to too much detail on <code>__new__</code> because it's not too useful, but it is covered in great detail <a href="http://www.python.org/download/releases/2.2/descrintro/#__new__">in the Python docs</a>.</dd>
 <dt><code>__init__(self, [...)</code></dt>
 <dd>The initializer for the class. It gets passed whatever the primary constructor was called with (so, for example, if we called <code>x = SomeClass(10, 'foo')</code>, <code>__init__</code> would get passed <code>10</code> and <code>'foo'</code> as arguments. <code>__init__</code> is almost universally used in Python class definitions.</dd>
 <dt><code>__del__(self)</code></dt>
-<dd>If <code>__new__</code> and <code>__init__</code> formed the constructor of the object, <code>__del__</code> is the destructor. It doesn't implement behavior for the statement <code>del x</code> (so that code would not translate to <code>x.__del__()</code>). Rather, it defines behavior for when an object is garbage collected. It can be quite useful for objects that might require extra cleanup upon deletion, like sockets or file objects. Be careful, however, as there is no guarantee that <code>__del__</code> will be executed if the object is still alive when the interpreter exits, so <code>__del__</code> can't serve as a replacement for good coding practices (like always closing a connection when you're done with it.</dd>
+<dd>If <code>__new__</code> and <code>__init__</code> formed the constructor of the object, <code>__del__</code> is the destructor. It doesn't implement behavior for the statement <code>del x</code> (so that code would not translate to <code>x.__del__()</code>). Rather, it defines behavior for when an object is garbage collected. It can be quite useful for objects that might require extra cleanup upon deletion, like sockets or file objects. Be careful, however, as there is no guarantee that <code>__del__</code> will be executed if the object is still alive when the interpreter exits, so <code>__del__</code> can't serve as a replacement for good coding practices (like always closing a connection when you're done with it. In fact, <code>__del__</code> should almost never be used because of the precarious circumstances under which it is called; use it with caution!</dd>
 </dl>
 <p>Putting it all together, here's an example of <code>__init__</code> and <code>__del__</code> in action:</p>
 <div class="codehilite"><pre><span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
@@ -79,29 +64,21 @@ there's <code>__del__</code>. Let's take a closer look at these 3 magic methods:
 
 
 <h2><a id="operators" href="#operators">Making Operators Work on Custom Classes</a></h2>
-<p>One of the biggest advantages of using Python's magic methods is that they provide a simple way to make 
-objects behave like built-in types. That means you can avoid ugly, counter-intuitive, and nonstandard 
-ways of performing basic operators. In some languages, it's common to do something like this:</p>
+<p>One of the biggest advantages of using Python's magic methods is that they provide a simple way to make objects behave like built-in types. That means you can avoid ugly, counter-intuitive, and nonstandard ways of performing basic operators. In some languages, it's common to do something like this:</p>
 <div class="codehilite"><pre><span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">other_instance</span><span class="p">):</span>
     <span class="c"># do something</span>
 </pre></div>
 
 
-<p>You could certainly do this in Python, too, but this adds confusion and is unnecessarily verbose. 
-Different libraries might use different names for the same operations, making the client do way more work 
-than necessary. With the power of magic methods, however, we can define one method (<code>__eq__</code>, in this 
-case), and say what we <em>mean</em> instead:</p>
+<p>You could certainly do this in Python, too, but this adds confusion and is unnecessarily verbose. Different libraries might use different names for the same operations, making the client do way more work than necessary. With the power of magic methods, however, we can define one method (<code>__eq__</code>, in this case), and say what we <em>mean</em> instead:</p>
 <div class="codehilite"><pre><span class="k">if</span> <span class="n">instance</span> <span class="o">==</span> <span class="n">other_instance</span><span class="p">:</span>
     <span class="c">#do something</span>
 </pre></div>
 
 
-<p>That's part of the power of magic methods. The vast majority of them allow us to define meaning for 
-operators so that we can use them on our own classes just like they were built in types.</p>
+<p>That's part of the power of magic methods. The vast majority of them allow us to define meaning for operators so that we can use them on our own classes just like they were built in types.</p>
 <h3><a id="comparisons" href="#comparisons">Comparison magic methods</a></h3>
-<p>Python has a whole slew of magic methods designed to implement intuitive comparisons between objects 
-using operators, not awkward method calls. They also provide a way to override the default Python 
-behavior for comparisons of objects (by reference). Here's the list of those methods and what they do:</p>
+<p>Python has a whole slew of magic methods designed to implement intuitive comparisons between objects using operators, not awkward method calls. They also provide a way to override the default Python behavior for comparisons of objects (by reference). Here's the list of those methods and what they do:</p>
 <dl>
 <dt><code>__cmp__(self, other)</code></dt>
 <dd><code>__cmp__</code> is the most basic of the comparison magic methods. It actually implements behavior for all of the comparison operators (&lt;, ==, !=, etc.), but it might not do it the way you want (for example, if whether one instance was equal to another were determined by one criterion and and whether an instance is greater than another were determined by something else). <code>__cmp__</code> should return a negative integer if <code>self &lt; other</code>, zero if <code>self == other</code>, and positive if <code>self &gt; other</code>. It's usually best to define each comparison you need rather than define them all at once, but <code>__cmp__</code> can be a good way to save repetition and improve clarity when you need all comparisons implemented with similar criteria.</dd>
@@ -118,10 +95,7 @@ behavior for comparisons of objects (by reference). Here's the list of those met
 <dt><code>__ge__(self, other)</code></dt>
 <dd>Defines behavior for the greater-than-or-equal-to operator, <code>&gt;=</code>.</dd>
 </dl>
-<p>For an example, consider a class to model a word. We might want to compare words lexicographically (by 
-the alphabet), which is the default comparison behavior for strings, but we also might want to do it 
-based on some other criterion, like length or number of syllables. In this example, we'll compare by 
-length. Here's an implementation:</p>
+<p>For an example, consider a class to model a word. We might want to compare words lexicographically (by the alphabet), which is the default comparison behavior for strings, but we also might want to do it based on some other criterion, like length or number of syllables. In this example, we'll compare by length. Here's an implementation:</p>
 <div class="codehilite"><pre><span class="k">class</span> <span class="nc">Word</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;Class for words, defining comparison based on word length.&#39;&#39;&#39;</span>
 
@@ -144,21 +118,10 @@ length. Here's an implementation:</p>
 </pre></div>
 
 
-<p>Now, we can create two <code>Word</code>s (by using <code>Word('foo')</code> and <code>Word('bar')</code>) and compare them based on 
-length. Note, however, that we didn't define <code>__eq__</code> and <code>__ne__</code>. This is because this would lead to 
-some weird behavior (notably that <code>Word('foo') == Word('bar')</code> would evaluate to true). It wouldn't make 
-sense to test for equality based on length, so we fall back on <code>str</code>'s implementation of equality.</p>
-<p>Now would be a good time to note that you don't have to define every comparison magic method to get rich 
-comparisons. The standard library has kindly provided us with a class decorator in the module <code>functools</code> 
-that will define all rich comparison methods if you only define <code>__eq__</code> and one other (e.g. <code>__gt__</code>, 
-<code>__lt__</code>, etc.) This feature is only available in Python 2.7, but when you get a chance it saves a great 
-deal of time and effort. You can use it by placing <code>@total_ordering</code> above your class definition.</p>
+<p>Now, we can create two <code>Word</code>s (by using <code>Word('foo')</code> and <code>Word('bar')</code>) and compare them based on length. Note, however, that we didn't define <code>__eq__</code> and <code>__ne__</code>. This is because this would lead to some weird behavior (notably that <code>Word('foo') == Word('bar')</code> would evaluate to true). It wouldn't make sense to test for equality based on length, so we fall back on <code>str</code>'s implementation of equality.</p>
+<p>Now would be a good time to note that you don't have to define every comparison magic method to get rich comparisons. The standard library has kindly provided us with a class decorator in the module <code>functools</code> that will define all rich comparison methods if you only define <code>__eq__</code> and one other (e.g. <code>__gt__</code>, <code>__lt__</code>, etc.) This feature is only available in Python 2.7, but when you get a chance it saves a great deal of time and effort. You can use it by placing <code>@total_ordering</code> above your class definition.</p>
 <h3><a id="numeric" href="#numeric">Numeric magic methods</a></h3>
-<p>Just like you can create ways for instances of your class to be compared with comparison operators, you 
-can define behavior for numeric operators. Buckle your seat belts, folks, there's a lot of these. For 
-organization's sake, I've split the numeric magic methods into 5 categories: unary operators, normal 
-arithmetic operators, reflected arithmetic operators (more on this later), augmented assignment, and type 
-conversions.</p>
+<p>Just like you can create ways for instances of your class to be compared with comparison operators, you can define behavior for numeric operators. Buckle your seat belts, folks, there's a lot of these. For organization's sake, I've split the numeric magic methods into 5 categories: unary operators, normal arithmetic operators, reflected arithmetic operators (more on this later), augmented assignment, and type conversions.</p>
 <h4>Unary operators and functions</h4>
 <p>Unary operators and functions only have one operand, e.g. negation, absolute value, etc.</p>
 <dl>
@@ -172,8 +135,7 @@ conversions.</p>
 <dd>Implements behavior for inversion using the <code>~</code> operator. For an explanation on what this does, see <a href="http://en.wikipedia.org/wiki/Bitwise_operation#NOT">the Wikipedia article on bitwise operations</a>.</dd>
 </dl>
 <h4>Normal arithmetic operators</h4>
-<p>Now, we cover the typical binary operators (and a function or two): +, -, * and the like. These are, for 
-the most part, pretty self-explanatory.</p>
+<p>Now, we cover the typical binary operators (and a function or two): +, -, * and the like. These are, for the most part, pretty self-explanatory.</p>
 <dl>
 <dt><code>__add__(self, other)</code></dt>
 <dd>Implements addition.</dd>
@@ -205,22 +167,17 @@ the most part, pretty self-explanatory.</p>
 <dd>Implements bitwise xor using the <code>^</code> operator.</dd>
 </dl>
 <h4>Reflected arithmetic operators</h4>
-<p>You know how I said I would get to reflected arithmetic in a bit? Some of you might think it's some big, 
-scary, foreign concept. It's actually quite simple. Here's an example:</p>
+<p>You know how I said I would get to reflected arithmetic in a bit? Some of you might think it's some big, scary, foreign concept. It's actually quite simple. Here's an example:</p>
 <div class="codehilite"><pre><span class="n">some_object</span> <span class="o">+</span> <span class="n">other</span>
 </pre></div>
 
 
-<p>That was "normal" addition. The reflected equivalent is the same thing, except with the operands switched 
-around:</p>
+<p>That was "normal" addition. The reflected equivalent is the same thing, except with the operands switched around:</p>
 <div class="codehilite"><pre><span class="n">other</span> <span class="o">+</span> <span class="n">some_object</span>
 </pre></div>
 
 
-<p>So, all of these magic methods do the same thing as their normal equivalents, except the perform the 
-operation with other as the first operand and self as the second, rather than the other way around. In 
-most cases, the result of a reflected operation is the same as its normal equivalent, so you may just end 
-up defining <code>__radd__</code> as calling <code>__add__</code> and so on. Without further ado:</p>
+<p>So, all of these magic methods do the same thing as their normal equivalents, except the perform the operation with other as the first operand and self as the second, rather than the other way around. In most cases, the result of a reflected operation is the same as its normal equivalent, so you may just end up defining <code>__radd__</code> as calling <code>__add__</code> and so on. Without further ado:</p>
 <dl>
 <dt><code>__radd__(self, other)</code></dt>
 <dd>Implements reflected addition.</dd>
@@ -252,16 +209,13 @@ up defining <code>__radd__</code> as calling <code>__add__</code> and so on. Wit
 <dd>Implements reflected bitwise xor using the <code>^</code> operator.</dd>
 </dl>
 <h4>Augmented assignment</h4>
-<p>Python also has a wide variety of magic methods to allow custom behavior to be defined for augmented 
-assignment. You're probably already familiar with augmented assignment, it combines "normal" operators 
-with assignment. If you still don't know what I'm talking about, here's an example:</p>
+<p>Python also has a wide variety of magic methods to allow custom behavior to be defined for augmented assignment. You're probably already familiar with augmented assignment, it combines "normal" operators with assignment. If you still don't know what I'm talking about, here's an example:</p>
 <div class="codehilite"><pre><span class="n">x</span> <span class="o">=</span> <span class="mi">5</span>
 <span class="n">x</span> <span class="o">+=</span> <span class="mi">1</span> <span class="c"># in other words x = x + 1</span>
 </pre></div>
 
 
-<p>Each of these methods does not return a value, because assignment in Python does not return any value. 
-Instead, they just alter the state of the class. Here's the list:</p>
+<p>Each of these methods does not return a value, because assignment in Python does not return any value. Instead, they just alter the state of the class. Here's the list:</p>
 <dl>
 <dt><code>__iadd__(self, other)</code></dt>
 <dd>Implements addition with assignment.</dd>
@@ -291,8 +245,7 @@ Instead, they just alter the state of the class. Here's the list:</p>
 <dd>Implements bitwise xor with assignment using the <code>^=</code> operator.</dd>
 </dl>
 <h4>Type conversion magic methods</h4>
-<p>Python also has an array of magic methods designed to implement behavior for built in type 
-conversion functions like <code>float()</code>. Here they are:</p>
+<p>Python also has an array of magic methods designed to implement behavior for built in type conversion functions like <code>float()</code>. Here they are:</p>
 <dl>
 <dt><code>__int__(self)</code></dt>
 <dd>Implements type conversion to int.</dd>
@@ -314,9 +267,7 @@ conversion functions like <code>float()</code>. Here they are:</p>
 <dd>Method to implement mixed mode arithmetic. <code>__coerce__</code> should return <code>None</code> if type conversion is impossible. Otherwise, it should return a pair (2-tuple) of <code>self</code> and <code>other</code>, manipulated to have the same type.</dd>
 </dl>
 <h2><a id="representations" href="#representations">Representing your Classes</a></h2>
-<p>It's often useful to have a string representation of a class. In Python, there's a few methods that you 
-can implement in your class definition to customize how built in functions that return representations of 
-your class behave.</p>
+<p>It's often useful to have a string representation of a class. In Python, there's a few methods that you can implement in your class definition to customize how built in functions that return representations of your class behave.</p>
 <dl>
 <dt><code>__str__(self)</code></dt>
 <dd>Defines behavior for when <code>str()</code> is called on an instance of your class.</dd>
@@ -329,13 +280,9 @@ your class behave.</p>
 <dt><code>__nonzero__(self)</code></dt>
 <dd>Defines behavior for when <code>bool()</code> is called on an instance of your class. Should return True or False, depending on whether you would want to consider the instance to be True or False.</dd>
 </dl>
-<p>We're pretty much done with the boring (and example-free) part of the magic methods guide. Now that we've 
-covered some of the more basic magic methods, it's time to move to more advanced material.</p>
+<p>We're pretty much done with the boring (and example-free) part of the magic methods guide. Now that we've covered some of the more basic magic methods, it's time to move to more advanced material.</p>
 <h2><a id="access" href="#access">Controlling Attribute Access</a></h2>
-<p>Many people coming to Python from other languages complain that it lacks true encapsulation for classes 
-(e.g. no way to define private attributes and then have public getter and setters). This couldn't be 
-farther than the truth: it just happens that Python accomplishes a great deal of encapsulation through 
-"magic", instead of explicit modifiers for methods or fields. Take a look:</p>
+<p>Many people coming to Python from other languages complain that it lacks true encapsulation for classes (e.g. no way to define private attributes and then have public getter and setters). This couldn't be farther than the truth: it just happens that Python accomplishes a great deal of encapsulation through "magic", instead of explicit modifiers for methods or fields. Take a look:</p>
 <dl>
 <dt><code>__getattr__(self, name)</code></dt>
 <dd>You can define behavior for when a user attempts to access an attribute that doesn't exist (either at all or yet). This can be useful for catching and redirecting common misspellings, giving warnings about using deprecated attributes (you can still choose to compute and return that attribute, if you wish), or deftly handing an <code>AttributeError</code>. It only gets called when a nonexistent attribute is accessed, however, so it isn't a true encapsulation solution.</dd>
@@ -360,14 +307,9 @@ farther than the truth: it just happens that Python accomplishes a great deal of
 </pre></div>
 
 
-<p>Again, Python's magic methods are incredibly powerful, and with great power comes great 
-responsibility. It's important to know the proper way to use magic methods so you don't break any code.      <br />
+<p>Again, Python's magic methods are incredibly powerful, and with great power comes great responsibility. It's important to know the proper way to use magic methods so you don't break any code.      <br />
 </p>
-<p>So, what have we learned about custom attribute access in Python? It's not to be used lightly. In fact, 
-it tends to be excessively powerful and counter-intuitive. But the reason why it exists is to scratch a 
-certain itch: Python doesn't seek to make bad things impossible, but just to make them difficult. Freedom 
-is paramount, so you can really do whatever you want. Here's an example of some of the special attribute 
-access methods in action (note that we use <code>super</code> because not all classes have an attribute <code>__dict__</code>):</p>
+<p>So, what have we learned about custom attribute access in Python? It's not to be used lightly. In fact, it tends to be excessively powerful and counter-intuitive. But the reason why it exists is to scratch a certain itch: Python doesn't seek to make bad things impossible, but just to make them difficult. Freedom is paramount, so you can really do whatever you want. Here's an example of some of the special attribute access methods in action (note that we use <code>super</code> because not all classes have an attribute <code>__dict__</code>):</p>
 <div class="codehilite"><pre><span class="k">class</span> <span class="nc">AccessCounter</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39;A class that contains a value and implements an access counter.</span>
 <span class="sd">    The counter increments each time the value is changed.&#39;&#39;&#39;</span>
@@ -391,23 +333,10 @@ access methods in action (note that we use <code>super</code> because not all cl
 
 
 <h2><a id="sequence" href="#sequence">Making Custom Sequences</a></h2>
-<p>There's a number of ways to get your Python classes to act like built in sequences (dict, tuple, list, 
-string, etc.). These are by far my favorite magic methods in Python because of the absurd degree of 
-control they give you and the way that they magically make a whole array of global functions work 
-beautifully on instances of your class. But before we get down to the good stuff, a quick word on 
-requirements.</p>
+<p>There's a number of ways to get your Python classes to act like built in sequences (dict, tuple, list, string, etc.). These are by far my favorite magic methods in Python because of the absurd degree of control they give you and the way that they magically make a whole array of global functions work beautifully on instances of your class. But before we get down to the good stuff, a quick word on requirements.</p>
 <h4>Requirements</h4>
-<p>Now that we're talking about creating your own sequences in Python, it's time to talk about <em>protocols</em>. 
-Protocols are somewhat similar to interfaces in other languages in that they give you a set of methods 
-you must define. However, in Python protocols are totally informal and require no explicit declarations 
-to implement. Rather, they're more like guidelines.</p>
-<p>Why are we talking about protocols now? Because implementing custom container types in Python involves 
-using some of these protocols. First, there's the protocol for defining immutable containers: to make an 
-immutable container, you need only define <code>__len__</code> and <code>__getitem__</code> (more on these later). The mutable 
-container protocol requires everything that immutable containers require plus <code>__setitem__</code> and 
-<code>__delitem__</code>. Lastly, if you want your object to be iterable, you'll have to define <code>__iter__</code>, which 
-returns an iterator. That iterator must conform to an iterator protocol, which requires iterators to have 
-methods called <code>__iter__</code>(returning itself) and <code>next</code>.</p>
+<p>Now that we're talking about creating your own sequences in Python, it's time to talk about <em>protocols</em>. Protocols are somewhat similar to interfaces in other languages in that they give you a set of methods you must define. However, in Python protocols are totally informal and require no explicit declarations to implement. Rather, they're more like guidelines.</p>
+<p>Why are we talking about protocols now? Because implementing custom container types in Python involves using some of these protocols. First, there's the protocol for defining immutable containers: to make an immutable container, you need only define <code>__len__</code> and <code>__getitem__</code> (more on these later). The mutable container protocol requires everything that immutable containers require plus <code>__setitem__</code> and <code>__delitem__</code>. Lastly, if you want your object to be iterable, you'll have to define <code>__iter__</code>, which returns an iterator. That iterator must conform to an iterator protocol, which requires iterators to have methods called <code>__iter__</code>(returning itself) and <code>next</code>.</p>
 <h4>The magic behind containers</h4>
 <p>Without any more wait, here are the magic methods that containers use:</p>
 <dl>
@@ -430,8 +359,7 @@ methods called <code>__iter__</code>(returning itself) and <code>next</code>.</p
 </dd>
 </dl>
 <h4>An example</h4>
-<p>For our example, let's look at a list that implements some functional constructs that you might be used 
-to from other languages (Haskell, for example).</p>
+<p>For our example, let's look at a list that implements some functional constructs that you might be used to from other languages (Haskell, for example).</p>
 <div class="codehilite"><pre><span class="k">class</span> <span class="nc">FunctionalList</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39;A class wrapping a list with some extra functional magic, like head,</span>
 <span class="sd">    tail, init, last, drop, and take.&#39;&#39;&#39;</span>
@@ -484,37 +412,24 @@ to from other languages (Haskell, for example).</p>
 </pre></div>
 
 
-<p>There you have it, a (marginally) useful example of how to implement your own sequence. Of course, there 
-are more useful applications of custom sequences, but quite a few of them are already implemented in the 
-standard library (batteries included, right?), like <code>Counter</code>, <code>OrderedDict</code>, and <code>NamedTuple</code>.</p>
+<p>There you have it, a (marginally) useful example of how to implement your own sequence. Of course, there are more useful applications of custom sequences, but quite a few of them are already implemented in the standard library (batteries included, right?), like <code>Counter</code>, <code>OrderedDict</code>, and <code>NamedTuple</code>.</p>
 <h2><a id="reflection" href="#reflection">Reflection</a></h2>
-<p>You can also control how reflection using the built in functions <code>isinstance()</code> and <code>issubclass()</code>behaves 
-by defining magic methods. The magic methods are:</p>
+<p>You can also control how reflection using the built in functions <code>isinstance()</code> and <code>issubclass()</code>behaves by defining magic methods. The magic methods are:</p>
 <dl>
 <dt><code>__instancecheck__(self, instance)</code></dt>
 <dd>Checks if an instance is an instance of the class you defined (e.g. <code>isinstance(instance, class)</code>.</dd>
 <dt><code>__subclasscheck__(self, subclass)</code></dt>
 <dd>Checks if a class subclasses the class you defined (e.g. <code>issubclass(subclass, class)</code>).</dd>
 </dl>
-<p>The use case for these magic methods might seem small, and that may very well be true. I won't spend too 
-much more time on reflection magic methods because they aren't very important, but they reflect something 
-important about object-oriented programming in Python and Python in general: there is almost always an 
-easy way to do something, even if it's rarely necessary. These magic methods might not seem useful, but 
-if you ever need them you'll be glad that they're there (and that you read this guide!).</p>
+<p>The use case for these magic methods might seem small, and that may very well be true. I won't spend too much more time on reflection magic methods because they aren't very important, but they reflect something important about object-oriented programming in Python and Python in general: there is almost always an easy way to do something, even if it's rarely necessary. These magic methods might not seem useful, but if you ever need them you'll be glad that they're there (and that you read this guide!).</p>
 <h2><a id="callable" href="#callable">Callable Objects</a></h2>
-<p>As you may already know, in Python, functions are first-class objects. This means that they can be passed 
-to functions and methods just as if they were objects of any other kind. This is an incredibly powerful 
-feature.</p>
-<p>A special magic method in Python allows instances of your classes to behave as if they were functions, so 
-that you can "call" them, pass them to functions that take functions as arguments, and so on. This is 
-another powerful convenience feature that makes programming in Python that much sweeter.</p>
+<p>As you may already know, in Python, functions are first-class objects. This means that they can be passed to functions and methods just as if they were objects of any other kind. This is an incredibly powerful feature.</p>
+<p>A special magic method in Python allows instances of your classes to behave as if they were functions, so that you can "call" them, pass them to functions that take functions as arguments, and so on. This is another powerful convenience feature that makes programming in Python that much sweeter.</p>
 <dl>
 <dt><code>__call__(self, [args...])</code></dt>
 <dd>Allows an instance of a class to be called as a function. Essentially, this means that <code>x()</code> is the same as <code>x.__call__()</code>. Note that <code>__call__</code> takes a variable number of arguments; this means that you define <code>__call__</code> as you would any other function, taking however many arguments you'd like it to.</dd>
 </dl>
-<p><code>__call__</code> can be particularly useful in classes whose instances that need to often change state. 
-"Calling" the instance can be an intuitive and elegant way to change the object's state. An example might 
-be a class representing an entity's position on a plane:</p>
+<p><code>__call__</code> can be particularly useful in classes whose instances that need to often change state. "Calling" the instance can be an intuitive and elegant way to change the object's state. An example might be a class representing an entity's position on a plane:</p>
 <div class="codehilite"><pre><span class="k">class</span> <span class="nc">Entity</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39;Class to represent an entity. Callable to update the entity&#39;s position.&#39;&#39;&#39;</span>
 
@@ -531,26 +446,20 @@ be a class representing an entity's position on a plane:</p>
 
 
 <h2><a id="context" href="#context">Context Managers</a></h2>
-<p>In Python 2.5, a new keyword was introduced in Python along with a new method for code reuse, the <code>with</code> 
-statement. The concept of context managers was hardly new in Python (it was implemented before as a part 
-of the library), but not until <a href="http://www.python.org/dev/peps/pep-0343/">PEP 343</a> was accepted did it 
-achieve status as a first class language construct. You may have seen with statements before:</p>
+<p>In Python 2.5, a new keyword was introduced in Python along with a new method for code reuse, the <code>with</code> statement. The concept of context managers was hardly new in Python (it was implemented before as a part of the library), but not until <a href="http://www.python.org/dev/peps/pep-0343/">PEP 343</a> was accepted did it achieve status as a first class language construct. You may have seen with statements before:</p>
 <div class="codehilite"><pre><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;foo.txt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bar</span><span class="p">:</span>
     <span class="c"># perform some action with bar</span>
 </pre></div>
 
 
-<p>Context managers allow setup and cleanup actions to be taken for objects when their creation is wrapped 
-with a <code>with</code> statement. The behavior of the context manager is determined by two magic methods:</p>
+<p>Context managers allow setup and cleanup actions to be taken for objects when their creation is wrapped with a <code>with</code> statement. The behavior of the context manager is determined by two magic methods:</p>
 <dl>
 <dt><code>__enter__(self)</code></dt>
 <dd>Defines what the context manager should do at the beginning of the block created by the <code>with</code> statement. Note that the return value of <code>__enter__</code> is bound to the <em>target</em> of the <code>with</code> statement, or the name after the <code>as</code>.</dd>
 <dt><code>__exit__(self, exception_type, exception_value, traceback)</code></dt>
 <dd>Defines what the context manager should do after its block has been executed (or terminates). It can be used to handle exceptions, perform cleanup, or do something always done immediately after the action in the block. If the block executes successfully, <code>exception_type</code>, <code>exception_value</code>, and <code>traceback</code> will be <code>None</code>. Otherwise, you can choose to handle the exception or let the user handle it; if you want to handle it, make sure <code>__exit__</code> returns <code>True</code> after all is said and done. If you don't want the exception to be handled by the context manager, just let it happen.</dd>
 </dl>
-<p><code>__enter__</code> and <code>__exit__</code> can be useful for specific classes that have well-defined and common behavior 
-for setup and cleanup. You can also use these methods to create generic context managers that wrap other 
-objects. Here's an example:</p>
+<p><code>__enter__</code> and <code>__exit__</code> can be useful for specific classes that have well-defined and common behavior for setup and cleanup. You can also use these methods to create generic context managers that wrap other objects. Here's an example:</p>
 <div class="codehilite"><pre><span class="k">class</span> <span class="nc">Closer</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39;A context manager to automatically close an object with a close method</span>
 <span class="sd">    in a with statement.&#39;&#39;&#39;</span>
@@ -588,17 +497,10 @@ objects. Here's an example:</p>
 </pre></div>
 
 
-<p>See how our wrapper gracefully handled both proper and improper uses? That's the power of context 
-managers and magic methods.</p>
+<p>See how our wrapper gracefully handled both proper and improper uses? That's the power of context managers and magic methods.</p>
 <h2><a id="descriptor" href="#descriptor">Building Descriptor Objects</a></h2>
-<p>Descriptors are classes which, when accessed through either getting, setting, or deleting, can also alter 
-other objects. Descriptors aren't meant to stand alone; rather, they're meant to be held by an owner 
-class. Descriptors can be useful when building object-oriented databases or classes that have attributes 
-whose values are dependent on each other. Descriptors are particularly useful when representing 
-attributes in several different units of measurement or representing computed attributes (like distance 
-from the origin in a class to represent a point on a grid).</p>
-<p>To be a descriptor, a class must have at least one of <code>__get__</code>, <code>__set__</code>, and <code>__delete__</code> implemented. 
-Let's take a look at those magic methods:</p>
+<p>Descriptors are classes which, when accessed through either getting, setting, or deleting, can also alter other objects. Descriptors aren't meant to stand alone; rather, they're meant to be held by an owner class. Descriptors can be useful when building object-oriented databases or classes that have attributes whose values are dependent on each other. Descriptors are particularly useful when representing attributes in several different units of measurement or representing computed attributes (like distance from the origin in a class to represent a point on a grid).</p>
+<p>To be a descriptor, a class must have at least one of <code>__get__</code>, <code>__set__</code>, and <code>__delete__</code> implemented. Let's take a look at those magic methods:</p>
 <dl>
 <dt><code>__get__(self, instance, owner)</code></dt>
 <dd>Define behavior for when the descriptor's value is retrieved. <code>instance</code> is the instance of the owner object. <code>owner</code> is the owner class itself.</dd>
@@ -635,18 +537,10 @@ Let's take a look at those magic methods:</p>
 
 
 <h2><a id="pickling" href="#pickling">Pickling Your Objects</a></h2>
-<p>If you spend time with other Pythonistas, chances are you've at least heard of pickling. Pickling is a 
-serialization process for Python data structures, and can be incredibly useful when you need to store an 
-object and retrieve it later. It's also a major source of worries and confusion.</p>
-<p>Pickling is so important that it doesn't just have its own module (<code>pickle</code>), but its own <em>protocol</em> and 
-the magic methods to go with it. But first, a brief word on how to pickle existing types(feel free to 
-skip it if you already know).</p>
+<p>If you spend time with other Pythonistas, chances are you've at least heard of pickling. Pickling is a serialization process for Python data structures, and can be incredibly useful when you need to store an object and retrieve it later. It's also a major source of worries and confusion.</p>
+<p>Pickling is so important that it doesn't just have its own module (<code>pickle</code>), but its own <em>protocol</em> and the magic methods to go with it. But first, a brief word on how to pickle existing types(feel free to skip it if you already know).</p>
 <h3>Pickling: A Quick Soak in the Brine</h3>
-<p>Let's dive into pickling. Say you have a dictionary that you want to store and retrieve later. You could
-write it's contents to a file, carefully making sure that you write correct syntax, then retrieve it 
-using either <code>exec()</code> or processing the file input. But this is precarious at best: if you store 
-important data in plain text, it could be corrupted or changed in any number of ways to make your program 
-crash or worse run malicious code on your computer. Instead, we're going to pickle it:</p>
+<p>Let's dive into pickling. Say you have a dictionary that you want to store and retrieve later. You couldwrite it's contents to a file, carefully making sure that you write correct syntax, then retrieve it using either <code>exec()</code> or processing the file input. But this is precarious at best: if you store important data in plain text, it could be corrupted or changed in any number of ways to make your program crash or worse run malicious code on your computer. Instead, we're going to pickle it:</p>
 <div class="codehilite"><pre><span class="kn">import</span> <span class="nn">pickle</span>
 
 <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;foo&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
@@ -670,9 +564,7 @@ crash or worse run malicious code on your computer. Instead, we're going to pick
 
 <p>What happens? Exactly what you expect. It's just like we had <code>data</code> all along.</p>
 <h3>Pickling your own Objects</h3>
-<p>Pickling isn't just for built-in types. It's for any class that follows the pickle protocol. The pickle 
-protocol has four optional methods for Python objects to customize how they act (it's a bit different for 
-C extensions, but that's not in our scope):</p>
+<p>Pickling isn't just for built-in types. It's for any class that follows the pickle protocol. The pickle protocol has four optional methods for Python objects to customize how they act (it's a bit different for C extensions, but that's not in our scope):</p>
 <dl>
 <dt><code>__getinitargs__(self)</code></dt>
 <dd>If you'd like for <code>__init__</code> to be called when your class is unpickled, you can define <code>__getinitargs__</code>, which should return a tuple of the arguments that you'd like to be passed to  <code>__init__</code>. Note that this method will only work for old-style classes.</dd>
@@ -684,8 +576,7 @@ C extensions, but that's not in our scope):</p>
 <dd>When the object is unpickled, if <code>__setstate__</code> is defined the object's state will be passed to it instead of directly applied to the object's <code>__dict__</code>. This goes hand in hand with <code>__getstate__</code>: when both are defined, you can represent the object's pickled state however you want with whatever you want.</dd>
 </dl>
 <h3>An Example</h3>
-<p>Our example is a <code>Slate</code>, which remembers what its values have been and when those values were written to 
-it. However, this particular slate goes blank each time it is pickled: the current value will not be saved.</p>
+<p>Our example is a <code>Slate</code>, which remembers what its values have been and when those values were written to it. However, this particular slate goes blank each time it is pickled: the current value will not be saved.</p>
 <div class="codehilite"><pre><span class="kn">import</span> <span class="nn">time</span>
 
 <span class="k">class</span> <span class="nc">Slate</span><span class="p">:</span>
@@ -721,14 +612,7 @@ it. However, this particular slate goes blank each time it is pickled: the curre
 
 
 <h2><a id="conclusion" href="#conclusion">Conclusion</a></h2>
-<p>The goal of this guide is to bring something to anyone that reads it, regardless of their experience with 
-Python or object-oriented programming. If you're just getting started with Python, you've gained valuable 
-knowledge of the basics of writing feature-rich, elegant, and easy-to-use classes. If you're an 
-intermediate Python programmer, you've probably picked up some slick new concepts and strategies and some 
-good ways to reduce the amount of code written by you and clients. If you're an expert Pythonista, you've 
-been refreshed on some of the stuff you might have forgotten about and maybe picked up a few new tricks 
-along the way. Whatever your experience level, I hope that this trip through Python's special methods has 
-been truly magical (I couldn't resist the final pun).</p><h2><a id="appendix" href="#appendix">Appendix: How to Call Magic Methods</a></h2>
+<p>The goal of this guide is to bring something to anyone that reads it, regardless of their experience with Python or object-oriented programming. If you're just getting started with Python, you've gained valuable knowledge of the basics of writing feature-rich, elegant, and easy-to-use classes. If you're an intermediate Python programmer, you've probably picked up some slick new concepts and strategies and some good ways to reduce the amount of code written by you and clients. If you're an expert Pythonista, you've been refreshed on some of the stuff you might have forgotten about and maybe picked up a few new tricks along the way. Whatever your experience level, I hope that this trip through Python's special methods has been truly magical (I couldn't resist the final pun).</p><h2><a id="appendix" href="#appendix">Appendix: How to Call Magic Methods</a></h2>
 <p>Some of the magic methods in Python directly map to built-in functions; in this case, how to invoke them is fairly obvious. However, in other 
 cases, the invocation is far less obvious. This appendix is devoted to exposing non-obvious syntax that leads to magic methods getting called.</p>
 <table>
@@ -857,9 +741,7 @@ cases, the invocation is far less obvious. This appendix is devoted to exposing 
 </tr>
 </tbody>
 </table>
-<p>Hopefully, this table should have cleared up any questions you might have had about what syntax invokes which magic method.</p>
-
-<script type="text/javascript">
+<p>Hopefully, this table should have cleared up any questions you might have had about what syntax invokes which magic method.</p><script type="text/javascript">
 
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-18615621-3']);
@@ -872,4 +754,5 @@ cases, the invocation is far less obvious. This appendix is devoted to exposing 
   })();
 </script>
 </body>
+
 </html>

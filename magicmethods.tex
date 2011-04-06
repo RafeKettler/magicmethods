@@ -41,7 +41,7 @@ Everyone knows the most basic magic method, \code{__init__}. It's the way that w
 \item[\code{__init__(self, [...)}]
 The initializer for the class. It gets passed whatever the primary constructor was called with (so, for example, if we called \code{x = SomeClass(10, 'foo')}, \code{__init__} would get passed \code{10} and \code{'foo'} as arguments. \code{__init__} is almost universally used in Python class definitions.
 \item[\code{__del__(self)}]
-If \code{__new__} and \code{__init__} formed the constructor of the object, \code{__del__} is the destructor. It doesn't implement behavior for the statement \code{del x} (so that code would not translate to \code{x.__del__()}). Rather, it defines behavior for when an object is garbage collected. It can be quite useful for objects that might require extra cleanup upon deletion, like sockets or file objects. Be careful, however, as there is no guarantee that \code{__del__} will be executed if the object is still alive when the interpreter exits, so \code{__del__} can't serve as a replacement for good coding practices (like always closing a connection when you're done with it.
+If \code{__new__} and \code{__init__} formed the constructor of the object, \code{__del__} is the destructor. It doesn't implement behavior for the statement \code{del x} (so that code would not translate to \code{x.__del__()}). Rather, it defines behavior for when an object is garbage collected. It can be quite useful for objects that might require extra cleanup upon deletion, like sockets or file objects. Be careful, however, as there is no guarantee that \code{__del__} will be executed if the object is still alive when the interpreter exits, so \code{__del__} can't serve as a replacement for good coding practices (like always closing a connection when you're done with it.  In fact, \code{__del__} should almost never be used because of the precarious circumstances under which it is called; use it with caution!
 
 \end{description}
 
@@ -526,6 +526,8 @@ pkl_file.close()
 
 \noindent
 What happens? Exactly what you expect. It's just like we had \code{data} all along.
+
+Now, for a word of caution: pickling is not perfect. Pickle files are easily corrupted on accident and on purpose. Pickling may be more secure than using flat text files, but it still can be used to run malicious code. It's also incompatible across versions of Python, so don't expect to distribute pickled objects and expect people to be able to open them. However, it can also be a powerful tool for caching and other common serialization tasks.
 
 \subsection{Pickling your own Objects}
 
