@@ -6,4 +6,4 @@ Licensed under Creative Commons CC--NC-BY-SA (see http://creativecommons.org/lic
 Can be seen at http://www.rafekettler.com/magicmethods.html in relatively up to date form.
 
 ## For forkers: ##
-Edit magicmethods.mkd, run `python magicmarkdown.py`, and then copy-pasta output (output will be in markedup.html) into magicmethods.html (just paste into the body). The magicmarkdown script requires markdown, just issue `easy_install Markdown` and you'll have it.
+Edit magicmethods.mkd, run `python magicmarkdown.py`, and then `cat header.html markedup.html footer.html > magicmethods.html`. The magicmarkdown script requires markdown, just issue `pip install markdown` and you'll have it.
