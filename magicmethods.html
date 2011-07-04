@@ -1,16 +1,7 @@
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>A Guide to Python's Magic Methods &laquo; rafekettler.com</title>
-<meta name="description" content="A guide to all the Magic Methods in Python" />
-<meta name="keywords" content="python, programming, magic methods, object-oriented, oop" />
-<link href="style.css" rel="stylesheet" type="text/css" />
-</head>
-
-<body><h1>A Guide to Python's Magic Methods</h1>
+<h1>A Guide to Python's Magic Methods</h1>
 <h3>Rafe Kettler</h3>
 <p>Copyright &copy; 2011 Rafe Kettler</p>
-<p>Version 1.12</p>
+<p>Version 1.13</p>
 <p>A PDF version of this guide can be obtained from <a href="http://www.rafekettler.com/magicmethods.pdf">my site</a> or <a href="https://github.com/RafeKettler/magicmethods/raw/master/magicmethods.pdf">Github</a>. The magic methods guide has <a href="http://www.github.com/RafeKettler/magicmethods">a git repository at http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported 
 there, along with comments, (or even contributions!).</p>
 <p><strong><a id="table" href="#table">Table of Contents</a></strong></p>
@@ -537,7 +528,7 @@ there, along with comments, (or even contributions!).</p>
 
 
 <h2><a id="pickling" href="#pickling">Pickling Your Objects</a></h2>
-<p>If you spend time with other Pythonistas, chances are you've at least heard of pickling. Pickling is a serialization process for Python data structures, and can be incredibly useful when you need to store an object and retrieve it later. It's also a major source of worries and confusion.</p>
+<p>If you spend time with other Pythonistas, chances are you've at least heard of pickling. Pickling is a serialization process for Python data structures, and can be incredibly useful when you need to store an object and retrieve it later (usually for caching). It's also a major source of worries and confusion.</p>
 <p>Pickling is so important that it doesn't just have its own module (<code>pickle</code>), but its own <em>protocol</em> and the magic methods to go with it. But first, a brief word on how to pickle existing types(feel free to skip it if you already know).</p>
 <h3>Pickling: A Quick Soak in the Brine</h3>
 <p>Let's dive into pickling. Say you have a dictionary that you want to store and retrieve later. You couldwrite it's contents to a file, carefully making sure that you write correct syntax, then retrieve it using either <code>exec()</code> or processing the file input. But this is precarious at best: if you store important data in plain text, it could be corrupted or changed in any number of ways to make your program crash or worse run malicious code on your computer. Instead, we're going to pickle it:</p>
@@ -563,6 +554,7 @@ there, along with comments, (or even contributions!).</p>
 
 
 <p>What happens? Exactly what you expect. It's just like we had <code>data</code> all along.</p>
+<p>Now, for a word of caution: pickling is not perfect. Pickle files are easily corrupted on accident and on purpose. Pickling may be more secure than using flat text files, but it still can be used to run malicious code. It's also incompatible across versions of Python, so don't expect to distribute pickled objects and expect people to be able to open them. However, it can also be a powerful tool for caching and other common serialization tasks.</p>
 <h3>Pickling your own Objects</h3>
 <p>Pickling isn't just for built-in types. It's for any class that follows the pickle protocol. The pickle protocol has four optional methods for Python objects to customize how they act (it's a bit different for C extensions, but that's not in our scope):</p>
 <dl>
@@ -741,18 +733,4 @@ cases, the invocation is far less obvious. This appendix is devoted to exposing 
 </tr>
 </tbody>
 </table>
-<p>Hopefully, this table should have cleared up any questions you might have had about what syntax invokes which magic method.</p><script type="text/javascript">
-
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-18615621-3']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-</script>
-</body>
-
-</html>
+<p>Hopefully, this table should have cleared up any questions you might have had about what syntax invokes which magic method.</p>
