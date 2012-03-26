@@ -1,7 +1,7 @@
 <h1>A Guide to Python's Magic Methods</h1>
 <h3>Rafe Kettler</h3>
-<p>Copyright &copy; 2011 Rafe Kettler</p>
-<p>Version 1.13</p>
+<p>Copyright &copy; 2012 Rafe Kettler</p>
+<p>Version 1.14</p>
 <p>A PDF version of this guide can be obtained from <a href="http://www.rafekettler.com/magicmethods.pdf">my site</a> or <a href="https://github.com/RafeKettler/magicmethods/raw/master/magicmethods.pdf">Github</a>. The magic methods guide has <a href="http://www.github.com/RafeKettler/magicmethods">a git repository at http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported 
 there, along with comments, (or even contributions!).</p>
 <p><strong><a id="table" href="#table">Table of Contents</a></strong></p>
@@ -67,7 +67,7 @@ there, along with comments, (or even contributions!).</p>
 </pre></div>
 
 
-<p>That's part of the power of magic methods. The vast majority of them allow us to define meaning for operators so that we can use them on our own classes just like they were built in types.</p>
+<p>That's part of the power of magic methods. The vast majority of them allow us to define meaning for operators so that we can use them on our own classes just like they were built in types. Note that the Python standard library includes a module <a href="http://docs.python.org/library/contextlib.html">contextlib</a> that contains a context manager, <code>contextlib.closing()</code>, that does approximately the same thing (without any handling of the case where an object does not have a `close() method).</p>
 <h3><a id="comparisons" href="#comparisons">Comparison magic methods</a></h3>
 <p>Python has a whole slew of magic methods designed to implement intuitive comparisons between objects using operators, not awkward method calls. They also provide a way to override the default Python behavior for comparisons of objects (by reference). Here's the list of those methods and what they do:</p>
 <dl>

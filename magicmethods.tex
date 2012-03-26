@@ -463,7 +463,7 @@ Not closable.
 \end{lstlisting}
 
 \noindent
-See how our wrapper gracefully handled both proper and improper uses? That's the power of context managers and magic methods.
+See how our wrapper gracefully handled both proper and improper uses? That's the power of context managers and magic methods. Note that the Python standard library includes a module \code{contextlib} that contains a context manager, \code{contextlib.closing()}, that does approximately the same thing (without any handling of the case where an object does not have a \code{close()} method).
 
 \section{Building Descriptor Objects}
 

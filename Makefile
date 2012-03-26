@@ -4,10 +4,7 @@ html: magicmethods.html
 
 pdf: magicmethods.pdf 
 
-magicmethods.html: markedup.html
-	cat header.html markedup.html footer.html > magicmethods.html
-
-markedup.html: table.markdown magicmethods.markdown table.markdown
+magicmethods.html: table.markdown magicmethods.markdown appendix.markdown
 	python magicmarkdown.py
 
 magicmethods.pdf: magicmethods.tex
