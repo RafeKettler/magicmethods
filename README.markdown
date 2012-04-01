@@ -6,4 +6,4 @@ Licensed under Creative Commons CC--NC-BY-SA (see http://creativecommons.org/lic
 Can be seen at http://www.rafekettler.com/magicmethods.html in relatively up to date form.
 
 ## For forkers: ##
-Edit magicmethods.mkd/magicmethods.tex, then run `make docs`. The build script requires the Python Markdown module, so you'll have to run `pip install markdown` if you don't already have it. Happy hacking!
+Edit `magicmethods.markdown`/`magicmethods.tex`, then run `make docs`. The build script requires the Python Markdown module, so you'll have to run `pip install markdown` if you don't already have it. Happy hacking!
