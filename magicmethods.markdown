@@ -422,7 +422,7 @@ Without any more wait, here are the magic methods that containers use:
 :    Defines behavior for when an item is accessed, using the notation `self[key]`. This is also part of both the mutable and immutable container protocols. It should also raise appropriate exceptions: `TypeError` if the type of the key is wrong and `KeyError` if there is no corresponding value for the key.
 
 `__setitem__(self, key, value)`
-:    Defines behavior for when an item is assigned to, using the notation `self[key] = value`. This is part of the mutable container protocol. Again, you should raise `KeyError` and `TypeError` where appropriate.
+:    Defines behavior for when an item is assigned to, using the notation `self[nkey] = value`. This is part of the mutable container protocol. Again, you should raise `KeyError` and `TypeError` where appropriate.
 
 `__delitem__(self, key)`
 :    Defines behavior for when an item is deleted (e.g. `del self[key]`). This is only part of the mutable container protocol. You must raise the appropriate exceptions when an invalid key is used.
@@ -435,6 +435,9 @@ Without any more wait, here are the magic methods that containers use:
 
 `__contains__(self, item)`
 :    `__contains__` defines behavior for membership tests using `in` and `not in`. Why isn't this part of a sequence protocol, you ask? Because when `__contains__` isn't defined, Python just iterates over the sequence and returns `True` if it comes across the item it's looking for.
+
+`__missing__(self, key)`
+:    `__missing__` is used in subclasses of `dict`. It defines behavior for whenever a key is accessed that does not exist in a dictionary (so, for instance, if I had a dictionary `d` and said `d["george"]` when `"george"` is not a key in the dict, `d.__missing__("george")` would be called).
 
 ####An example####
 

@@ -371,6 +371,8 @@ Should return an iterator for the container. Iterators are returned in a number 
 Called to implement behavior for the \code{reversed()} built in function. Should return a reversed version of the list.
 \item[\code{__contains__(self, item)}]
 \code{__contains__} defines behavior for membership tests using \code{in} and \code{not in}. Why isn't this part of a sequence protocol, you ask? Because when \code{__contains__} isn't defined, Python just iterates over the sequence and returns \code{True} if it comes across the item it's looking for.
+\item[\code{__missing__(self, key)}]
+\code{__missing__} is used in subclasses of \code{dict}. It defines behavior for whenever a key is accessed that does not exist in a dictionary (so, for instance, if I had a dictionary \code{d} and said \code{d["george"]} when \code{"george"} is not a key in the dict, \code{d.__missing__("george")} would be called).
 
 \end{description}
 
