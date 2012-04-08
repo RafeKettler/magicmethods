@@ -342,6 +342,9 @@ It's often useful to have a string representation of a class. In Python, there's
 `__nonzero__(self)`
 :    Defines behavior for when `bool()` is called on an instance of your class. Should return True or False, depending on whether you would want to consider the instance to be True or False.
 
+`__dir__(self)`
+:    Defines behavior for when `dir()` is called on an instance of your class. This method should return a list of attributes for the user. Typically, implementing `__dir__` is unnecessary, but it can be vitally important for interactive use of your classes if you redefine `__getattr__` or `__getattribute__` (which you will see in the next section) or are otherwise dynamically generating attributes.
+
 
 We're pretty much done with the boring (and example-free) part of the magic methods guide. Now that we've covered some of the more basic magic methods, it's time to move to more advanced material.
 

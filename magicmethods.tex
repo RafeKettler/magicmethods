@@ -296,6 +296,8 @@ Defines behavior for when \code{unicode()} is called on an instance of your clas
 Defines behavior for when \code{hash()} is called on an instance of your class. It has to return an integer, and its result is used for quick key comparison in dictionaries. Note that this usually entails implementing \code{__eq__} as well. Live by the following rule: \code{a == b} implies \code{hash(a) == hash(b)}.
 \item[\code{__nonzero__(self)}]
 Defines behavior for when \code{bool()} is called on an instance of your class. Should return True or False, depending on whether you would want to consider the instance to be True or False.
+\item[\code{__dir__(self)}]
+:    Defines behavior for when \code{dir()} is called on an instance of your class. This method should return a list of attributes for the user. Typically, implementing \code{__dir__} is unnecessary, but it can be vitally important for interactive use of your classes if you redefine \code{__getattr__} or \code{__getattribute__} (which you will see in the next section) or are otherwise dynamically generating attributes.
 
 \end{description}
 
