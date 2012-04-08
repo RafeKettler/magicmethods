@@ -293,7 +293,7 @@ Defines behavior for when \code{repr()} is called on an instance of your class. 
 \item[\code{__unicode__(self)}]
 Defines behavior for when \code{unicode()} is called on an instance of your class. \code{unicode()} is like \code{str()}, but it returns a unicode string. Be wary: if a client calls \code{str()} on an instance of your class and you've only defined \code{__unicode__()}, it won't work. You should always try to define \code{__str__()} as well in case someone doesn't have the luxury of using unicode.
 \item[\code{__hash__(self)}]
-Defines behavior for when \code{hash()} is called on an instance of your class. It has to return an integer, and its result is used for quick key comparison in dictionaries.
+Defines behavior for when \code{hash()} is called on an instance of your class. It has to return an integer, and its result is used for quick key comparison in dictionaries. Note that this usually entails implementing \code{__eq__} as well. Live by the following rule: \code{a == b} implies \code{hash(a) == hash(b)}.
 \item[\code{__nonzero__(self)}]
 Defines behavior for when \code{bool()} is called on an instance of your class. Should return True or False, depending on whether you would want to consider the instance to be True or False.
 
