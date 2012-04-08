@@ -436,10 +436,6 @@ Without any more wait, here are the magic methods that containers use:
 `__contains__(self, item)`
 :    `__contains__` defines behavior for membership tests using `in` and `not in`. Why isn't this part of a sequence protocol, you ask? Because when `__contains__` isn't defined, Python just iterates over the sequence and returns `True` if it comes across the item it's looking for.
 
-`__concat__(self, other)`
-:    Lastly, you can define behavior for concatenating your sequence with another by defining `__concat__`. It should return a new sequence constructed from `self` and `other`. `__concat__` is invoked with the `+` operator when it is called on two sequences.    
-
-
 ####An example####
 
 For our example, let's look at a list that implements some functional constructs that you might be used to from other languages (Haskell, for example).

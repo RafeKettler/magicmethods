@@ -371,8 +371,6 @@ Should return an iterator for the container. Iterators are returned in a number 
 Called to implement behavior for the \code{reversed()} built in function. Should return a reversed version of the list.
 \item[\code{__contains__(self, item)}]
 \code{__contains__} defines behavior for membership tests using \code{in} and \code{not in}. Why isn't this part of a sequence protocol, you ask? Because when \code{__contains__} isn't defined, Python just iterates over the sequence and returns \code{True} if it comes across the item it's looking for.
-\item[\code{__concat__(self, other)}]
-Lastly, you can define behavior for concatenating your sequence with another by defining \code{__concat__}. It should return a new sequence constructed from \code{self} and \code{other}. \code{__concat__} is invoked with the \code{+} operator when it is called on two sequences.  
 
 \end{description}
 
@@ -599,8 +597,6 @@ $Magic\ Method$ & $When\ it\ gets\ invoked$ & $Explanation$\\
 \code{__iter__(self)} & \code{for x in self} & Iteration\\
 \hline
 \code{__contains__(self, value)} & \code{value in self}, \code{value not in self} & Membership tests using \code{in}\\
-\hline
-\code{__concat__(self, value)} & \code{self + other} & Concatenation of two sequences\\
 \hline
 \code{__call__(self [,...])} & \code{self(args)} & "Calling" an instance\\
 \hline

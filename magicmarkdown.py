@@ -1,5 +1,5 @@
 """
- magicmarkdown.py
+magicmarkdown.py
 utility script for changing markdown from magic methods guide into HTML
 """
 
@@ -17,5 +17,5 @@ appendix_text = markdown.markdown(appendix, ['tables'])
 with open('magicmethods.html', 'w') as out:
     out.write(table_text)
     out.write(body_text)
-    out.write(appendix_text)
+    out.write(appendix_text)    
     

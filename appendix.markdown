@@ -22,7 +22,6 @@ Magic Method                       |  When it gets invoked (example)        | Ex
 `__delitem__(self, key)`           |  `del self[key]`                       |  Deleting an item using an index
 `__iter__(self)`                   |  `for x in self`                       |  Iteration
 `__contains__(self, value)`        |  `value in self`, `value not in self`  |  Membership tests using `in`
-`__concat__(self, value)`          |  `self + other`                        |  Concatenation of two sequences
 `__call__(self [,...])`            |  `self(args)`                          |  "Calling" an instance
 `__enter__(self)`                  |  `with self as x:`                     |  `with` statement context managers
 `__exit__(self, exc, val, trace)`  |  `with self as x:`                     |  `with` statement context managers
