@@ -130,6 +130,18 @@ Unary operators and functions only have one operand, e.g. negation, absolute val
 `__invert__(self)`
 :    Implements behavior for inversion using the `~` operator. For an explanation on what this does, see [the Wikipedia article on bitwise operations](http://en.wikipedia.org/wiki/Bitwise_operation#NOT).
 
+`__round__(self, n)`
+:    Implements behavior for the buil in `round()` function. `n` is the number of decimal places to round to.
+
+`__floor__(self)`
+:    Implements behavior for `math.floor()`, i.e., rounding down to the nearest integer.
+
+`__ceil__(self)`
+:    Implements behavior for `math.ceil()`, i.e., rounding up to the nearest integer.
+
+`__trunc__(self)`
+:    Implements behavior for `math.trunc()`, i.e., truncating to an integral.
+
 
 ####Normal arithmetic operators####
 

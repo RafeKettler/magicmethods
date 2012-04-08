@@ -112,14 +112,22 @@ Unary operators and functions only have one operand, e.g. negation, absolute val
 
 \begin{description}
 
-\item[`__pos__(self)`]
-Implements behavior for unary positive (e.g. `+some_object`)
-\item[`__neg__(self)`]
-Implements behavior for negation (e.g. `-some_object`)
-\item[`__abs__(self)`]
-Implements behavior for the built in `abs()` function.
-\item[`__invert__(self)`]
-Implements behavior for inversion using the `\char126` operator.
+\item[\code{__pos__(self)}]
+Implements behavior for unary positive (e.g. \code{+some_object})
+\item[\code{__neg__(self)}]
+Implements behavior for negation (e.g. \code{-some_object})
+\item[\code{__abs__(self)}]
+Implements behavior for the built in \code{abs()} function.
+\item[\code{__invert__(self)}]
+Implements behavior for inversion using the \code{\char126} operator.
+\item[\code{__round__(self, n)}]
+Implements behavior for the buil in \code{round()} function. \code{n} is the number of decimal places to round to.
+\item[\code{__floor__(self)}]
+:    Implements behavior for \code{math.floor()}, i.e., rounding down to the nearest integer.
+\item[\code{__ceil__(self)}]
+:    Implements behavior for \code{math.ceil()}, i.e., rounding up to the nearest integer.
+\item[\code{__trunc__(self)}]
+:    Implements behavior for \code{math.trunc()}, i.e., truncating to an integral.
 
 \end{description}
 
