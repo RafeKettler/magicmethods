@@ -348,6 +348,9 @@ It's often useful to have a string representation of a class. In Python, there's
 `__unicode__(self)`
 :    Defines behavior for when `unicode()` is called on an instance of your class. `unicode()` is like `str()`, but it returns a unicode string. Be wary: if a client calls `str()` on an instance of your class and you've only defined `__unicode__()`, it won't work. You should always try to define `__str__()` as well in case someone doesn't have the luxury of using unicode.
 
+`__format__(self, formatstr)`
+:    Defines behavior for when an instance of your class is used in new-style string formatting. For instance, `"Hello, {0:abc}!".format(a)` would lead to the call `a.__format__("abc")`. This can be useful for defining your own numerical or string types that you might like to give special formatting options.
+
 `__hash__(self)`
 :    Defines behavior for when `hash()` is called on an instance of your class. It has to return an integer, and its result is used for quick key comparison in dictionaries. Note that this usually entails implementing `__eq__` as well. Live by the following rule: `a == b` implies `hash(a) == hash(b)`.
 
