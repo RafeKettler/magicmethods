@@ -503,6 +503,18 @@ Now, an example of a useful application of descriptors: unit conversions.
 
 \lstinputlisting{listings/descriptor.py}
 
+\section{Copying}
+
+Sometimes, particularly when dealing with mutable objects, you want to be able to copy an object and make changes without affecting what you copied from. This is where Python's \code{copy} comes into play. However (fortunately), Python modules are not sentient, so we don't have to worry about a Linux-based robot uprising, but we do have to tell Python how to efficiently copy things.
+
+\code{__copy__(self)}
+:   Defines behavior for \code{copy.copy()} for instances of your class. \code{copy.copy()} returns a _shallow copy_ of your object -- this means that, while the instance itself is a new instance, all of its data is referenced -- i.e., the object itself is copied, but its data is still referenced (and hence changes to data in a shallow copy may cause changes in the original).
+
+\code{__deepcopy__(self, memodict={})}
+:    Defines behavior for \code{copy.deepcopy()} for instances of your class. \code{copy.deepcopy()} returns a _deep copy_ of your object -- the object _and_ its data are both copied. \code{memodict} is a cache of previously copied objects -- this optimizes copying and prevents infinite recursion when copying recursive data structures. When you want to deep copy an individual attribute, call \code{copy.deepcopy()} on that attribute with \code{memodict} as the first argument.
+
+What are some use cases for these magic methods? As always, in any case where you need more fine-grained control than what the default behavior gives you. For instance, if you are attempting to copy an object that stores a cache as a dictionary (which might be large), it might not make sense to copy the cache as well -- if the cache can be shared in memory between instances, then it should be.
+
 \section{Pickling}
 
 If you spend time with other Pythonistas, chances are you've at least heard of pickling. Pickling is a serialization process for Python data structures, and can be incredibly useful when you need to store an object and retrieve it later. It's also a major source of worries and confusion.
@@ -511,7 +523,7 @@ Pickling is so important that it doesn't just have its own module (\code{pickle}
 
 \subsection{Pickling: A Quick Soak in the Brine}
 
-Let's dive into pickling. Say you have a dictionary that you want to store and retrieve later. You could write it's contents to a file, carefully making sure that you write correct syntax, then retrieve it using either `exec()` or processing the file input. But this is precarious at best: if you store important data in plain text, it could be corrupted or changed in any number of ways to make your program crash or worse run malicious code on your computer. Instead, we're going to pickle it:
+Let's dive into pickling. Say you have a dictionary that you want to store and retrieve later. You could write it's contents to a file, carefully making sure that you write correct syntax, then retrieve it using either \code{exec()} or processing the file input. But this is precarious at best: if you store important data in plain text, it could be corrupted or changed in any number of ways to make your program crash or worse run malicious code on your computer. Instead, we're going to pickle it:
 
 \begin{lstlisting}
 import pickle

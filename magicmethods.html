@@ -20,6 +20,7 @@ there, along with comments, (or even contributions!).</p>
 <li><a href="#callable">Callable Objects</a></li>
 <li><a href="#context">Context Managers</a></li>
 <li><a href="#descriptor">Building Descriptor Objects</a></li>
+<li><a href="#copying">Copying</a></li>
 <li><a href="#pickling">Pickling your Objects</a></li>
 <li><a href="#conclusion">Conclusion</a></li>
 <li><a href="#appendix">Appendix: How to Call Magic Methods</a></li>
@@ -124,6 +125,14 @@ there, along with comments, (or even contributions!).</p>
 <dd>Implements behavior for the built in <code>abs()</code> function.</dd>
 <dt><code>__invert__(self)</code></dt>
 <dd>Implements behavior for inversion using the <code>~</code> operator. For an explanation on what this does, see <a href="http://en.wikipedia.org/wiki/Bitwise_operation#NOT">the Wikipedia article on bitwise operations</a>.</dd>
+<dt><code>__round__(self, n)</code></dt>
+<dd>Implements behavior for the buil in <code>round()</code> function. <code>n</code> is the number of decimal places to round to.</dd>
+<dt><code>__floor__(self)</code></dt>
+<dd>Implements behavior for <code>math.floor()</code>, i.e., rounding down to the nearest integer.</dd>
+<dt><code>__ceil__(self)</code></dt>
+<dd>Implements behavior for <code>math.ceil()</code>, i.e., rounding up to the nearest integer.</dd>
+<dt><code>__trunc__(self)</code></dt>
+<dd>Implements behavior for <code>math.trunc()</code>, i.e., truncating to an integral.</dd>
 </dl>
 <h4>Normal arithmetic operators</h4>
 <p>Now, we cover the typical binary operators (and a function or two): +, -, * and the like. These are, for the most part, pretty self-explanatory.</p>
@@ -266,10 +275,16 @@ there, along with comments, (or even contributions!).</p>
 <dd>Defines behavior for when <code>repr()</code> is called on an instance of your class. The major difference between <code>str()</code> and <code>repr()</code> is intended audience. <code>repr()</code> is intended to produce output that is mostly machine-readable (in many cases, it could be valid Python code even), whereas <code>str()</code> is intended to be human-readable.</dd>
 <dt><code>__unicode__(self)</code></dt>
 <dd>Defines behavior for when <code>unicode()</code> is called on an instance of your class. <code>unicode()</code> is like <code>str()</code>, but it returns a unicode string. Be wary: if a client calls <code>str()</code> on an instance of your class and you've only defined <code>__unicode__()</code>, it won't work. You should always try to define <code>__str__()</code> as well in case someone doesn't have the luxury of using unicode.</dd>
+<dt><code>__format__(self, formatstr)</code></dt>
+<dd>Defines behavior for when an instance of your class is used in new-style string formatting. For instance, <code>"Hello, {0:abc}!".format(a)</code> would lead to the call <code>a.__format__("abc")</code>. This can be useful for defining your own numerical or string types that you might like to give special formatting options.</dd>
 <dt><code>__hash__(self)</code></dt>
-<dd>Defines behavior for when <code>hash()</code> is called on an instance of your class. It has to return an integer, and its result is used for quick key comparison in dictionaries.</dd>
+<dd>Defines behavior for when <code>hash()</code> is called on an instance of your class. It has to return an integer, and its result is used for quick key comparison in dictionaries. Note that this usually entails implementing <code>__eq__</code> as well. Live by the following rule: <code>a == b</code> implies <code>hash(a) == hash(b)</code>.</dd>
 <dt><code>__nonzero__(self)</code></dt>
 <dd>Defines behavior for when <code>bool()</code> is called on an instance of your class. Should return True or False, depending on whether you would want to consider the instance to be True or False.</dd>
+<dt><code>__dir__(self)</code></dt>
+<dd>Defines behavior for when <code>dir()</code> is called on an instance of your class. This method should return a list of attributes for the user. Typically, implementing <code>__dir__</code> is unnecessary, but it can be vitally important for interactive use of your classes if you redefine <code>__getattr__</code> or <code>__getattribute__</code> (which you will see in the next section) or are otherwise dynamically generating attributes.</dd>
+<dt><code>__sizeof__(self)</code></dt>
+<dd>Defines behavior for when <code>sys.getsizeof()</code> is called on an instance of your class. This should return the size of your object, in bytes. This is generally more useful for Python classes implemented in C extensions, but it helps to be aware of it.</dd>
 </dl>
 <p>We're pretty much done with the boring (and example-free) part of the magic methods guide. Now that we've covered some of the more basic magic methods, it's time to move to more advanced material.</p>
 <h2><a id="access" href="#access">Controlling Attribute Access</a></h2>
@@ -336,7 +351,7 @@ there, along with comments, (or even contributions!).</p>
 <dt><code>__getitem__(self, key)</code></dt>
 <dd>Defines behavior for when an item is accessed, using the notation <code>self[key]</code>. This is also part of both the mutable and immutable container protocols. It should also raise appropriate exceptions: <code>TypeError</code> if the type of the key is wrong and <code>KeyError</code> if there is no corresponding value for the key.</dd>
 <dt><code>__setitem__(self, key, value)</code></dt>
-<dd>Defines behavior for when an item is assigned to, using the notation <code>self[key] = value</code>. This is part of the mutable container protocol. Again, you should raise <code>KeyError</code> and <code>TypeError</code> where appropriate.</dd>
+<dd>Defines behavior for when an item is assigned to, using the notation <code>self[nkey] = value</code>. This is part of the mutable container protocol. Again, you should raise <code>KeyError</code> and <code>TypeError</code> where appropriate.</dd>
 <dt><code>__delitem__(self, key)</code></dt>
 <dd>Defines behavior for when an item is deleted (e.g. <code>del self[key]</code>). This is only part of the mutable container protocol. You must raise the appropriate exceptions when an invalid key is used.</dd>
 <dt><code>__iter__(self)</code></dt>
@@ -345,9 +360,8 @@ there, along with comments, (or even contributions!).</p>
 <dd>Called to implement behavior for the <code>reversed()</code> built in function. Should return a reversed version of the list.</dd>
 <dt><code>__contains__(self, item)</code></dt>
 <dd><code>__contains__</code> defines behavior for membership tests using <code>in</code> and <code>not in</code>. Why isn't this part of a sequence protocol, you ask? Because when <code>__contains__</code> isn't defined, Python just iterates over the sequence and returns <code>True</code> if it comes across the item it's looking for.</dd>
-<dt><code>__concat__(self, other)</code></dt>
-<dd>Lastly, you can define behavior for concatenating your sequence with another by defining <code>__concat__</code>. It should return a new sequence constructed from <code>self</code> and <code>other</code>. <code>__concat__</code> is invoked with the <code>+</code> operator when it is called on two sequences.  <br />
-</dd>
+<dt><code>__missing__(self, key)</code></dt>
+<dd><code>__missing__</code> is used in subclasses of <code>dict</code>. It defines behavior for whenever a key is accessed that does not exist in a dictionary (so, for instance, if I had a dictionary <code>d</code> and said <code>d["george"]</code> when <code>"george"</code> is not a key in the dict, <code>d.__missing__("george")</code> would be called).</dd>
 </dl>
 <h4>An example</h4>
 <p>For our example, let's look at a list that implements some functional constructs that you might be used to from other languages (Haskell, for example).</p>
@@ -527,6 +541,15 @@ there, along with comments, (or even contributions!).</p>
 </pre></div>
 
 
+<h2><a id="copying" href="#copying">Copying</a></h2>
+<p>Sometimes, particularly when dealing with mutable objects, you want to be able to copy an object and make changes without affecting what you copied from. This is where Python's <a href="http://docs.python.org/library/copy.html"><code>copy</code></a> comes into play. However (fortunately), Python modules are not sentient, so we don't have to worry about a Linux-based robot uprising, but we do have to tell Python how to efficiently copy things.</p>
+<dl>
+<dt><code>__copy__(self)</code></dt>
+<dd>Defines behavior for <code>copy.copy()</code> for instances of your class. <code>copy.copy()</code> returns a <em>shallow copy</em> of your object -- this means that, while the instance itself is a new instance, all of its data is referenced -- i.e., the object itself is copied, but its data is still referenced (and hence changes to data in a shallow copy may cause changes in the original).</dd>
+<dt><code>__deepcopy__(self, memodict={})</code></dt>
+<dd>Defines behavior for <code>copy.deepcopy()</code> for instances of your class. <code>copy.deepcopy()</code> returns a <em>deep copy</em> of your object -- the object <em>and</em> its data are both copied. <code>memodict</code> is a cache of previously copied objects -- this optimizes copying and prevents infinite recursion when copying recursive data structures. When you want to deep copy an individual attribute, call <code>copy.deepcopy()</code> on that attribute with <code>memodict</code> as the first argument.</dd>
+</dl>
+<p>What are some use cases for these magic methods? As always, in any case where you need more fine-grained control than what the default behavior gives you. For instance, if you are attempting to copy an object that stores a cache as a dictionary (which might be large), it might not make sense to copy the cache as well -- if the cache can be shared in memory between instances, then it should be.</p>
 <h2><a id="pickling" href="#pickling">Pickling Your Objects</a></h2>
 <p>If you spend time with other Pythonistas, chances are you've at least heard of pickling. Pickling is a serialization process for Python data structures, and can be incredibly useful when you need to store an object and retrieve it later (usually for caching). It's also a major source of worries and confusion.</p>
 <p>Pickling is so important that it doesn't just have its own module (<code>pickle</code>), but its own <em>protocol</em> and the magic methods to go with it. But first, a brief word on how to pickle existing types(feel free to skip it if you already know).</p>
@@ -700,11 +723,6 @@ cases, the invocation is far less obvious. This appendix is devoted to exposing 
 <td><code>__contains__(self, value)</code></td>
 <td><code>value in self</code>, <code>value not in self</code></td>
 <td>Membership tests using <code>in</code></td>
-</tr>
-<tr>
-<td><code>__concat__(self, value)</code></td>
-<td><code>self + other</code></td>
-<td>Concatenation of two sequences</td>
 </tr>
 <tr>
 <td><code>__call__(self [,...])</code></td>
