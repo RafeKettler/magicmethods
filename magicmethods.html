@@ -1,4 +1,13 @@
-<h1>A Guide to Python's Magic Methods</h1>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>A Guide to Python's Magic Methods &laquo; rafekettler.com</title>
+<meta name="description" content="A guide to all the Magic Methods in Python" />
+<meta name="keywords" content="python, programming, magic methods, object-oriented, oop" />
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body><h1>A Guide to Python's Magic Methods</h1>
 <h3>Rafe Kettler</h3>
 <p>Copyright &copy; 2012 Rafe Kettler</p>
 <p>Version 1.14</p>
@@ -313,10 +322,9 @@ there, along with comments, (or even contributions!).</p>
 </pre></div>
 
 
-<p>Again, Python's magic methods are incredibly powerful, and with great power comes great responsibility. It's important to know the proper way to use magic methods so you don't break any code.      <br />
-</p>
+<p>Again, Python's magic methods are incredibly powerful, and with great power comes great responsibility. It's important to know the proper way to use magic methods so you don't break any code.</p>
 <p>So, what have we learned about custom attribute access in Python? It's not to be used lightly. In fact, it tends to be excessively powerful and counter-intuitive. But the reason why it exists is to scratch a certain itch: Python doesn't seek to make bad things impossible, but just to make them difficult. Freedom is paramount, so you can really do whatever you want. Here's an example of some of the special attribute access methods in action (note that we use <code>super</code> because not all classes have an attribute <code>__dict__</code>):</p>
-<div class="codehilite"><pre><span class="k">class</span> <span class="nc">AccessCounter</span><span class="p">:</span>
+<div class="codehilite"><pre><span class="k">class</span> <span class="nc">AccessCounter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;A class that contains a value and implements an access counter.</span>
 <span class="sd">    The counter increments each time the value is changed.&#39;&#39;&#39;</span>
 
@@ -485,20 +493,20 @@ there, along with comments, (or even contributions!).</p>
 
 
 <p>Here's an example of <code>Closer</code> in action, using an FTP connection to demonstrate it (a closable socket):</p>
-<div class="codehilite"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">from</span> <span class="n">magicmethods</span> <span class="nb">import</span> <span class="n">Closer</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">from</span> <span class="n">ftplib</span> <span class="nb">import</span> <span class="n">FTP</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">with</span> <span class="n">Closer</span><span class="p">(</span><span class="n">FTP</span><span class="p">(</span><span class="s">&#39;ftp.somesite.com&#39;</span><span class="p">))</span> <span class="n">as</span> <span class="n">conn:</span>
-<span class="o">...</span>     <span class="n">conn</span><span class="o">.</span><span class="n">dir</span><span class="p">()</span>
-<span class="o">...</span>
-<span class="c1"># output omitted for brevity</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">conn</span><span class="o">.</span><span class="n">dir</span><span class="p">()</span>
-<span class="c1"># long AttributeError message, can&#39;t use a connection that&#39;s closed</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">with</span> <span class="n">Closer</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span> <span class="n">as</span> <span class="n">i:</span>
-<span class="o">...</span>     <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
-<span class="o">...</span>
-<span class="n">Not</span> <span class="n">closable</span><span class="o">.</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">i</span>
-<span class="mi">6</span>
+<div class="codehilite"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">from</span> <span class="n">magicmethods</span> <span class="n">import</span> <span class="n">Closer</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">from</span> <span class="n">ftplib</span> <span class="n">import</span> <span class="n">FTP</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">with</span> <span class="n">Closer</span><span class="p">(</span><span class="n">FTP</span><span class="p">(</span><span class="s">&#39;ftp.somesite.com&#39;</span><span class="p">))</span> <span class="n">as</span> <span class="n">conn</span><span class="p">:</span>
+<span class="p">...</span>     <span class="n">conn</span><span class="p">.</span><span class="n">dir</span><span class="p">()</span>
+<span class="p">...</span>
+# <span class="n">output</span> <span class="n">omitted</span> <span class="k">for</span> <span class="n">brevity</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">conn</span><span class="p">.</span><span class="n">dir</span><span class="p">()</span>
+# <span class="n">long</span> <span class="n">AttributeError</span> <span class="n">message</span><span class="p">,</span> <span class="n">can</span><span class="o">&#39;</span><span class="n">t</span> <span class="n">use</span> <span class="n">a</span> <span class="n">connection</span> <span class="n">that</span><span class="o">&#39;</span><span class="n">s</span> <span class="n">closed</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">with</span> <span class="n">Closer</span><span class="p">(</span><span class="n">int</span><span class="p">(</span>5<span class="p">))</span> <span class="n">as</span> <span class="nb">i</span><span class="p">:</span>
+<span class="p">...</span>     <span class="nb">i</span> <span class="o">+</span><span class="p">=</span> 1
+<span class="p">...</span>
+<span class="n">Not</span> <span class="n">closable</span><span class="p">.</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="nb">i</span>
+6
 </pre></div>
 
 
@@ -751,4 +759,5 @@ cases, the invocation is far less obvious. This appendix is devoted to exposing 
 </tr>
 </tbody>
 </table>
-<p>Hopefully, this table should have cleared up any questions you might have had about what syntax invokes which magic method.</p>
+<p>Hopefully, this table should have cleared up any questions you might have had about what syntax invokes which magic method.</p></body>
+</html>

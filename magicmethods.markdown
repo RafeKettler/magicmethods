@@ -12,7 +12,7 @@ I hope you enjoy it. Use it as a tutorial, a refresher, or a reference; it's jus
 
 Everyone knows the most basic magic method, `__init__`. It's the way that we can define the initialization behavior of an object. However, when I call `x = SomeClass()`, `__init__` is not the first thing to get called. Actually, it's a method called `__new__`, which actually creates the instance, then passes any arguments at creation on to the initializer. At the other end of the object's lifespan, there's `__del__`. Let's take a closer look at these 3 magic methods:
 
- 
+
 `__new__(cls, [...)`
 :    `__new__` is the first method to get called in an object's instantiation. It takes the class, then any other arguments that it will pass along to `__init__`. `__new__` is used fairly rarely, but it does have its purposes, particularly when subclassing an immutable type like a tuple or a string. I don't want to go in to too much detail on `__new__` because it's not too useful, but it is covered in great detail [in the Python docs](http://www.python.org/download/releases/2.2/descrintro/#__new__).
 
@@ -30,11 +30,11 @@ Putting it all together, here's an example of `__init__` and `__del__` in action
 
     class FileObject:
         '''Wrapper for file objects to make sure the file gets closed on deletion.'''
-        
+
         def __init__(self, filepath='~', filename='sample.txt'):
             # open a file filename in filepath in read and write mode
             self.file = open(join(filepath, filename), 'r+')
-       
+
         def __del__(self):
             self.file.close()
             del self.file
@@ -46,7 +46,7 @@ One of the biggest advantages of using Python's magic methods is that they provi
     :::python
     if instance.equals(other_instance):
         # do something
-        
+
 You could certainly do this in Python, too, but this adds confusion and is unnecessarily verbose. Different libraries might use different names for the same operations, making the client do way more work than necessary. With the power of magic methods, however, we can define one method (`__eq__`, in this case), and say what we _mean_ instead:
 
     :::python
@@ -87,7 +87,7 @@ For an example, consider a class to model a word. We might want to compare words
     :::python
     class Word(str):
         '''Class for words, defining comparison based on word length.'''
-        
+
         def __new__(cls, word):
             # Note that we have to use __new__. This is because str is an immutable
             # type, so we have to initialize it early (at creation)
@@ -95,7 +95,7 @@ For an example, consider a class to model a word. We might want to compare words
                 print "Value contains spaces. Truncating to first space."
                 word = word[:word.index(' ')] # Word is now all chars before first space
             return str.__new__(cls, word)
-        
+
         def __gt__(self, other):
             return len(self) > len(other)
         def __lt__(self, other):
@@ -104,7 +104,7 @@ For an example, consider a class to model a word. We might want to compare words
             return len(self) >= len(other)
         def __le__(self, other):
             return len(self) <= len(other)
-            
+
 Now, we can create two `Word`s (by using `Word('foo')` and `Word('bar')`) and compare them based on length. Note, however, that we didn't define `__eq__` and `__ne__`. This is because this would lead to some weird behavior (notably that `Word('foo') == Word('bar')` would evaluate to true). It wouldn't make sense to test for equality based on length, so we fall back on `str`'s implementation of equality.
 
 Now would be a good time to note that you don't have to define every comparison magic method to get rich comparisons. The standard library has kindly provided us with a class decorator in the module `functools` that will define all rich comparison methods if you only define `__eq__` and one other (e.g. `__gt__`, `__lt__`, etc.) This feature is only available in Python 2.7, but when you get a chance it saves a great deal of time and effort. You can use it by placing `@total_ordering` above your class definition.
@@ -391,20 +391,20 @@ You can easily cause a problem in your definitions of any of the methods control
         # is recursion.
         # so this really means self.__setattr__('name', value). Since the method
         # keeps calling itself, the recursion goes on forever causing a crash
-    
+
     def __setattr__(self, name, value):
         self.__dict__[name] = value # assigning to the dict of names in the class
-        # define custom behavior here 
+        # define custom behavior here
 
-Again, Python's magic methods are incredibly powerful, and with great power comes great responsibility. It's important to know the proper way to use magic methods so you don't break any code.        
+Again, Python's magic methods are incredibly powerful, and with great power comes great responsibility. It's important to know the proper way to use magic methods so you don't break any code.
 
 So, what have we learned about custom attribute access in Python? It's not to be used lightly. In fact, it tends to be excessively powerful and counter-intuitive. But the reason why it exists is to scratch a certain itch: Python doesn't seek to make bad things impossible, but just to make them difficult. Freedom is paramount, so you can really do whatever you want. Here's an example of some of the special attribute access methods in action (note that we use `super` because not all classes have an attribute `__dict__`):
 
     :::python
-    class AccessCounter:
+    class AccessCounter(object):
         '''A class that contains a value and implements an access counter.
         The counter increments each time the value is changed.'''
-        
+
         def __init__(self, val):
             super(AccessCounter, self).__setattr__('counter', 0)
             super(AccessCounter, self).__setattr__('value', val)
@@ -467,32 +467,32 @@ For our example, let's look at a list that implements some functional constructs
     class FunctionalList:
         '''A class wrapping a list with some extra functional magic, like head,
         tail, init, last, drop, and take.'''
-        
+
         def __init__(self, values=None):
             if values is None:
                 self.values = []
             else:
                 self.values = values
-        
+
         def __len__(self):
             return len(self.values)
-        
+
         def __getitem__(self, key):
             # if key is of invalid type or value, the list values will raise the error
             return self.values[key]
-        
+
         def __setitem__(self, key, value):
             self.values[key] = value
-        
+
         def __delitem__(self, key):
             del self.values[key]
 
         def __iter__(self):
             return iter(self.values)
-        
+
         def __reversed__(self):
             return reversed(self.values)
-        
+
         def append(self, value):
             self.values.append(value)
         def head(self):
@@ -556,7 +556,7 @@ A special magic method in Python allows instances of your classes to behave as i
         def __call__(self, x, y):
             '''Change the position of the entity.'''
             self.x, self.y = x, y
-        
+
         # snip...
 
 ##<a id="context" href="#context">Context Managers</a>##
@@ -566,7 +566,7 @@ In Python 2.5, a new keyword was introduced in Python along with a new method fo
     :::python
     with open('foo.txt') as bar:
         # perform some action with bar
-        
+
 Context managers allow setup and cleanup actions to be taken for objects when their creation is wrapped with a `with` statement. The behavior of the context manager is determined by two magic methods:
 
 
@@ -584,13 +584,13 @@ Context managers allow setup and cleanup actions to be taken for objects when th
     class Closer:
         '''A context manager to automatically close an object with a close method
         in a with statement.'''
-        
+
         def __init__(self, obj):
             self.obj = obj
-        
+
         def __enter__(self):
             return self.obj # bound to target
-        
+
         def __exit__(self, exception_type, exception_val, trace):
             try:
                self.obj.close()
@@ -640,7 +640,7 @@ Now, an example of a useful application of descriptors: unit conversions.
     :::python
     class Meter(object):
         '''Descriptor for a meter.'''
-        
+
         def __init__(self, value=0.0):
             self.value = float(value)
         def __get__(self, instance, owner):
@@ -650,7 +650,7 @@ Now, an example of a useful application of descriptors: unit conversions.
 
     class Foot(object):
         '''Descriptor for a foot.'''
-        
+
         def __get__(self, instance, owner):
             return instance.meter * 3.2808
         def __set__(self, instance, value):
@@ -686,24 +686,24 @@ Let's dive into pickling. Say you have a dictionary that you want to store and r
 
     :::python
     import pickle
-    
+
     data = {'foo': [1, 2, 3],
             'bar': ('Hello', 'world!'),
             'baz': True}
     jar = open('data.pkl', 'wb')
     pickle.dump(data, jar) # write the pickled data to the file jar
     jar.close()
-    
+
 Now, a few hours later, we want it back. All we have to do is unpickle it:
 
     :::python
     import pickle
-    
+
     pkl_file = open('data.pkl', 'rb') # connect to the pickled data
     data = pickle.load(pkl_file) # load it into a variable
     print data
     pkl_file.close()
-    
+
 What happens? Exactly what you expect. It's just like we had `data` all along.
 
 Now, for a word of caution: pickling is not perfect. Pickle files are easily corrupted on accident and on purpose. Pickling may be more secure than using flat text files, but it still can be used to run malicious code. It's also incompatible across versions of Python, so don't expect to distribute pickled objects and expect people to be able to open them. However, it can also be a powerful tool for caching and other common serialization tasks.
@@ -734,33 +734,33 @@ Our example is a `Slate`, which remembers what its values have been and when tho
     class Slate:
         '''Class to store a string and a changelog, and forget its value when
         pickled.'''
-        
+
         def __init__(self, value):
             self.value = value
             self.last_change = time.asctime()
             self.history = {}
-        
+
         def change(self, new_value):
             # Change the value. Commit last value to history
             self.history[self.last_change] = self.value
             self.value = new_value
             self.last_change = time.asctime()
-            
+
         def print_changes(self):
             print 'Changelog for Slate object:'
             for k, v in self.history.items():
                 print '%s\t %s' % (k, v)
-        
+
         def __getstate__(self):
             # Deliberately do not return self.value or self.last_change.
             # We want to have a "blank slate" when we unpickle.
             return self.history
-            
+
         def __setstate__(self, state):
             # Make self.history = state and last_change and value undefined
             self.history = state
             self.value, self.last_change = None, None
-            
+
 ##<a id="conclusion" href="#conclusion">Conclusion</a>##
 
 The goal of this guide is to bring something to anyone that reads it, regardless of their experience with Python or object-oriented programming. If you're just getting started with Python, you've gained valuable knowledge of the basics of writing feature-rich, elegant, and easy-to-use classes. If you're an intermediate Python programmer, you've probably picked up some slick new concepts and strategies and some good ways to reduce the amount of code written by you and clients. If you're an expert Pythonista, you've been refreshed on some of the stuff you might have forgotten about and maybe picked up a few new tricks along the way. Whatever your experience level, I hope that this trip through Python's special methods has been truly magical (I couldn't resist the final pun).
