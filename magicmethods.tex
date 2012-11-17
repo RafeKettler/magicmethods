@@ -571,7 +571,10 @@ For new-style classes, you can influence what arguments get passed to \code{__ne
 Instead of the object's \code{__dict__} attribute being stored, you can return a custom state to be stored when the object is pickled. That state will be used by \code{__setstate__} when the object is unpickled.
 \item[\code{__setstate__(self, state)}]
 When the object is unpickled, if \code{__setstate__} is defined the object's state will be passed to it instead of directly applied to the object's \code{__dict__}. This goes hand in hand with \code{__getstate__}: when both are defined, you can represent the object's pickled state however you want with whatever you want.
-
+\item[\code{__reduce__(self)}]
+When defining extension types (i.e., types implemented using Python's C API), you have to tell Python how to pickle them if you want them to pickle them. \code{__reduce__()} is called when an object defining it is pickled. It can either return a string representing a global name that Python will look up and pickle, or a tuple. The tuple contains between 2 and 5 elements: a callable object that is called to recreate the object, a tuple of arguments for that callable object, state to be passed to \code{__setstate__} (optional), an iterator yielding list items to be pickled (optional),  and an iterator yielding dictionary items to be pickled (optional).
+\item[\code{__reduce_ex__(self)}]
+\code{__reduce_ex__} exists for compatibility. If it is defined, \code{__reduce_ex__} will be called over \code{__reduce__} on pickling. \code{__reduce__} can be defined as well for older versions of the pickling API that did not support \code{__reduce_ex__}.
 \end{description}
 
 \subsection{An Example}

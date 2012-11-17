@@ -728,6 +728,12 @@ Pickling isn't just for built-in types. It's for any class that follows the pick
 `__setstate__(self, state)`
 :    When the object is unpickled, if `__setstate__` is defined the object's state will be passed to it instead of directly applied to the object's `__dict__`. This goes hand in hand with `__getstate__`: when both are defined, you can represent the object's pickled state however you want with whatever you want.
 
+`__reduce__(self)`
+:    When defining extension types (i.e., types implemented using Python's C API), you have to tell Python how to pickle them if you want them to pickle them. `__reduce__()` is called when an object defining it is pickled. It can either return a string representing a global name that Python will look up and pickle, or a tuple. The tuple contains between 2 and 5 elements: a callable object that is called to recreate the object, a tuple of arguments for that callable object, state to be passed to `__setstate__` (optional), an iterator yielding list items to be pickled (optional),  and an iterator yielding dictionary items to be pickled (optional).
+
+`__reduce_ex__(self)`
+:    `__reduce_ex__` exists for compatibility. If it is defined, `__reduce_ex__` will be called over `__reduce__` on pickling. `__reduce__` can be defined as well for older versions of the pickling API that did not support `__reduce_ex__`.
+
 ###An Example###
 
 Our example is a `Slate`, which remembers what its values have been and when those values were written to it. However, this particular slate goes blank each time it is pickled: the current value will not be saved.
