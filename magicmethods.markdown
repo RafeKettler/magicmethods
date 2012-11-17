@@ -618,6 +618,10 @@ Here's an example of `Closer` in action, using an FTP connection to demonstrate 
 
 See how our wrapper gracefully handled both proper and improper uses? That's the power of context managers and magic methods.
 
+##<a id="abcs" href="#abcs">Abstract Base Classes</a>##
+
+See http://docs.python.org/2/library/abc.html.
+
 ##<a id="descriptor" href="#descriptor">Building Descriptor Objects</a>##
 
 Descriptors are classes which, when accessed through either getting, setting, or deleting, can also alter other objects. Descriptors aren't meant to stand alone; rather, they're meant to be held by an owner class. Descriptors can be useful when building object-oriented databases or classes that have attributes whose values are dependent on each other. Descriptors are particularly useful when representing attributes in several different units of measurement or representing computed attributes (like distance from the origin in a class to represent a point on a grid).
