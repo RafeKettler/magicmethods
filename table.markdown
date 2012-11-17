@@ -28,4 +28,5 @@ there, along with comments, (or even contributions!).
  12. [Copying](#copying)
  13. [Pickling your Objects](#pickling)
  14. [Conclusion](#conclusion)
- 15. [Appendix: How to Call Magic Methods](#appendix)
+ 15. [Appendix 1: How to Call Magic Methods](#appendix1)
+ 16. [Appendix 2: Changes in Python 3](#appendix2)
