@@ -53,7 +53,7 @@ You could certainly do this in Python, too, but this adds confusion and is unnec
     if instance == other_instance:
         #do something
 
-That's part of the power of magic methods. The vast majority of them allow us to define meaning for operators so that we can use them on our own classes just like they were built in types. Note that the Python standard library includes a module [contextlib](http://docs.python.org/library/contextlib.html) that contains a context manager, `contextlib.closing()`, that does approximately the same thing (without any handling of the case where an object does not have a `close() method).
+That's part of the power of magic methods. The vast majority of them allow us to define meaning for operators so that we can use them on our own classes just like they were built in types.
 
 ###<a id="comparisons" href="#comparisons">Comparison magic methods</a>###
 
@@ -616,7 +616,7 @@ Here's an example of `Closer` in action, using an FTP connection to demonstrate 
     >>> i
     6
 
-See how our wrapper gracefully handled both proper and improper uses? That's the power of context managers and magic methods.
+See how our wrapper gracefully handled both proper and improper uses? That's the power of context managers and magic methods. Note that the Python standard library includes a module [contextlib](http://docs.python.org/library/contextlib.html) that contains a context manager, `contextlib.closing()`, that does approximately the same thing (without any handling of the case where an object does not have a `close()` method).
 
 ##<a id="abcs" href="#abcs">Abstract Base Classes</a>##
 
