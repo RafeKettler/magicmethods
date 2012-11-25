@@ -8,3 +8,9 @@
  - sarenji (David Peter) for pointing out some bugs in the examples
  - michaelcontento (Michael Contento) for fixing a missing argument in `__exit__`
  - nosklo for giving some constructive criticism on #python
+ - rhettinger for pointing out a number of omissions in the guide
+ - aasted for pointing out an error in the organization of the guide
+ - seliopou for making the guide a little more visually appealing
+ - redtoad for correcting some typos
+ - bobuss for finding an error in the `AccessCounter` example
+ - Andrew-Crosio for finding yet another typo

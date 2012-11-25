@@ -16,7 +16,7 @@ Magic Method                       |  When it gets invoked (example)        | Ex
 `__getattr__(self, name)`          |  `self.name # name doesn't exist`      |  Accessing nonexistent attribute
 `__setattr__(self, name, val)`     |  `self.name = val`                     |  Assigning to an attribute
 `__delattr__(self, name)`          |  `del self.name`                       |  Deleting an attribute
-`__getattribute(self, name)`       |  `self.name`                           |  Accessing any attribute
+`__getattribute__(self, name)`     |  `self.name`                           |  Accessing any attribute
 `__getitem__(self, key)`           |  `self[key]`                           |  Accessing an item using an index
 `__setitem__(self, key, val)`      |  `self[key] = val`                     |  Assigning to an item using an index
 `__delitem__(self, key)`           |  `del self[key]`                       |  Deleting an item using an index
