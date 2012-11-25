@@ -4,7 +4,7 @@
 
 Copyright &copy; 2012 Rafe Kettler
 
-Version 1.15
+Version 1.16
 
 A PDF version of this guide can be obtained from [my site](http://www.rafekettler.com/magicmethods.pdf) or [Github](https://github.com/RafeKettler/magicmethods/raw/master/magicmethods.pdf). The magic methods guide has [a git repository at http://www.github.com/RafeKettler/magicmethods](http://www.github.com/RafeKettler/magicmethods). Any issues can be reported 
 there, along with comments, (or even contributions!).
