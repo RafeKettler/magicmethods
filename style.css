@@ -22,6 +22,7 @@ body {
     font-family: Georgia, serif;
     font-size: 17px;
     line-height: 23px;
+    margin-top: 68px; /* 4em */
 }
 
 pre,code {
