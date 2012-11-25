@@ -1,16 +1,7 @@
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>A Guide to Python's Magic Methods &laquo; rafekettler.com</title>
-<meta name="description" content="A guide to all the Magic Methods in Python" />
-<meta name="keywords" content="python, programming, magic methods, object-oriented, oop" />
-<link href="style.css" rel="stylesheet" type="text/css" />
-</head>
-
-<body><h1>A Guide to Python's Magic Methods</h1>
+<h1>A Guide to Python's Magic Methods</h1>
 <h3>Rafe Kettler</h3>
 <p>Copyright &copy; 2012 Rafe Kettler</p>
-<p>Version 1.14</p>
+<p>Version 1.15</p>
 <p>A PDF version of this guide can be obtained from <a href="http://www.rafekettler.com/magicmethods.pdf">my site</a> or <a href="https://github.com/RafeKettler/magicmethods/raw/master/magicmethods.pdf">Github</a>. The magic methods guide has <a href="http://www.github.com/RafeKettler/magicmethods">a git repository at http://www.github.com/RafeKettler/magicmethods</a>. Any issues can be reported 
 there, along with comments, (or even contributions!).</p>
 <p><strong><a id="table" href="#table">Table of Contents</a></strong></p>
@@ -26,13 +17,15 @@ there, along with comments, (or even contributions!).</p>
 <li><a href="#access">Controlling Attribute Access</a></li>
 <li><a href="#sequence">Making Custom Sequences</a></li>
 <li><a href="#reflection">Reflection</a></li>
+<li><a href="#abcs">Abstract Base Classes</a> </li>
 <li><a href="#callable">Callable Objects</a></li>
 <li><a href="#context">Context Managers</a></li>
 <li><a href="#descriptor">Building Descriptor Objects</a></li>
 <li><a href="#copying">Copying</a></li>
 <li><a href="#pickling">Pickling your Objects</a></li>
 <li><a href="#conclusion">Conclusion</a></li>
-<li><a href="#appendix">Appendix: How to Call Magic Methods</a></li>
+<li><a href="#appendix1">Appendix 1: How to Call Magic Methods</a></li>
+<li><a href="#appendix2">Appendix 2: Changes in Python 3</a></li>
 </ol><h2><a id="intro" href="#intro">Introduction</a></h2>
 <p>This guide is the culmination of a few months' worth of blog posts. The subject is <strong>magic methods</strong>.</p>
 <p>What are magic methods? They're everything in object-oriented Python. They're special methods that you can define to add "magic" to your classes. They're always surrounded by double underscores (e.g. <code>__init__</code> or <code>__lt__</code>). They're also not as well documented as they need to be. All of the magic methods for Python appear in the same section in the Python docs, but they're scattered about and only loosely organized. There's hardly an example to be found in that section (and that may very well be by design, since they're all detailed in the <em>language reference</em>, along with boring syntax descriptions, etc.).</p>
@@ -77,7 +70,7 @@ there, along with comments, (or even contributions!).</p>
 </pre></div>
 
 
-<p>That's part of the power of magic methods. The vast majority of them allow us to define meaning for operators so that we can use them on our own classes just like they were built in types. Note that the Python standard library includes a module <a href="http://docs.python.org/library/contextlib.html">contextlib</a> that contains a context manager, <code>contextlib.closing()</code>, that does approximately the same thing (without any handling of the case where an object does not have a `close() method).</p>
+<p>That's part of the power of magic methods. The vast majority of them allow us to define meaning for operators so that we can use them on our own classes just like they were built in types.</p>
 <h3><a id="comparisons" href="#comparisons">Comparison magic methods</a></h3>
 <p>Python has a whole slew of magic methods designed to implement intuitive comparisons between objects using operators, not awkward method calls. They also provide a way to override the default Python behavior for comparisons of objects (by reference). Here's the list of those methods and what they do:</p>
 <dl>
@@ -510,7 +503,9 @@ there, along with comments, (or even contributions!).</p>
 </pre></div>
 
 
-<p>See how our wrapper gracefully handled both proper and improper uses? That's the power of context managers and magic methods.</p>
+<p>See how our wrapper gracefully handled both proper and improper uses? That's the power of context managers and magic methods. Note that the Python standard library includes a module <a href="http://docs.python.org/library/contextlib.html">contextlib</a> that contains a context manager, <code>contextlib.closing()</code>, that does approximately the same thing (without any handling of the case where an object does not have a <code>close()</code> method).</p>
+<h2><a id="abcs" href="#abcs">Abstract Base Classes</a></h2>
+<p>See http://docs.python.org/2/library/abc.html.</p>
 <h2><a id="descriptor" href="#descriptor">Building Descriptor Objects</a></h2>
 <p>Descriptors are classes which, when accessed through either getting, setting, or deleting, can also alter other objects. Descriptors aren't meant to stand alone; rather, they're meant to be held by an owner class. Descriptors can be useful when building object-oriented databases or classes that have attributes whose values are dependent on each other. Descriptors are particularly useful when representing attributes in several different units of measurement or representing computed attributes (like distance from the origin in a class to represent a point on a grid).</p>
 <p>To be a descriptor, a class must have at least one of <code>__get__</code>, <code>__set__</code>, and <code>__delete__</code> implemented. Let's take a look at those magic methods:</p>
@@ -597,6 +592,10 @@ there, along with comments, (or even contributions!).</p>
 <dd>Instead of the object's <code>__dict__</code> attribute being stored, you can return a custom state to be stored when the object is pickled. That state will be used by <code>__setstate__</code> when the object is unpickled.</dd>
 <dt><code>__setstate__(self, state)</code></dt>
 <dd>When the object is unpickled, if <code>__setstate__</code> is defined the object's state will be passed to it instead of directly applied to the object's <code>__dict__</code>. This goes hand in hand with <code>__getstate__</code>: when both are defined, you can represent the object's pickled state however you want with whatever you want.</dd>
+<dt><code>__reduce__(self)</code></dt>
+<dd>When defining extension types (i.e., types implemented using Python's C API), you have to tell Python how to pickle them if you want them to pickle them. <code>__reduce__()</code> is called when an object defining it is pickled. It can either return a string representing a global name that Python will look up and pickle, or a tuple. The tuple contains between 2 and 5 elements: a callable object that is called to recreate the object, a tuple of arguments for that callable object, state to be passed to <code>__setstate__</code> (optional), an iterator yielding list items to be pickled (optional),  and an iterator yielding dictionary items to be pickled (optional).</dd>
+<dt><code>__reduce_ex__(self)</code></dt>
+<dd><code>__reduce_ex__</code> exists for compatibility. If it is defined, <code>__reduce_ex__</code> will be called over <code>__reduce__</code> on pickling. <code>__reduce__</code> can be defined as well for older versions of the pickling API that did not support <code>__reduce_ex__</code>.</dd>
 </dl>
 <h3>An Example</h3>
 <p>Our example is a <code>Slate</code>, which remembers what its values have been and when those values were written to it. However, this particular slate goes blank each time it is pickled: the current value will not be saved.</p>
@@ -635,7 +634,7 @@ there, along with comments, (or even contributions!).</p>
 
 
 <h2><a id="conclusion" href="#conclusion">Conclusion</a></h2>
-<p>The goal of this guide is to bring something to anyone that reads it, regardless of their experience with Python or object-oriented programming. If you're just getting started with Python, you've gained valuable knowledge of the basics of writing feature-rich, elegant, and easy-to-use classes. If you're an intermediate Python programmer, you've probably picked up some slick new concepts and strategies and some good ways to reduce the amount of code written by you and clients. If you're an expert Pythonista, you've been refreshed on some of the stuff you might have forgotten about and maybe picked up a few new tricks along the way. Whatever your experience level, I hope that this trip through Python's special methods has been truly magical (I couldn't resist the final pun).</p><h2><a id="appendix" href="#appendix">Appendix: How to Call Magic Methods</a></h2>
+<p>The goal of this guide is to bring something to anyone that reads it, regardless of their experience with Python or object-oriented programming. If you're just getting started with Python, you've gained valuable knowledge of the basics of writing feature-rich, elegant, and easy-to-use classes. If you're an intermediate Python programmer, you've probably picked up some slick new concepts and strategies and some good ways to reduce the amount of code written by you and clients. If you're an expert Pythonista, you've been refreshed on some of the stuff you might have forgotten about and maybe picked up a few new tricks along the way. Whatever your experience level, I hope that this trip through Python's special methods has been truly magical (I couldn't resist the final pun).</p><h2><a id="appendix1" href="#appendix1">Appendix 1: How to Call Magic Methods</a></h2>
 <p>Some of the magic methods in Python directly map to built-in functions; in this case, how to invoke them is fairly obvious. However, in other 
 cases, the invocation is far less obvious. This appendix is devoted to exposing non-obvious syntax that leads to magic methods getting called.</p>
 <table>
@@ -759,5 +758,13 @@ cases, the invocation is far less obvious. This appendix is devoted to exposing 
 </tr>
 </tbody>
 </table>
-<p>Hopefully, this table should have cleared up any questions you might have had about what syntax invokes which magic method.</p></body>
-</html>
+<p>Hopefully, this table should have cleared up any questions you might have had about what syntax invokes which magic method.</p>
+<h2><a id="appendix2" href="#appendix2">Appendix 2: Changes in Python 3</a></h2>
+<p>Here, we document a few major places where Python 3 differs from 2.x in terms of its object model:</p>
+<ul>
+<li>Since the distinction between string and unicode has been done away with in Python 3, <code>__unicode__</code> is gone and <code>__bytes__</code> (which behaves similarly to <code>__str__</code> and <code>__unicode__</code> in 2.7) exists for a new built-in for constructing byte arrays.</li>
+<li>Since division defaults to true division in Python 3, <code>__div__</code> is gone in Python 3</li>
+<li><code>__coerce__</code> is gone due to redundancy with other magic methods and confusing behavior</li>
+<li><code>__cmp__</code> is gone due to redundancy with other magic methods</li>
+<li><code>__nonzero__</code> has been renamed to <code>__bool__</code></li>
+</ul>
