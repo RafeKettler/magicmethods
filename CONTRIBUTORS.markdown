@@ -14,3 +14,4 @@
  - redtoad for correcting some typos
  - bobuss for finding an error in the `AccessCounter` example
  - Andrew-Crosio for finding yet another typo
+ - william-mi-leslie for finding weaknesses and errors in the guide's treatment of operator overloading
