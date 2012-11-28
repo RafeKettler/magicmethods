@@ -225,7 +225,7 @@ there, along with comments, (or even contributions!).</p>
 </pre></div>
 
 
-<p>Each of these methods does not return a value, because assignment in Python does not return any value. Instead, they just alter the state of the class. Here's the list:</p>
+<p>Each of these methods should return the value that the variable on the left hand side should be assigned to (for instance, for <code>a += b</code>, <code>__iadd__</code> might return <code>a + b</code>, which would be assigned to <code>a</code>). Here's the list:</p>
 <dl>
 <dt><code>__iadd__(self, other)</code></dt>
 <dd>Implements addition with assignment.</dd>

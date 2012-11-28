@@ -257,7 +257,7 @@ Python also has a wide variety of magic methods to allow custom behavior to be d
     x = 5
     x += 1 # in other words x = x + 1
 
-Each of these methods does not return a value, because assignment in Python does not return any value. Instead, they just alter the state of the class. Here's the list:
+Each of these methods should return the value that the variable on the left hand side should be assigned to (for instance, for `a += b`, `__iadd__` might return `a + b`, which would be assigned to `a`). Here's the list:
 
 
 `__iadd__(self, other)`

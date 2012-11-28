@@ -228,7 +228,7 @@ x = 5
 x += 1 # in other words x = x + 1
 \end{lstlisting}
 
-Each of these methods does not return a value, because assignment in Python does not return any value. Instead, they just alter the state of the class. Here's the list:
+Each of these methods should return the value that the variable on the left hand side should be assigned to (for instance, for \code{a += b}, \code{__iadd__} might return \code{a + b}, which would be assigned to \code{a}). Here's the list:
 
 \begin{description}
 
