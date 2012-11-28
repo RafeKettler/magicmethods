@@ -187,7 +187,7 @@ there, along with comments, (or even contributions!).</p>
 </pre></div>
 
 
-<p>So, all of these magic methods do the same thing as their normal equivalents, except the perform the operation with other as the first operand and self as the second, rather than the other way around. In most cases, the result of a reflected operation is the same as its normal equivalent, so you may just end up defining <code>__radd__</code> as calling <code>__add__</code> and so on. Without further ado:</p>
+<p>So, all of these magic methods do the same thing as their normal equivalents, except the perform the operation with other as the first operand and self as the second, rather than the other way around. In most cases, the result of a reflected operation is the same as its normal equivalent, so you may just end up defining <code>__radd__</code> as calling <code>__add__</code> and so on. Note that the object on the left hand side of the operator (<code>other</code> in the example) must not define (or return <code>NotImplemented</code>) for its definition of the non-reflected version of an operation. For instance, in the example, <code>some_object.__radd__</code> will only be called if <code>other</code> does not define <code>__add__</code>.</p>
 <dl>
 <dt><code>__radd__(self, other)</code></dt>
 <dd>Implements reflected addition.</dd>
@@ -775,8 +775,7 @@ cases, the invocation is far less obvious. This appendix is devoted to exposing 
 <li><code>__coerce__</code> is gone due to redundancy with other magic methods and confusing behavior</li>
 <li><code>__cmp__</code> is gone due to redundancy with other magic methods</li>
 <li><code>__nonzero__</code> has been renamed to <code>__bool__</code></li>
-</ul>
-<script type="text/javascript">
+</ul><script type="text/javascript">
 
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-18615621-3']);

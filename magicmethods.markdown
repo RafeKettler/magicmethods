@@ -202,7 +202,7 @@ That was "normal" addition. The reflected equivalent is the same thing, except w
     :::python
     other + some_object
 
-So, all of these magic methods do the same thing as their normal equivalents, except the perform the operation with other as the first operand and self as the second, rather than the other way around. In most cases, the result of a reflected operation is the same as its normal equivalent, so you may just end up defining `__radd__` as calling `__add__` and so on. Without further ado:
+So, all of these magic methods do the same thing as their normal equivalents, except the perform the operation with other as the first operand and self as the second, rather than the other way around. In most cases, the result of a reflected operation is the same as its normal equivalent, so you may just end up defining `__radd__` as calling `__add__` and so on. Note that the object on the left hand side of the operator (`other` in the example) must not define (or return `NotImplemented`) for its definition of the non-reflected version of an operation. For instance, in the example, `some_object.__radd__` will only be called if `other` does not define `__add__`.
 
 
 `__radd__(self, other)`
