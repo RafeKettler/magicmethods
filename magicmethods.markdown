@@ -451,7 +451,7 @@ Without any more wait, here are the magic methods that containers use:
 :    Should return an iterator for the container. Iterators are returned in a number of contexts, most notably by the `iter()` built in function and when a container is looped over using the form `for x in container:`. Iterators are their own objects, and they also must define an `__iter__` method that returns `self`.
 
 `__reversed__(self)`
-:    Called to implement behavior for the `reversed()` built in function. Should return a reversed version of the list.
+:    Called to implement behavior for the `reversed()` built in function. Should return a reversed version of the sequence. Implement this only if the sequence class is ordered, like list or tuple.
 
 `__contains__(self, item)`
 :    `__contains__` defines behavior for membership tests using `in` and `not in`. Why isn't this part of a sequence protocol, you ask? Because when `__contains__` isn't defined, Python just iterates over the sequence and returns `True` if it comes across the item it's looking for.
@@ -491,7 +491,7 @@ For our example, let's look at a list that implements some functional constructs
             return iter(self.values)
 
         def __reversed__(self):
-            return reversed(self.values)
+            return FunctionalList(reversed(self.values))
 
         def append(self, value):
             self.values.append(value)
