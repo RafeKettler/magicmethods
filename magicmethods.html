@@ -50,32 +50,29 @@ there, along with comments, (or even contributions!).</p>
 <dd>If <code>__new__</code> and <code>__init__</code> formed the constructor of the object, <code>__del__</code> is the destructor. It doesn't implement behavior for the statement <code>del x</code> (so that code would not translate to <code>x.__del__()</code>). Rather, it defines behavior for when an object is garbage collected. It can be quite useful for objects that might require extra cleanup upon deletion, like sockets or file objects. Be careful, however, as there is no guarantee that <code>__del__</code> will be executed if the object is still alive when the interpreter exits, so <code>__del__</code> can't serve as a replacement for good coding practices (like always closing a connection when you're done with it. In fact, <code>__del__</code> should almost never be used because of the precarious circumstances under which it is called; use it with caution!</dd>
 </dl>
 <p>Putting it all together, here's an example of <code>__init__</code> and <code>__del__</code> in action:</p>
-<div class="codehilite"><pre><span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">join</span>
+<pre class="codehilite"><code class="language-python">from os.path import join
 
-<span class="k">class</span> <span class="nc">FileObject</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;Wrapper for file objects to make sure the file gets closed on deletion.&#39;&#39;&#39;</span>
+class FileObject:
+    '''Wrapper for file objects to make sure the file gets closed on deletion.'''
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepath</span><span class="o">=</span><span class="s">&#39;~&#39;</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s">&#39;sample.txt&#39;</span><span class="p">):</span>
-        <span class="c"># open a file filename in filepath in read and write mode</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="s">&#39;r+&#39;</span><span class="p">)</span>
+    def __init__(self, filepath='~', filename='sample.txt'):
+        # open a file filename in filepath in read and write mode
+        self.file = open(join(filepath, filename), 'r+')
 
-    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span>
-</pre></div>
+    def __del__(self):
+        self.file.close()
+        del self.file</code></pre>
 
 
 <h2><a id="operators" href="#operators">Making Operators Work on Custom Classes</a></h2>
 <p>One of the biggest advantages of using Python's magic methods is that they provide a simple way to make objects behave like built-in types. That means you can avoid ugly, counter-intuitive, and nonstandard ways of performing basic operators. In some languages, it's common to do something like this:</p>
-<div class="codehilite"><pre><span class="k">if</span> <span class="n">instance</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">other_instance</span><span class="p">):</span>
-    <span class="c"># do something</span>
-</pre></div>
+<pre class="codehilite"><code class="language-python">if instance.equals(other_instance):
+    # do something</code></pre>
 
 
 <p>You could certainly do this in Python, too, but this adds confusion and is unnecessarily verbose. Different libraries might use different names for the same operations, making the client do way more work than necessary. With the power of magic methods, however, we can define one method (<code>__eq__</code>, in this case), and say what we <em>mean</em> instead:</p>
-<div class="codehilite"><pre><span class="k">if</span> <span class="n">instance</span> <span class="o">==</span> <span class="n">other_instance</span><span class="p">:</span>
-    <span class="c">#do something</span>
-</pre></div>
+<pre class="codehilite"><code class="language-python">if instance == other_instance:
+    #do something</code></pre>
 
 
 <p>That's part of the power of magic methods. The vast majority of them allow us to define meaning for operators so that we can use them on our own classes just like they were built in types.</p>
@@ -98,26 +95,25 @@ there, along with comments, (or even contributions!).</p>
 <dd>Defines behavior for the greater-than-or-equal-to operator, <code>&gt;=</code>.</dd>
 </dl>
 <p>For an example, consider a class to model a word. We might want to compare words lexicographically (by the alphabet), which is the default comparison behavior for strings, but we also might want to do it based on some other criterion, like length or number of syllables. In this example, we'll compare by length. Here's an implementation:</p>
-<div class="codehilite"><pre><span class="k">class</span> <span class="nc">Word</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Class for words, defining comparison based on word length.&#39;&#39;&#39;</span>
+<pre class="codehilite"><code class="language-python">class Word(str):
+    '''Class for words, defining comparison based on word length.'''
 
-    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
-        <span class="c"># Note that we have to use __new__. This is because str is an immutable</span>
-        <span class="c"># type, so we have to initialize it early (at creation)</span>
-        <span class="k">if</span> <span class="s">&#39; &#39;</span> <span class="ow">in</span> <span class="n">word</span><span class="p">:</span>
-            <span class="k">print</span> <span class="s">&quot;Value contains spaces. Truncating to first space.&quot;</span>
-            <span class="n">word</span> <span class="o">=</span> <span class="n">word</span><span class="p">[:</span><span class="n">word</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s">&#39; &#39;</span><span class="p">)]</span> <span class="c"># Word is now all chars before first space</span>
-        <span class="k">return</span> <span class="nb">str</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">word</span><span class="p">)</span>
+    def __new__(cls, word):
+        # Note that we have to use __new__. This is because str is an immutable
+        # type, so we have to initialize it early (at creation)
+        if ' ' in word:
+            print &quot;Value contains spaces. Truncating to first space.&quot;
+            word = word[:word.index(' ')] # Word is now all chars before first space
+        return str.__new__(cls, word)
 
-    <span class="k">def</span> <span class="nf">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">other</span><span class="p">)</span>
-</pre></div>
+    def __gt__(self, other):
+        return len(self) &gt; len(other)
+    def __lt__(self, other):
+        return len(self) &lt; len(other)
+    def __ge__(self, other):
+        return len(self) &gt;= len(other)
+    def __le__(self, other):
+        return len(self) &lt;= len(other)</code></pre>
 
 
 <p>Now, we can create two <code>Word</code>s (by using <code>Word('foo')</code> and <code>Word('bar')</code>) and compare them based on length. Note, however, that we didn't define <code>__eq__</code> and <code>__ne__</code>. This is because this would lead to some weird behavior (notably that <code>Word('foo') == Word('bar')</code> would evaluate to true). It wouldn't make sense to test for equality based on length, so we fall back on <code>str</code>'s implementation of equality.</p>
@@ -159,7 +155,7 @@ there, along with comments, (or even contributions!).</p>
 <dd>Implements division using the <code>/</code> operator.</dd>
 <dt><code>__truediv__(self, other)</code></dt>
 <dd>Implements <em>true</em> division. Note that this only works when <code>from __future__ import division</code> is in effect.</dd>
-<dt><code>__mod_(self, other)</code></dt>
+<dt><code>__mod__(self, other)</code></dt>
 <dd>Implements modulo using the <code>%</code> operator.</dd>
 <dt><code>__divmod__(self, other)</code></dt>
 <dd>Implements behavior for long division using the <code>divmod()</code> built in function.</dd>
@@ -178,13 +174,11 @@ there, along with comments, (or even contributions!).</p>
 </dl>
 <h4>Reflected arithmetic operators</h4>
 <p>You know how I said I would get to reflected arithmetic in a bit? Some of you might think it's some big, scary, foreign concept. It's actually quite simple. Here's an example:</p>
-<div class="codehilite"><pre><span class="n">some_object</span> <span class="o">+</span> <span class="n">other</span>
-</pre></div>
+<pre class="codehilite"><code class="language-python">some_object + other</code></pre>
 
 
 <p>That was "normal" addition. The reflected equivalent is the same thing, except with the operands switched around:</p>
-<div class="codehilite"><pre><span class="n">other</span> <span class="o">+</span> <span class="n">some_object</span>
-</pre></div>
+<pre class="codehilite"><code class="language-python">other + some_object</code></pre>
 
 
 <p>So, all of these magic methods do the same thing as their normal equivalents, except the perform the operation with other as the first operand and self as the second, rather than the other way around. In most cases, the result of a reflected operation is the same as its normal equivalent, so you may just end up defining <code>__radd__</code> as calling <code>__add__</code> and so on. Note that the object on the left hand side of the operator (<code>other</code> in the example) must not define (or return <code>NotImplemented</code>) for its definition of the non-reflected version of an operation. For instance, in the example, <code>some_object.__radd__</code> will only be called if <code>other</code> does not define <code>__add__</code>.</p>
@@ -201,7 +195,7 @@ there, along with comments, (or even contributions!).</p>
 <dd>Implements reflected division using the <code>/</code> operator.</dd>
 <dt><code>__rtruediv__(self, other)</code></dt>
 <dd>Implements reflected <em>true</em> division. Note that this only works when <code>from __future__ import division</code> is in effect.</dd>
-<dt><code>__rmod_(self, other)</code></dt>
+<dt><code>__rmod__(self, other)</code></dt>
 <dd>Implements reflected modulo using the <code>%</code> operator.</dd>
 <dt><code>__rdivmod__(self, other)</code></dt>
 <dd>Implements behavior for long division using the <code>divmod()</code> built in function, when <code>divmod(other, self)</code> is called.</dd>
@@ -220,9 +214,8 @@ there, along with comments, (or even contributions!).</p>
 </dl>
 <h4>Augmented assignment</h4>
 <p>Python also has a wide variety of magic methods to allow custom behavior to be defined for augmented assignment. You're probably already familiar with augmented assignment, it combines "normal" operators with assignment. If you still don't know what I'm talking about, here's an example:</p>
-<div class="codehilite"><pre><span class="n">x</span> <span class="o">=</span> <span class="mi">5</span>
-<span class="n">x</span> <span class="o">+=</span> <span class="mi">1</span> <span class="c"># in other words x = x + 1</span>
-</pre></div>
+<pre class="codehilite"><code class="language-python">x = 5
+x += 1 # in other words x = x + 1</code></pre>
 
 
 <p>Each of these methods should return the value that the variable on the left hand side should be assigned to (for instance, for <code>a += b</code>, <code>__iadd__</code> might return <code>a + b</code>, which would be assigned to <code>a</code>). Here's the list:</p>
@@ -310,41 +303,39 @@ there, along with comments, (or even contributions!).</p>
 <dd>After all this, <code>__getattribute__</code> fits in pretty well with its companions <code>__setattr__</code> and <code>__delattr__</code>. However, I don't recommend you use it. <code>__getattribute__</code> can only be used with new-style classes (all classes are new-style in the newest versions of Python, and in older versions you can make a class new-style by subclassing <code>object</code>. It allows you to define rules for whenever an attribute's value is accessed. It suffers from some similar infinite recursion problems as its partners-in-crime (this time you call the base class's <code>__getattribute__</code> method to prevent this). It also mainly obviates the need for <code>__getattr__</code>, which only gets called when <code>__getattribute__</code> is implemented if it is called explicitly or an <code>AttributeError</code> is raised. This method can be used (after all, it's your choice), but I don't recommend it because it has a small use case (it's far more rare that we need special behavior to retrieve a value than to assign to it) and because it can be really difficult to implement bug-free.</dd>
 </dl>
 <p>You can easily cause a problem in your definitions of any of the methods controlling attribute access. Consider this example:</p>
-<div class="codehilite"><pre><span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">value</span>
-    <span class="c"># since every time an attribute is assigned, __setattr__() is called, this</span>
-    <span class="c"># is recursion.</span>
-    <span class="c"># so this really means self.__setattr__(&#39;name&#39;, value). Since the method</span>
-    <span class="c"># keeps calling itself, the recursion goes on forever causing a crash</span>
+<pre class="codehilite"><code class="language-python">def __setattr__(self, name, value):
+    self.name = value
+    # since every time an attribute is assigned, __setattr__() is called, this
+    # is recursion.
+    # so this really means self.__setattr__('name', value). Since the method
+    # keeps calling itself, the recursion goes on forever causing a crash
 
-<span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="c"># assigning to the dict of names in the class</span>
-    <span class="c"># define custom behavior here</span>
-</pre></div>
+def __setattr__(self, name, value):
+    self.__dict__[name] = value # assigning to the dict of names in the class
+    # define custom behavior here</code></pre>
 
 
 <p>Again, Python's magic methods are incredibly powerful, and with great power comes great responsibility. It's important to know the proper way to use magic methods so you don't break any code.</p>
 <p>So, what have we learned about custom attribute access in Python? It's not to be used lightly. In fact, it tends to be excessively powerful and counter-intuitive. But the reason why it exists is to scratch a certain itch: Python doesn't seek to make bad things impossible, but just to make them difficult. Freedom is paramount, so you can really do whatever you want. Here's an example of some of the special attribute access methods in action (note that we use <code>super</code> because not all classes have an attribute <code>__dict__</code>):</p>
-<div class="codehilite"><pre><span class="k">class</span> <span class="nc">AccessCounter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;A class that contains a value and implements an access counter.</span>
-<span class="sd">    The counter increments each time the value is changed.&#39;&#39;&#39;</span>
+<pre class="codehilite"><code class="language-python">class AccessCounter(object):
+    '''A class that contains a value and implements an access counter.
+    The counter increments each time the value is changed.'''
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">AccessCounter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="s">&#39;counter&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">AccessCounter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="s">&#39;value&#39;</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
+    def __init__(self, val):
+        super(AccessCounter, self).__setattr__('counter', 0)
+        super(AccessCounter, self).__setattr__('value', val)
 
-    <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;value&#39;</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">(</span><span class="n">AccessCounter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="s">&#39;counter&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="c"># Make this unconditional.</span>
-        <span class="c"># If you want to prevent other attributes to be set, raise AttributeError(name)</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">AccessCounter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    def __setattr__(self, name, value):
+        if name == 'value':
+            super(AccessCounter, self).__setattr__('counter', self.counter + 1)
+        # Make this unconditional.
+        # If you want to prevent other attributes to be set, raise AttributeError(name)
+        super(AccessCounter, self).__setattr__(name, value)
 
-    <span class="k">def</span> <span class="nf">__delattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s">&#39;value&#39;</span><span class="p">:</span>
-            <span class="nb">super</span><span class="p">(</span><span class="n">AccessCounter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="s">&#39;counter&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">counter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">AccessCounter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__delattr__</span><span class="p">(</span><span class="n">name</span><span class="p">)]</span>
-</pre></div>
+    def __delattr__(self, name):
+        if name == 'value':
+            super(AccessCounter, self).__setattr__('counter', self.counter + 1)
+        super(AccessCounter, self).__delattr__(name)]</code></pre>
 
 
 <h2><a id="sequence" href="#sequence">Making Custom Sequences</a></h2>
@@ -374,56 +365,55 @@ there, along with comments, (or even contributions!).</p>
 </dl>
 <h4>An example</h4>
 <p>For our example, let's look at a list that implements some functional constructs that you might be used to from other languages (Haskell, for example).</p>
-<div class="codehilite"><pre><span class="k">class</span> <span class="nc">FunctionalList</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;A class wrapping a list with some extra functional magic, like head,</span>
-<span class="sd">    tail, init, last, drop, and take.&#39;&#39;&#39;</span>
+<pre class="codehilite"><code class="language-python">class FunctionalList:
+    '''A class wrapping a list with some extra functional magic, like head,
+    tail, init, last, drop, and take.'''
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">values</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">values</span> <span class="o">=</span> <span class="n">values</span>
+    def __init__(self, values=None):
+        if values is None:
+            self.values = []
+        else:
+            self.values = values
 
-    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    def __len__(self):
+        return len(self.values)
 
-    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
-        <span class="c"># if key is of invalid type or value, the list values will raise the error</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    def __getitem__(self, key):
+        # if key is of invalid type or value, the list values will raise the error
+        return self.values[key]
 
-    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    def __setitem__(self, key, value):
+        self.values[key] = value
 
-    <span class="k">def</span> <span class="nf">__delitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
-        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    def __delitem__(self, key):
+        del self.values[key]
 
-    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    def __iter__(self):
+        return iter(self.values)
 
-    <span class="k">def</span> <span class="nf">__reversed__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">FunctionalList</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+    def __reversed__(self):
+        return FunctionalList(reversed(self.values))
 
-    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">head</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c"># get the first element</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="k">def</span> <span class="nf">tail</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c"># get all elements after the first</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
-    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c"># get elements up to the last</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">def</span> <span class="nf">last</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c"># get last element</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">def</span> <span class="nf">drop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-        <span class="c"># get all elements except first n</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">n</span><span class="p">:]</span>
-    <span class="k">def</span> <span class="nf">take</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-        <span class="c"># get first n elements</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[:</span><span class="n">n</span><span class="p">]</span>
-</pre></div>
+    def append(self, value):
+        self.values.append(value)
+    def head(self):
+        # get the first element
+        return self.values[0]
+    def tail(self):
+        # get all elements after the first
+        return self.values[1:]
+    def init(self):
+        # get elements up to the last
+        return self.values[:-1]
+    def last(self):
+        # get last element
+        return self.values[-1]
+    def drop(self, n):
+        # get all elements except first n
+        return self.values[n:]
+    def take(self, n):
+        # get first n elements
+        return self.values[:n]</code></pre>
 
 
 <p>There you have it, a (marginally) useful example of how to implement your own sequence. Of course, there are more useful applications of custom sequences, but quite a few of them are already implemented in the standard library (batteries included, right?), like <code>Counter</code>, <code>OrderedDict</code>, and <code>NamedTuple</code>.</p>
@@ -444,26 +434,24 @@ there, along with comments, (or even contributions!).</p>
 <dd>Allows an instance of a class to be called as a function. Essentially, this means that <code>x()</code> is the same as <code>x.__call__()</code>. Note that <code>__call__</code> takes a variable number of arguments; this means that you define <code>__call__</code> as you would any other function, taking however many arguments you'd like it to.</dd>
 </dl>
 <p><code>__call__</code> can be particularly useful in classes whose instances that need to often change state. "Calling" the instance can be an intuitive and elegant way to change the object's state. An example might be a class representing an entity's position on a plane:</p>
-<div class="codehilite"><pre><span class="k">class</span> <span class="nc">Entity</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;Class to represent an entity. Callable to update the entity&#39;s position.&#39;&#39;&#39;</span>
+<pre class="codehilite"><code class="language-python">class Entity:
+    '''Class to represent an entity. Callable to update the entity's position.'''
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span>
+    def __init__(self, size, x, y):
+        self.x, self.y = x, y
+        self.size = size
 
-    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;Change the position of the entity.&#39;&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span>
+    def __call__(self, x, y):
+        '''Change the position of the entity.'''
+        self.x, self.y = x, y
 
-    <span class="c"># snip...</span>
-</pre></div>
+    # snip...</code></pre>
 
 
 <h2><a id="context" href="#context">Context Managers</a></h2>
 <p>In Python 2.5, a new keyword was introduced in Python along with a new method for code reuse, the <code>with</code> statement. The concept of context managers was hardly new in Python (it was implemented before as a part of the library), but not until <a href="http://www.python.org/dev/peps/pep-0343/">PEP 343</a> was accepted did it achieve status as a first class language construct. You may have seen with statements before:</p>
-<div class="codehilite"><pre><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;foo.txt&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">bar</span><span class="p">:</span>
-    <span class="c"># perform some action with bar</span>
-</pre></div>
+<pre class="codehilite"><code class="language-python">with open('foo.txt') as bar:
+    # perform some action with bar</code></pre>
 
 
 <p>Context managers allow setup and cleanup actions to be taken for objects when their creation is wrapped with a <code>with</code> statement. The behavior of the context manager is determined by two magic methods:</p>
@@ -474,41 +462,39 @@ there, along with comments, (or even contributions!).</p>
 <dd>Defines what the context manager should do after its block has been executed (or terminates). It can be used to handle exceptions, perform cleanup, or do something always done immediately after the action in the block. If the block executes successfully, <code>exception_type</code>, <code>exception_value</code>, and <code>traceback</code> will be <code>None</code>. Otherwise, you can choose to handle the exception or let the user handle it; if you want to handle it, make sure <code>__exit__</code> returns <code>True</code> after all is said and done. If you don't want the exception to be handled by the context manager, just let it happen.</dd>
 </dl>
 <p><code>__enter__</code> and <code>__exit__</code> can be useful for specific classes that have well-defined and common behavior for setup and cleanup. You can also use these methods to create generic context managers that wrap other objects. Here's an example:</p>
-<div class="codehilite"><pre><span class="k">class</span> <span class="nc">Closer</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;A context manager to automatically close an object with a close method</span>
-<span class="sd">    in a with statement.&#39;&#39;&#39;</span>
+<pre class="codehilite"><code class="language-python">class Closer:
+    '''A context manager to automatically close an object with a close method
+    in a with statement.'''
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">obj</span> <span class="o">=</span> <span class="n">obj</span>
+    def __init__(self, obj):
+        self.obj = obj
 
-    <span class="k">def</span> <span class="nf">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">obj</span> <span class="c"># bound to target</span>
+    def __enter__(self):
+        return self.obj # bound to target
 
-    <span class="k">def</span> <span class="nf">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exception_type</span><span class="p">,</span> <span class="n">exception_val</span><span class="p">,</span> <span class="n">trace</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-           <span class="bp">self</span><span class="o">.</span><span class="n">obj</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span> <span class="c"># obj isn&#39;t closable</span>
-           <span class="k">print</span> <span class="s">&#39;Not closable.&#39;</span>
-           <span class="k">return</span> <span class="bp">True</span> <span class="c"># exception handled successfully</span>
-</pre></div>
+    def __exit__(self, exception_type, exception_val, trace):
+        try:
+           self.obj.close()
+        except AttributeError: # obj isn't closable
+           print 'Not closable.'
+           return True # exception handled successfully</code></pre>
 
 
 <p>Here's an example of <code>Closer</code> in action, using an FTP connection to demonstrate it (a closable socket):</p>
-<div class="codehilite"><pre><span class="o">&gt;&gt;&gt;</span> <span class="n">from</span> <span class="n">magicmethods</span> <span class="n">import</span> <span class="n">Closer</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">from</span> <span class="n">ftplib</span> <span class="n">import</span> <span class="n">FTP</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">with</span> <span class="n">Closer</span><span class="p">(</span><span class="n">FTP</span><span class="p">(</span><span class="s">&#39;ftp.somesite.com&#39;</span><span class="p">))</span> <span class="n">as</span> <span class="n">conn</span><span class="p">:</span>
-<span class="p">...</span>     <span class="n">conn</span><span class="p">.</span><span class="n">dir</span><span class="p">()</span>
-<span class="p">...</span>
-# <span class="n">output</span> <span class="n">omitted</span> <span class="k">for</span> <span class="n">brevity</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">conn</span><span class="p">.</span><span class="n">dir</span><span class="p">()</span>
-# <span class="n">long</span> <span class="n">AttributeError</span> <span class="n">message</span><span class="p">,</span> <span class="n">can</span><span class="o">&#39;</span><span class="n">t</span> <span class="n">use</span> <span class="n">a</span> <span class="n">connection</span> <span class="n">that</span><span class="o">&#39;</span><span class="n">s</span> <span class="n">closed</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="n">with</span> <span class="n">Closer</span><span class="p">(</span><span class="n">int</span><span class="p">(</span>5<span class="p">))</span> <span class="n">as</span> <span class="nb">i</span><span class="p">:</span>
-<span class="p">...</span>     <span class="nb">i</span> <span class="o">+</span><span class="p">=</span> 1
-<span class="p">...</span>
-<span class="n">Not</span> <span class="n">closable</span><span class="p">.</span>
-<span class="o">&gt;&gt;&gt;</span> <span class="nb">i</span>
-6
-</pre></div>
+<pre class="codehilite"><code class="language-pythonconsole">&gt;&gt;&gt; from magicmethods import Closer
+&gt;&gt;&gt; from ftplib import FTP
+&gt;&gt;&gt; with Closer(FTP('ftp.somesite.com')) as conn:
+...     conn.dir()
+...
+# output omitted for brevity
+&gt;&gt;&gt; conn.dir()
+# long AttributeError message, can't use a connection that's closed
+&gt;&gt;&gt; with Closer(int(5)) as i:
+...     i += 1
+...
+Not closable.
+&gt;&gt;&gt; i
+6</code></pre>
 
 
 <p>See how our wrapper gracefully handled both proper and improper uses? That's the power of context managers and magic methods. Note that the Python standard library includes a module <a href="http://docs.python.org/library/contextlib.html">contextlib</a> that contains a context manager, <code>contextlib.closing()</code>, that does approximately the same thing (without any handling of the case where an object does not have a <code>close()</code> method).</p>
@@ -526,30 +512,29 @@ there, along with comments, (or even contributions!).</p>
 <dd>Define behavior for when the descriptor's value is deleted. <code>instance</code> is the instance of the owner object.</dd>
 </dl>
 <p>Now, an example of a useful application of descriptors: unit conversions.</p>
-<div class="codehilite"><pre><span class="k">class</span> <span class="nc">Meter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Descriptor for a meter.&#39;&#39;&#39;</span>
+<pre class="codehilite"><code class="language-python">class Meter(object):
+    '''Descriptor for a meter.'''
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
-    <span class="k">def</span> <span class="nf">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    def __init__(self, value=0.0):
+        self.value = float(value)
+    def __get__(self, instance, owner):
+        return self.value
+    def __set__(self, instance, value):
+        self.value = float(value)
 
-<span class="k">class</span> <span class="nc">Foot</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Descriptor for a foot.&#39;&#39;&#39;</span>
+class Foot(object):
+    '''Descriptor for a foot.'''
 
-    <span class="k">def</span> <span class="nf">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">instance</span><span class="o">.</span><span class="n">meter</span> <span class="o">*</span> <span class="mf">3.2808</span>
-    <span class="k">def</span> <span class="nf">__set__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="n">instance</span><span class="o">.</span><span class="n">meter</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">/</span> <span class="mf">3.2808</span>
+    def __get__(self, instance, owner):
+        return instance.meter * 3.2808
+    def __set__(self, instance, value):
+        instance.meter = float(value) / 3.2808
 
-<span class="k">class</span> <span class="nc">Distance</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;Class to represent distance holding two descriptors for feet and</span>
-<span class="sd">    meters.&#39;&#39;&#39;</span>
-    <span class="n">meter</span> <span class="o">=</span> <span class="n">Meter</span><span class="p">()</span>
-    <span class="n">foot</span> <span class="o">=</span> <span class="n">Foot</span><span class="p">()</span>
-</pre></div>
+class Distance(object):
+    '''Class to represent distance holding two descriptors for feet and
+    meters.'''
+    meter = Meter()
+    foot = Foot()</code></pre>
 
 
 <h2><a id="copying" href="#copying">Copying</a></h2>
@@ -566,25 +551,23 @@ there, along with comments, (or even contributions!).</p>
 <p>Pickling is so important that it doesn't just have its own module (<code>pickle</code>), but its own <em>protocol</em> and the magic methods to go with it. But first, a brief word on how to pickle existing types(feel free to skip it if you already know).</p>
 <h3>Pickling: A Quick Soak in the Brine</h3>
 <p>Let's dive into pickling. Say you have a dictionary that you want to store and retrieve later. You couldwrite it's contents to a file, carefully making sure that you write correct syntax, then retrieve it using either <code>exec()</code> or processing the file input. But this is precarious at best: if you store important data in plain text, it could be corrupted or changed in any number of ways to make your program crash or worse run malicious code on your computer. Instead, we're going to pickle it:</p>
-<div class="codehilite"><pre><span class="kn">import</span> <span class="nn">pickle</span>
+<pre class="codehilite"><code class="language-python">import pickle
 
-<span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;foo&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
-        <span class="s">&#39;bar&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s">&#39;Hello&#39;</span><span class="p">,</span> <span class="s">&#39;world!&#39;</span><span class="p">),</span>
-        <span class="s">&#39;baz&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
-<span class="n">jar</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;data.pkl&#39;</span><span class="p">,</span> <span class="s">&#39;wb&#39;</span><span class="p">)</span>
-<span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">jar</span><span class="p">)</span> <span class="c"># write the pickled data to the file jar</span>
-<span class="n">jar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</pre></div>
+data = {'foo': [1, 2, 3],
+        'bar': ('Hello', 'world!'),
+        'baz': True}
+jar = open('data.pkl', 'wb')
+pickle.dump(data, jar) # write the pickled data to the file jar
+jar.close()</code></pre>
 
 
 <p>Now, a few hours later, we want it back. All we have to do is unpickle it:</p>
-<div class="codehilite"><pre><span class="kn">import</span> <span class="nn">pickle</span>
+<pre class="codehilite"><code class="language-python">import pickle
 
-<span class="n">pkl_file</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">&#39;data.pkl&#39;</span><span class="p">,</span> <span class="s">&#39;rb&#39;</span><span class="p">)</span> <span class="c"># connect to the pickled data</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">pkl_file</span><span class="p">)</span> <span class="c"># load it into a variable</span>
-<span class="k">print</span> <span class="n">data</span>
-<span class="n">pkl_file</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</pre></div>
+pkl_file = open('data.pkl', 'rb') # connect to the pickled data
+data = pickle.load(pkl_file) # load it into a variable
+print data
+pkl_file.close()</code></pre>
 
 
 <p>What happens? Exactly what you expect. It's just like we had <code>data</code> all along.</p>
@@ -607,38 +590,37 @@ there, along with comments, (or even contributions!).</p>
 </dl>
 <h3>An Example</h3>
 <p>Our example is a <code>Slate</code>, which remembers what its values have been and when those values were written to it. However, this particular slate goes blank each time it is pickled: the current value will not be saved.</p>
-<div class="codehilite"><pre><span class="kn">import</span> <span class="nn">time</span>
+<pre class="codehilite"><code class="language-python">import time
 
-<span class="k">class</span> <span class="nc">Slate</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;Class to store a string and a changelog, and forget its value when</span>
-<span class="sd">    pickled.&#39;&#39;&#39;</span>
+class Slate:
+    '''Class to store a string and a changelog, and forget its value when
+    pickled.'''
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">last_change</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="p">{}</span>
+    def __init__(self, value):
+        self.value = value
+        self.last_change = time.asctime()
+        self.history = {}
 
-    <span class="k">def</span> <span class="nf">change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_value</span><span class="p">):</span>
-        <span class="c"># Change the value. Commit last value to history</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">last_change</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">new_value</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">last_change</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">asctime</span><span class="p">()</span>
+    def change(self, new_value):
+        # Change the value. Commit last value to history
+        self.history[self.last_change] = self.value
+        self.value = new_value
+        self.last_change = time.asctime()
 
-    <span class="k">def</span> <span class="nf">print_changes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">print</span> <span class="s">&#39;Changelog for Slate object:&#39;</span>
-        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">print</span> <span class="s">&#39;</span><span class="si">%s</span><span class="se">\t</span><span class="s"> </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+    def print_changes(self):
+        print 'Changelog for Slate object:'
+        for k, v in self.history.items():
+            print '%s\t %s' % (k, v)
 
-    <span class="k">def</span> <span class="nf">__getstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c"># Deliberately do not return self.value or self.last_change.</span>
-        <span class="c"># We want to have a &quot;blank slate&quot; when we unpickle.</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span>
+    def __getstate__(self):
+        # Deliberately do not return self.value or self.last_change.
+        # We want to have a &quot;blank slate&quot; when we unpickle.
+        return self.history
 
-    <span class="k">def</span> <span class="nf">__setstate__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
-        <span class="c"># Make self.history = state and last_change and value undefined</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="n">state</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_change</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
-</pre></div>
+    def __setstate__(self, state):
+        # Make self.history = state and last_change and value undefined
+        self.history = state
+        self.value, self.last_change = None, None</code></pre>
 
 
 <h2><a id="conclusion" href="#conclusion">Conclusion</a></h2>
