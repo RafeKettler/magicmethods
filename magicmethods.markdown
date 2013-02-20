@@ -166,7 +166,7 @@ Now, we cover the typical binary operators (and a function or two): +, -, * and 
 `__truediv__(self, other)`
 :    Implements _true_ division. Note that this only works when `from __future__ import division` is in effect.
 
-`__mod_(self, other)`
+`__mod__(self, other)`
 :    Implements modulo using the `%` operator.
 
 `__divmod__(self, other)`
@@ -223,7 +223,7 @@ So, all of these magic methods do the same thing as their normal equivalents, ex
 `__rtruediv__(self, other)`
 :    Implements reflected _true_ division. Note that this only works when `from __future__ import division` is in effect.
 
-`__rmod_(self, other)`
+`__rmod__(self, other)`
 :    Implements reflected modulo using the `%` operator.
 
 `__rdivmod__(self, other)`
