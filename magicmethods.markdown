@@ -131,7 +131,7 @@ Unary operators and functions only have one operand, e.g. negation, absolute val
 :    Implements behavior for inversion using the `~` operator. For an explanation on what this does, see [the Wikipedia article on bitwise operations](http://en.wikipedia.org/wiki/Bitwise_operation#NOT).
 
 `__round__(self, n)`
-:    Implements behavior for the buil in `round()` function. `n` is the number of decimal places to round to.
+:    Implements behavior for the built in `round()` function. `n` is the number of decimal places to round to.
 
 `__floor__(self)`
 :    Implements behavior for `math.floor()`, i.e., rounding down to the nearest integer.
