@@ -419,7 +419,7 @@ So, what have we learned about custom attribute access in Python? It's not to be
         def __delattr__(self, name):
             if name == 'value':
                 super(AccessCounter, self).__setattr__('counter', self.counter + 1)
-            super(AccessCounter, self).__delattr__(name)]
+            super(AccessCounter, self).__delattr__(name)
 
 ##<a id="sequence" href="#sequence">Making Custom Sequences</a>##
 
