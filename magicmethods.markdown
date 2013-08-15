@@ -278,7 +278,7 @@ Each of these methods should return the value that the variable on the left hand
 `__itruediv__(self, other)`
 :    Implements _true_ division with assignment. Note that this only works when `from __future__ import division` is in effect.
 
-`__imod_(self, other)`
+`__imod__(self, other)`
 :    Implements modulo with assignment using the `%=` operator.
 
 `__ipow__`
