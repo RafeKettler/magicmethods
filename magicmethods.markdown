@@ -376,7 +376,7 @@ Many people coming to Python from other languages complain that it lacks true en
 `__setattr__(self, name, value)`
 :    Unlike `__getattr__`, `__setattr__` is an encapsulation solution. It allows you to define behavior for assignment to an attribute regardless of whether or not that attribute exists, meaning you can define custom rules for any changes in the values of attributes. However, you have to be careful with how you use `__setattr__`, as the example at the end of the list will show.
 
-`__delattr__`
+`__delattr__(self, name)`
 :    This is the exact same as `__setattr__`, but for deleting attributes instead of setting them. The same precautions need to be taken as with `__setattr__` as well in order to prevent infinite recursion (calling `del self.name` in the implementation of `__delattr__` would cause infinite recursion).
 
 `__getattribute__(self, name)`
