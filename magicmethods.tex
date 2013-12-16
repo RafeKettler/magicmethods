@@ -483,29 +483,29 @@ See how our wrapper gracefully handled both proper and improper uses? That's the
 
 \section{Building Descriptor Objects}
 
-Descriptors are classes which, when accessed through either getting, setting, or deleting, can also alter other objects. Descriptors aren't meant to stand alone; rather, they're meant to be held by an owner class. Descriptors can be useful when building object-oriented databases or classes that have attributes whose values are dependent on each other. Descriptors are particularly useful when representing attributes in several different units of measurement or representing computed attributes (like distance from the origin in a class to represent a point on a grid).
+Descriptors are classes that can be used as proxies for getting, setting, and deleting attributes. Descriptors are assigned as class attributes on a so-called owner class. When that attribute is accessed, the descriptor's special methods are called. Descriptors can be used to execute side-effects when attributes are updated, or to provide multiple views over an object's state (as shown in the example below).
 
-To be a descriptor, a class must have at least one of \code{__get__}, \code{__set__}, and \code{__delete__} implemented. 
-
-Let's take a look at those magic methods:
+A descriptor class implements at least one of \code{__get__}, \code{__set__}, or \code{__delete__}. In the following, \code{owner} is the owner class, and \code{instance} is the instance of the owner class.
 
 \begin{description}
 
 \item[\code{__get__(self, instance, owner)}]
-Define behavior for when the descriptor's value is retrieved. \code{instance} is the instance of the owner object. \code{owner} is the owner class itself.
+Define behavior for when the attribute is retrieved. If the attribute is accessed via the class instead of an instance, \code{instance} is \code{None}.
 
 \item[\code{__set__(self, instance, value)}]
-Define behavior for when the descriptor's value is changed. \code{instance} is the instance of the owner class and \code{value} is the value to set the descriptor to.
+Define behavior for when the attribute is assigned on an instance. (Note that assigning to the attribute on the class will not trigger this method, but simply replace the descriptor itself.)
 
 \item[\code{__delete__(self, instance)}]
-Define behavior for when the descriptor's value is deleted. \code{instance} is the instance of the owner object.
+Define behavior for when the attribute is deleted.
 
 \end{description}
 
 \noindent
-Now, an example of a useful application of descriptors: unit conversions.
+Now, an example of a useful application of descriptors: unit conversions. The \code{Distance} class can be accessed using either meters or feet. One of them is the authoritative value, and the other one is derived from that.
 
 \lstinputlisting{listings/descriptor.py}
+
+Some of Python's internal constructs, such as properties and bound methods, are implemented under the hood using descriptors.
 
 \section{Copying}
 
