@@ -624,47 +624,41 @@ See http://docs.python.org/2/library/abc.html.
 
 ##<a id="descriptor" href="#descriptor">Building Descriptor Objects</a>##
 
-Descriptors are classes which, when accessed through either getting, setting, or deleting, can also alter other objects. Descriptors aren't meant to stand alone; rather, they're meant to be held by an owner class. Descriptors can be useful when building object-oriented databases or classes that have attributes whose values are dependent on each other. Descriptors are particularly useful when representing attributes in several different units of measurement or representing computed attributes (like distance from the origin in a class to represent a point on a grid).
+Descriptors are classes that can be used as proxies for getting, setting, and deleting attributes. Descriptors are assigned as class attributes on a so-called owner class. When that attribute is accessed, the descriptor's special methods are called. Descriptors can be used to execute side-effects when attributes are updated, or to provide multiple views over an object's state (as shown in the example below).
 
-To be a descriptor, a class must have at least one of `__get__`, `__set__`, and `__delete__` implemented. Let's take a look at those magic methods:
+A descriptor class implements at least one of `__get__`, `__set__`, or `__delete__`. In the following, `owner` is the owner class, and `instance` is the instance of the owner class.
 
 
 `__get__(self, instance, owner)`
-:    Define behavior for when the descriptor's value is retrieved. `instance` is the instance of the owner object. `owner` is the owner class itself.
+:    Define behavior for when the attribute is retrieved. If the attribute is accessed via the class instead of an instance, `instance` is `None`.
 
 `__set__(self, instance, value)`
-:    Define behavior for when the descriptor's value is changed. `instance` is the instance of the owner class and `value` is the value to set the descriptor to.
+:    Define behavior for when the attribute is assigned on an instance. (Note that assigning to the attribute on the class will not trigger this method, but simply replace the descriptor itself.)
 
 `__delete__(self, instance)`
-:    Define behavior for when the descriptor's value is deleted. `instance` is the instance of the owner object.
+:    Define behavior for when the attribute is deleted.
 
 
-Now, an example of a useful application of descriptors: unit conversions.
+Now, an example of a useful application of descriptors: unit conversions. The `Distance` class can be accessed using either meters or feet. One of them is the authoritative value, and the other one is derived from that.
 
     :::python
-    class Meter(object):
-        '''Descriptor for a meter.'''
-
-        def __init__(self, value=0.0):
-            self.value = float(value)
-        def __get__(self, instance, owner):
-            return self.value
-        def __set__(self, instance, value):
-            self.value = float(value)
-
-    class Foot(object):
-        '''Descriptor for a foot.'''
+    class Feet(object):
+        '''Descriptor for foot-based access of a meter value.'''
 
         def __get__(self, instance, owner):
-            return instance.meter * 3.2808
+            return instance.meters * 3.2808
         def __set__(self, instance, value):
-            instance.meter = float(value) / 3.2808
+            instance.meters = float(value) / 3.2808
 
     class Distance(object):
         '''Class to represent distance holding two descriptors for feet and
         meters.'''
-        meter = Meter()
-        foot = Foot()
+
+        def __init__(self, meters):
+            self.meters = meters
+        feet = Feet()
+
+Some of Python's internal constructs, such as properties and bound methods, are implemented under the hood using descriptors.
 
 ##<a id="copying" href="#copying">Copying</a>##
 
