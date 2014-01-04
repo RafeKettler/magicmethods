@@ -16,3 +16,4 @@
  - Andrew-Crosio for finding yet another typo
  - william-mi-leslie for finding weaknesses and errors in the guide's treatment of operator overloading
  - petrushev for expanding the guide's description of `__reversed__`
+ - koorgoo for fixing some typos
