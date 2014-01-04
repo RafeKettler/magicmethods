@@ -244,7 +244,7 @@ Implements integer division with assignment using the \code{//=} operator.
 Implements division with assignment using the \code{/=} operator.
 \item[\code{__itruediv__(self, other)}]
 Implements _true_ division with assignment. Note that this only works when \code{from __future__ import division} is in effect.
-\item[\code{__imod_(self, other)}]
+\item[\code{__imod__(self, other)}]
 Implements modulo with assignment using the \code{\%=} operator.
 \item[\code{__ipow__}]
 Implements behavior for exponents with assignment using the \code{**=} operator.
@@ -326,7 +326,7 @@ You can define behavior for when a user attempts to access an attribute that doe
 \item[\code{__setattr__(self, name, value)}]
 Unlike \code{__getattr__}, \code{__setattr__} is an encapsulation solution. It allows you to define behavior for assignment to an attribute regardless of whether or not that attribute exists, meaning you can define custom rules for any changes in the values of attributes. However, you have to be careful with how you use \code{__setattr__}, as the example at the end of the list will show.
 
-\item[\code{__delattr__}]
+\item[\code{__delattr__(self, name)}]
 This is the exact same as \code{__setattr__}, but for deleting attributes instead of setting them. The same precautions need to be taken as with \code{__setattr__} as well in order to prevent infinite recursion (calling \code{del self.name} in the implementation of \code{__delattr__} would cause infinite recursion).
 
 \item[\code{__getattribute__(self, name)}]
