@@ -336,7 +336,7 @@ Python also has an array of magic methods designed to implement behavior for bui
 
 ##<a id="representations" href="#representations">Representing your Classes</a>##
 
-It's often useful to have a string representation of a class. In Python, there's a few methods that you can implement in your class definition to customize how built in functions that return representations of your class behave.
+It's often useful to have a string representation of a class. In Python, there are a few methods that you can implement in your class definition to customize how built in functions that return representations of your class behave.
 
 
 `__str__(self)`
