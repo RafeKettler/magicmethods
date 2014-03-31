@@ -355,7 +355,7 @@ It's often useful to have a string representation of a class. In Python, there's
 :    Defines behavior for when `hash()` is called on an instance of your class. It has to return an integer, and its result is used for quick key comparison in dictionaries. Note that this usually entails implementing `__eq__` as well. Live by the following rule: `a == b` implies `hash(a) == hash(b)`.
 
 `__nonzero__(self)`
-:    Defines behavior for when `bool()` is called on an instance of your class. Should return True or False, depending on whether you would want to consider the instance to be True or False.
+:    Defines behavior for when `bool()` is called on an instance of your class. Should return `True` or `False`, depending on whether you would want to consider the instance to be `True` or `False`.
 
 `__dir__(self)`
 :    Defines behavior for when `dir()` is called on an instance of your class. This method should return a list of attributes for the user. Typically, implementing `__dir__` is unnecessary, but it can be vitally important for interactive use of your classes if you redefine `__getattr__` or `__getattribute__` (which you will see in the next section) or are otherwise dynamically generating attributes.
@@ -423,7 +423,7 @@ So, what have we learned about custom attribute access in Python? It's not to be
 
 ##<a id="sequence" href="#sequence">Making Custom Sequences</a>##
 
-There's a number of ways to get your Python classes to act like built in sequences (dict, tuple, list, string, etc.). These are by far my favorite magic methods in Python because of the absurd degree of control they give you and the way that they magically make a whole array of global functions work beautifully on instances of your class. But before we get down to the good stuff, a quick word on requirements.
+There's a number of ways to get your Python classes to act like built in sequences (`dict`, `tuple`, `list`, `str`, etc.). These are by far my favorite magic methods in Python because of the absurd degree of control they give you and the way that they magically make a whole array of global functions work beautifully on instances of your class. But before we get down to the good stuff, a quick word on requirements.
 
 ####Requirements####
 Now that we're talking about creating your own sequences in Python, it's time to talk about _protocols_. Protocols are somewhat similar to interfaces in other languages in that they give you a set of methods you must define. However, in Python protocols are totally informal and require no explicit declarations to implement. Rather, they're more like guidelines.
@@ -561,7 +561,7 @@ A special magic method in Python allows instances of your classes to behave as i
 
 ##<a id="context" href="#context">Context Managers</a>##
 
-In Python 2.5, a new keyword was introduced in Python along with a new method for code reuse, the `with` statement. The concept of context managers was hardly new in Python (it was implemented before as a part of the library), but not until [PEP 343](http://www.python.org/dev/peps/pep-0343/) was accepted did it achieve status as a first class language construct. You may have seen with statements before:
+In Python 2.5, a new keyword was introduced in Python along with a new method for code reuse: the `with` statement. The concept of context managers was hardly new in Python (it was implemented before as a part of the library), but not until [PEP 343](http://www.python.org/dev/peps/pep-0343/) was accepted did it achieve status as a first-class language construct. You may have seen `with` statements before:
 
     :::python
     with open('foo.txt') as bar:
