@@ -111,7 +111,7 @@ Now would be a good time to note that you don't have to define every comparison 
 
 ###<a id="numeric" href="#numeric">Numeric magic methods</a>###
 
-Just like you can create ways for instances of your class to be compared with comparison operators, you can define behavior for numeric operators. Buckle your seat belts, folks, there's a lot of these. For organization's sake, I've split the numeric magic methods into 5 categories: unary operators, normal arithmetic operators, reflected arithmetic operators (more on this later), augmented assignment, and type conversions.
+Just like you can create ways for instances of your class to be compared with comparison operators, you can define behavior for numeric operators. Buckle your seat belts, folks...there's a lot of these. For organization's sake, I've split the numeric magic methods into 5 categories: unary operators, normal arithmetic operators, reflected arithmetic operators (more on this later), augmented assignment, and type conversions.
 
 ####Unary operators and functions####
 
@@ -336,7 +336,7 @@ Python also has an array of magic methods designed to implement behavior for bui
 
 ##<a id="representations" href="#representations">Representing your Classes</a>##
 
-It's often useful to have a string representation of a class. In Python, there's a few methods that you can implement in your class definition to customize how built in functions that return representations of your class behave.
+It's often useful to have a string representation of a class. In Python, there are a few methods that you can implement in your class definition to customize how built in functions that return representations of your class behave.
 
 
 `__str__(self)`
@@ -355,7 +355,7 @@ It's often useful to have a string representation of a class. In Python, there's
 :    Defines behavior for when `hash()` is called on an instance of your class. It has to return an integer, and its result is used for quick key comparison in dictionaries. Note that this usually entails implementing `__eq__` as well. Live by the following rule: `a == b` implies `hash(a) == hash(b)`.
 
 `__nonzero__(self)`
-:    Defines behavior for when `bool()` is called on an instance of your class. Should return True or False, depending on whether you would want to consider the instance to be True or False.
+:    Defines behavior for when `bool()` is called on an instance of your class. Should return `True` or `False`, depending on whether you would want to consider the instance to be `True` or `False`.
 
 `__dir__(self)`
 :    Defines behavior for when `dir()` is called on an instance of your class. This method should return a list of attributes for the user. Typically, implementing `__dir__` is unnecessary, but it can be vitally important for interactive use of your classes if you redefine `__getattr__` or `__getattribute__` (which you will see in the next section) or are otherwise dynamically generating attributes.
@@ -367,7 +367,7 @@ We're pretty much done with the boring (and example-free) part of the magic meth
 
 ##<a id="access" href="#access">Controlling Attribute Access</a>##
 
-Many people coming to Python from other languages complain that it lacks true encapsulation for classes (e.g. no way to define private attributes and then have public getter and setters). This couldn't be farther than the truth: it just happens that Python accomplishes a great deal of encapsulation through "magic", instead of explicit modifiers for methods or fields. Take a look:
+Many people coming to Python from other languages complain that it lacks true encapsulation for classes; that is, there's no way to define private attributes with public getter and setters. This couldn't be farther than the truth: it just happens that Python accomplishes a great deal of encapsulation through "magic", instead of explicit modifiers for methods or fields. Take a look:
 
 
 `__getattr__(self, name)`
@@ -423,7 +423,7 @@ So, what have we learned about custom attribute access in Python? It's not to be
 
 ##<a id="sequence" href="#sequence">Making Custom Sequences</a>##
 
-There's a number of ways to get your Python classes to act like built in sequences (dict, tuple, list, string, etc.). These are by far my favorite magic methods in Python because of the absurd degree of control they give you and the way that they magically make a whole array of global functions work beautifully on instances of your class. But before we get down to the good stuff, a quick word on requirements.
+There's a number of ways to get your Python classes to act like built in sequences (`dict`, `tuple`, `list`, `str`, etc.). These are by far my favorite magic methods in Python because of the absurd degree of control they give you and the way that they magically make a whole array of global functions work beautifully on instances of your class. But before we get down to the good stuff, a quick word on requirements.
 
 ####Requirements####
 Now that we're talking about creating your own sequences in Python, it's time to talk about _protocols_. Protocols are somewhat similar to interfaces in other languages in that they give you a set of methods you must define. However, in Python protocols are totally informal and require no explicit declarations to implement. Rather, they're more like guidelines.
@@ -561,7 +561,7 @@ A special magic method in Python allows instances of your classes to behave as i
 
 ##<a id="context" href="#context">Context Managers</a>##
 
-In Python 2.5, a new keyword was introduced in Python along with a new method for code reuse, the `with` statement. The concept of context managers was hardly new in Python (it was implemented before as a part of the library), but not until [PEP 343](http://www.python.org/dev/peps/pep-0343/) was accepted did it achieve status as a first class language construct. You may have seen with statements before:
+In Python 2.5, a new keyword was introduced in Python along with a new method for code reuse: the `with` statement. The concept of context managers was hardly new in Python (it was implemented before as a part of the library), but not until [PEP 343](http://www.python.org/dev/peps/pep-0343/) was accepted did it achieve status as a first-class language construct. You may have seen `with` statements before:
 
     :::python
     with open('foo.txt') as bar:
@@ -710,7 +710,7 @@ Now, a few hours later, we want it back. All we have to do is unpickle it:
 
 What happens? Exactly what you expect. It's just like we had `data` all along.
 
-Now, for a word of caution: pickling is not perfect. Pickle files are easily corrupted on accident and on purpose. Pickling may be more secure than using flat text files, but it still can be used to run malicious code. It's also incompatible across versions of Python, so don't expect to distribute pickled objects and expect people to be able to open them. However, it can also be a powerful tool for caching and other common serialization tasks.
+Now, for a word of caution: pickling is not perfect. Pickle files are easily corrupted on accident and on purpose. Pickling may be more secure than using flat text files, but it still can be used to run malicious code. It's also incompatible across different versions of Python, so don't expect to distribute pickled objects and expect people to be able to open them. However, it can also be a powerful tool for caching and other common serialization tasks.
 
 ###Pickling your own Objects###
 
@@ -773,4 +773,4 @@ Our example is a `Slate`, which remembers what its values have been and when tho
 
 ##<a id="conclusion" href="#conclusion">Conclusion</a>##
 
-The goal of this guide is to bring something to anyone that reads it, regardless of their experience with Python or object-oriented programming. If you're just getting started with Python, you've gained valuable knowledge of the basics of writing feature-rich, elegant, and easy-to-use classes. If you're an intermediate Python programmer, you've probably picked up some slick new concepts and strategies and some good ways to reduce the amount of code written by you and clients. If you're an expert Pythonista, you've been refreshed on some of the stuff you might have forgotten about and maybe picked up a few new tricks along the way. Whatever your experience level, I hope that this trip through Python's special methods has been truly magical (I couldn't resist the final pun).
+The goal of this guide is to bring something to anyone that reads it, regardless of their experience with Python or object-oriented programming. If you're just getting started with Python, you've gained valuable knowledge of the basics of writing feature-rich, elegant, and easy-to-use classes. If you're an intermediate Python programmer, you've probably picked up some slick new concepts and strategies and some good ways to reduce the amount of code written by you and clients. If you're an expert Pythonista, you've been refreshed on some of the stuff you might have forgotten about and maybe picked up a few new tricks along the way. Whatever your experience level, I hope that this trip through Python's special methods has been truly magical. (I couldn't resist the final pun!)
