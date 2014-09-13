@@ -491,7 +491,7 @@ For our example, let's look at a list that implements some functional constructs
             return iter(self.values)
 
         def __reversed__(self):
-            return FunctionalList(reversed(self.values))
+            return reversed(self.values)
 
         def append(self, value):
             self.values.append(value)
