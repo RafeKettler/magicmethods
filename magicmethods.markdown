@@ -380,7 +380,7 @@ Many people coming to Python from other languages complain that it lacks true en
 :    This is the exact same as `__setattr__`, but for deleting attributes instead of setting them. The same precautions need to be taken as with `__setattr__` as well in order to prevent infinite recursion (calling `del self.name` in the implementation of `__delattr__` would cause infinite recursion).
 
 `__getattribute__(self, name)`
-:    After all this, `__getattribute__` fits in pretty well with its companions `__setattr__` and `__delattr__`. However, I don't recommend you use it. `__getattribute__` can only be used with new-style classes (all classes are new-style in the newest versions of Python, and in older versions you can make a class new-style by subclassing `object`. It allows you to define rules for whenever an attribute's value is accessed. It suffers from some similar infinite recursion problems as its partners-in-crime (this time you call the base class's `__getattribute__` method to prevent this). It also mainly obviates the need for `__getattr__`, which only gets called when `__getattribute__` is implemented if it is called explicitly or an `AttributeError` is raised. This method can be used (after all, it's your choice), but I don't recommend it because it has a small use case (it's far more rare that we need special behavior to retrieve a value than to assign to it) and because it can be really difficult to implement bug-free.
+:    After all this, `__getattribute__` fits in pretty well with its companions `__setattr__` and `__delattr__`. However, I don't recommend you use it. `__getattribute__` can only be used with new-style classes (all classes are new-style in the newest versions of Python, and in older versions you can make a class new-style by subclassing `object`. It allows you to define rules for whenever an attribute's value is accessed. It suffers from some similar infinite recursion problems as its partners-in-crime (this time you call the base class's `__getattribute__` method to prevent this). It also mainly obviates the need for `__getattr__`, which, when `__getattribute__` is implemented, only gets called if it is called explicitly or an `AttributeError` is raised. This method can be used (after all, it's your choice), but I don't recommend it because it has a small use case (it's far more rare that we need special behavior to retrieve a value than to assign to it) and because it can be really difficult to implement bug-free.
 
 You can easily cause a problem in your definitions of any of the methods controlling attribute access. Consider this example:
 
@@ -543,7 +543,7 @@ A special magic method in Python allows instances of your classes to behave as i
 
 
 
-`__call__` can be particularly useful in classes whose instances that need to often change state. "Calling" the instance can be an intuitive and elegant way to change the object's state. An example might be a class representing an entity's position on a plane:
+`__call__` can be particularly useful in classes with instances that need to often change state. "Calling" the instance can be an intuitive and elegant way to change the object's state. An example might be a class representing an entity's position on a plane:
 
     :::python
     class Entity:
