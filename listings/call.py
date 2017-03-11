@@ -10,4 +10,10 @@ class Entity:
         '''Change the position of the entity.'''
         self.x, self.y = x, y
 
-    # snip...
+    def __repr__(self):
+        return '%s, %s'%(self.x, self.y)
+
+if '__main__' == __name__:
+    e = Entity(2, 1, 0)
+    e(5, 6)
+    print e

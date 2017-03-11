@@ -14,3 +14,11 @@ class Closer:
         except AttributeError: # obj isn't closable
            print 'Not closable.'
            return True # exception handled successfully
+
+if __name__ == '__main__':
+    with Closer(3) as test:
+       test.close()
+    with Closer(open('test.txt', 'a')) as test:
+        test.close()
+    with Closer(2/1) as test:
+        test.close()

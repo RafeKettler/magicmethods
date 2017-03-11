@@ -6,8 +6,11 @@ class FileObject:
     
     def __init__(self, filepath='~', filename='sample.txt'):
         # open a file filename in filepath in read and write mode
-        self.file = open(join(filepath, filename), 'r+')
+        self.file = open(join(filepath, filename), 'a+')
    
     def __del__(self):
         self.file.close()
         del self.file
+
+if __name__ == '__main__':
+    f = FileObject('.')

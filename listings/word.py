@@ -18,3 +18,14 @@ class Word(str):
         return len(self) >= len(other)
     def __le__(self, other):
         return len(self) <= len(other)
+
+if __name__ == '__main__':
+    w1 = Word('a')
+    w2 = Word('bb')
+    w3 = Word('c')
+    print w1, '<=' if w1 <= w2 else '>', w2
+    print w2, '<=' if w2 <= w3 else '>', w3
+    print w1, '<=' if w1 <= w3 else '>', w3
+    print w1, '<' if w1 < w2 else '>=', w2
+    print w2, '<' if w2 <= w3 else '>=', w3
+    print w1, '<' if w1 <= w3 else '>=', w3

@@ -20,4 +20,14 @@ class AccessCounter(object):
         if name == 'value':
             super(AccessCounter, self).__setattr__('counter',
                                                    self.counter + 1)
-        super(AccessCounter, self).__delattr__(name)]
+        super(AccessCounter, self).__delattr__(name)
+
+if __name__ == '__main__':
+    ac = AccessCounter(3)
+    print 'after init', ac.counter
+    ac.value = 4
+    print 'after set value', ac.counter
+    del ac.value
+    print 'after del value', ac.counter
+    ac.value = 5
+    print 'after set value again', ac.counter

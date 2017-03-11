@@ -29,3 +29,14 @@ class Slate:
         # Make self.history = state and last_change and value undefined
         self.history = state
         self.value, self.last_change = None, None
+
+if __name__ == '__main__':
+    from cPickle import dumps, loads
+    s = Slate(0)
+    s.change(1)
+    s.print_changes()
+    print s.value
+    r = dumps(s)
+    s = loads(r)
+    s.print_changes()
+    print s.value

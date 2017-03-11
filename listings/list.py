@@ -48,3 +48,10 @@ class FunctionalList:
     def take(self, n):
         # get first n elements
         return self.values[:n]
+
+if __name__ == '__main__':
+    l = FunctionalList([2])
+    print len(l)
+    l[0] = 1
+    print l[0]
+    del l[0]

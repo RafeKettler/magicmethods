@@ -22,3 +22,10 @@ class Distance(object):
     meter = Meter()
     foot = Foot()
 
+if __name__ == '__main__':
+    d = Distance()
+    print d.meter, d.foot
+    d.meter = 3
+    print d.meter, d.foot
+    d.foot = 3
+    print d.meter, d.foot
