@@ -1,10 +1,10 @@
-docs: magicmethods.html magicmethods.pdf clean
+docs: index.html magicmethods.pdf clean
 
-html: magicmethods.html
+html: index.html
 
 pdf: magicmethods.pdf 
 
-magicmethods.html: table.markdown magicmethods.markdown appendix.markdown
+index.html: table.markdown magicmethods.markdown appendix.markdown
 	python magicmarkdown.py
 
 magicmethods.pdf: magicmethods.tex
