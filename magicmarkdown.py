@@ -40,7 +40,7 @@ body_text = markdown.markdown(body,
                          ['def_list', 'codehilite'])
 appendix_text = markdown.markdown(appendix, ['tables'])
 
-with open('magicmethods.html', 'w') as out:
+with open('index.html', 'w') as out:
     out.write(HEADER)
     out.write(table_text)
     out.write(body_text)
