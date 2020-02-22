@@ -285,6 +285,8 @@ Implements type conversion to an int when the object is used in a slice expressi
 Called when \code{math.trunc(self)} is called. \code{__trunc__} should return the value of \code{self} truncated to an integral type (usually a long).
 \item[\code{__coerce__(self, other)}]
 Method to implement mixed mode arithmetic. \code{__coerce__} should return \code{None} if type conversion is impossible. Otherwise, it should return a pair (2-tuple) of \code{self} and \code{other}, manipulated to have the same type.
+\item[\code{__array__(self)}]
+Implements conversion to a \code{numpy.ndarray}. Useful for making a numeric class serve as a valid input to NumPy functions. For example, a 3D vector class with members \code{x, y, z} can implement \code{def __array__(self): return np.array([self.x, self.y. self.z])}.
 
 \end{description}
 
