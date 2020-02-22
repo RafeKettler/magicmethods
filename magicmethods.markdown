@@ -333,6 +333,9 @@ Python also has an array of magic methods designed to implement behavior for bui
 `__coerce__(self, other)`
 :    Method to implement mixed mode arithmetic. `__coerce__` should return `None` if type conversion is impossible. Otherwise, it should return a pair (2-tuple) of `self` and `other`, manipulated to have the same type.
 
+`__array__(self)`
+:    Implements conversion to a `numpy.ndarray`. Useful for making a numeric class serve as a valid input to NumPy functions. For example, a 3D vector class with members `x, y, z` can implement `def __array__(self): return np.array([self.x, self.y. self.z])`.
+
 
 ##<a id="representations" href="#representations">Representing your Classes</a>##
 
