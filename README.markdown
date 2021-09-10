@@ -1,4 +1,4 @@
-##A guide to Python's magic methods.##
+## A guide to Python's magic methods. ##
 Written by Rafe Kettler in the year 2011.
 
 Licensed under Creative Commons CC--NC-BY-SA (see http://creativecommons.org/licenses/by-nc-sa/3.0/). Basically, noncommercial, requires attribution, must be reproduced with a similar license. 'Nuff said.
