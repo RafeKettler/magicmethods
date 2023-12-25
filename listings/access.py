@@ -20,4 +20,4 @@ class AccessCounter(object):
         if name == 'value':
             super(AccessCounter, self).__setattr__('counter',
                                                    self.counter + 1)
-        super(AccessCounter, self).__delattr__(name)]
+        super(AccessCounter, self).__delattr__(name)
